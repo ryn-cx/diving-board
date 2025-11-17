@@ -1,0 +1,33 @@
+from typing import Any
+
+from diving_board.protocol import DivingBoardProtocol
+
+from .models import Season
+
+
+class SeasonMixin(DivingBoardProtocol):
+    def download_season(
+        self,
+        season_id: int,
+        *,
+        timezone: str = "America%2FLos_Angeles",
+    ) -> dict[str, Any]:
+        return self._get_api_request(
+            "api/v1/view",
+            {"type": "season", "id": season_id, "timezone": timezone},
+        )
+
+    def parse_season(self, data: dict[str, Any], *, update: bool = False) -> Season:
+        if update:
+            return self._parse_response(Season, data, "season")
+
+        return Season.model_validate(data)
+
+    def get_season(
+        self,
+        season_id: int,
+        *,
+        timezone: str = "America%2FLos_Angeles",
+    ) -> Season:
+        data = self.download_season(season_id, timezone=timezone)
+        return self.parse_season(data, update=True)
