@@ -97,7 +97,7 @@ class Data1(BaseModel):
     id: int
     type: str
     universal_link: str | None = Field(None, alias="universalLink")
-    tracking_parameters: list | None = Field(None, alias="trackingParameters")
+    tracking_parameters: list[None] | None = Field(None, alias="trackingParameters")
     title: str
 
 
@@ -192,7 +192,7 @@ class Item(BaseModel):
     thumbnail_url: str | None = Field(None, alias="thumbnailUrl")
     max_height: int | None = Field(None, alias="maxHeight")
     online_playback: str | None = Field(None, alias="onlinePlayback")
-    computed_releases: list | None = Field(None, alias="computedReleases")
+    computed_releases: list[None] | None = Field(None, alias="computedReleases")
     watch_status: str | None = Field(None, alias="watchStatus")
     id: int | None = None
     cover_url: str | None = Field(None, alias="coverUrl")
