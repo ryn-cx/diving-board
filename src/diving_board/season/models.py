@@ -207,6 +207,7 @@ class Item(BaseModel):
         None,
         alias="hasPermissionGrantedOnSignIn",
     )
+    vod_count: str | None = Field(None, alias="vodCount")
 
 
 class Series(BaseModel):

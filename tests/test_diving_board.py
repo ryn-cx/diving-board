@@ -44,8 +44,8 @@ class TestParsing:
 class TestGet:
     def test_get_season(self) -> None:
         """Test getting a season."""
-        client.get_season(18914)
+        client.get_season(19334)
 
     def test_get_other_seasons(self) -> None:
         """Test getting other seasons for a show."""
-        client.get_other_seasons(1081, 19337)
+        client.get_other_seasons(1081, 19334)
