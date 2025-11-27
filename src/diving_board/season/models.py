@@ -346,6 +346,6 @@ class Season(BaseModel):
     model_config = ConfigDict(
         extra="forbid",
     )
-    layout: str
+    layout: int
     elements: list[Element]
     metadata: Metadata

@@ -3,7 +3,7 @@ import logging
 import re
 import uuid
 from pathlib import Path
-from typing import Any
+from typing import Any, override
 
 import requests
 from gapi import (
@@ -124,16 +124,24 @@ class DivingBoard(AbstractGapiClient, SeasonMixin, OtherSeasonsMixin):
 
         return response.json()
 
-    def save_file(self, name: str, data: dict[str, Any]) -> None:
+    @override
+    def save_file(
+        self,
+        name: str,
+        data: dict[str, Any],
+        model_type: str,
+    ) -> None:
         """Add a new test file for a given endpoint."""
         input_folder = FILES_PATH / name
         new_json_path = input_folder / f"{uuid.uuid4()}.json"
         new_json_path.parent.mkdir(parents=True, exist_ok=True)
         new_json_path.write_text(json.dumps(data, indent=2))
 
+    @override
     def update_model(
         self,
         name: str,
+        model_type: str,
         customizations: GapiCustomizations | None = None,
     ) -> None:
         """Update a specific response model based on input data."""
