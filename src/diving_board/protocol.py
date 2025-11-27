@@ -12,7 +12,7 @@ class DivingBoardProtocol(Protocol):
         headers: dict[str, str] | None = None,
     ) -> dict[str, Any]: ...
 
-    def _parse_response[T: RESPONSE_MODELS](
+    def parse_response[T: RESPONSE_MODELS](
         self,
         response_model: type[T],
         data: dict[str, Any],

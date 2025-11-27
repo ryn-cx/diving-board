@@ -19,7 +19,7 @@ class SeasonMixin(DivingBoardProtocol):
 
     def parse_season(self, data: dict[str, Any], *, update: bool = False) -> Season:
         if update:
-            return self._parse_response(Season, data, "season")
+            return self.parse_response(Season, data, "season")
 
         return Season.model_validate(data)
 

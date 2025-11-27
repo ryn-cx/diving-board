@@ -26,7 +26,7 @@ class OtherSeasonsMixin(DivingBoardProtocol):
         update: bool = False,
     ) -> OtherSeasons:
         if update:
-            return self._parse_response(OtherSeasons, data, "other_seasons")
+            return self.parse_response(OtherSeasons, data, "other_seasons")
 
         return OtherSeasons.model_validate(data)
 
