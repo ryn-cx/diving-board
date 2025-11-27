@@ -1,9 +1,8 @@
 import logging
 from typing import Any
 
+from diving_board.other_seasons import models
 from diving_board.protocol import DivingBoardProtocol
-
-from .models import OtherSeasons
 
 logger = logging.getLogger(__name__)
 
@@ -24,12 +23,12 @@ class OtherSeasonsMixin(DivingBoardProtocol):
         data: dict[str, Any],
         *,
         update: bool = False,
-    ) -> OtherSeasons:
+    ) -> models.OtherSeasons:
         if update:
-            return self.parse_response(OtherSeasons, data, "other_seasons")
+            return self.parse_response(models.OtherSeasons, data, "other_seasons")
 
-        return OtherSeasons.model_validate(data)
+        return models.OtherSeasons.model_validate(data)
 
-    def get_other_seasons(self, series_id: int, season_id: int) -> OtherSeasons:
+    def get_other_seasons(self, series_id: int, season_id: int) -> models.OtherSeasons:
         data = self.download_other_seasons(series_id, season_id)
         return self.parse_other_seasons(data, update=True)

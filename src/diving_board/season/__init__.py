@@ -1,8 +1,7 @@
 from typing import Any
 
 from diving_board.protocol import DivingBoardProtocol
-
-from .models import Season
+from diving_board.season import models
 
 
 class SeasonMixin(DivingBoardProtocol):
@@ -17,17 +16,22 @@ class SeasonMixin(DivingBoardProtocol):
             {"type": "season", "id": season_id, "timezone": timezone},
         )
 
-    def parse_season(self, data: dict[str, Any], *, update: bool = False) -> Season:
+    def parse_season(
+        self,
+        data: dict[str, Any],
+        *,
+        update: bool = False,
+    ) -> models.Season:
         if update:
-            return self.parse_response(Season, data, "season")
+            return self.parse_response(models.Season, data, "season")
 
-        return Season.model_validate(data)
+        return models.Season.model_validate(data)
 
     def get_season(
         self,
         season_id: int,
         *,
         timezone: str = "America%2FLos_Angeles",
-    ) -> Season:
+    ) -> models.Season:
         data = self.download_season(season_id, timezone=timezone)
         return self.parse_season(data, update=True)
