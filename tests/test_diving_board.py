@@ -29,16 +29,23 @@ class TestParsing:
         """Test parsing season JSON files."""
         for json_file in self.get_test_files("season"):
             file_content = json.loads(json_file.read_text())
-            parsed = client.parse_season(file_content)
+            parsed = client.parse_season(file_content, update=True)
             dumped = parsed.model_dump(mode="json", by_alias=True, exclude_unset=True)
             assert file_content == dumped
 
-    def test_parse_other_seasons(self) -> None:
-        """Test parsing other seasons JSON files."""
-        for json_file in self.get_test_files("other_seasons"):
+    def test_parse_adjacent_series(self) -> None:
+        """Test parsing adjacent seasons JSON files."""
+        for json_file in self.get_test_files("adjacent_seasons"):
             file_content = json.loads(json_file.read_text())
-            parsed = client.parse_other_seasons(file_content)
+            parsed = client.parse_adjacent_series(file_content, update=True)
             assert file_content == client.dump_response(parsed)
+
+    def test_parse_season_bucket(self) -> None:
+        """Test parsing adjacent seasons JSON files."""
+        for json_file in self.get_test_files("season"):
+            file_content = json.loads(json_file.read_text())
+            parsed = client.parse_season(file_content, update=True)
+            client.parse_season_bucket(parsed, update=True)
 
 
 class TestGet:
@@ -48,4 +55,4 @@ class TestGet:
 
     def test_get_other_seasons(self) -> None:
         """Test getting other seasons for a show."""
-        client.get_other_seasons(1081, 19334)
+        client.get_adjacent_series(1081, 19334)

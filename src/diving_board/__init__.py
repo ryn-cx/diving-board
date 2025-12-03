@@ -13,19 +13,26 @@ from gapi import (
     update_json_schema_and_pydantic_model,
 )
 
+from diving_board.adjacent_series import AdjecentSeariessMixin
+from diving_board.adjacent_series.models import AdjacentSeries
 from diving_board.constants import DIVING_BOARD_PATH, FILES_PATH
 from diving_board.exceptions import HTTPError
-from diving_board.other_seasons import OtherSeasonsMixin
-from diving_board.other_seasons.models import OtherSeasons
 from diving_board.season import SeasonMixin
 from diving_board.season.models import Season
+from diving_board.season_bucket import SeasonBucketMixin
+from diving_board.season_bucket.models import SeasonBucket
 
-RESPONSE_MODELS = OtherSeasons | Season
+RESPONSE_MODELS = AdjacentSeries | Season | SeasonBucket
 
 default_logger = logging.getLogger(__name__)
 
 
-class DivingBoard(AbstractGapiClient, SeasonMixin, OtherSeasonsMixin):
+class DivingBoard(
+    AbstractGapiClient,
+    SeasonMixin,
+    AdjecentSeariessMixin,
+    SeasonBucketMixin,
+):
     def __init__(self, logger: logging.Logger = default_logger) -> None:
         self.logger = logger
         self.api_key = ""

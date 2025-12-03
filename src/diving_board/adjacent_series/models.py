@@ -86,7 +86,7 @@ class WatchOrder(BaseModel):
     following: list[FollowingItem]
 
 
-class OtherSeasons(BaseModel):
+class AdjacentSeries(BaseModel):
     model_config = ConfigDict(
         extra="forbid",
     )

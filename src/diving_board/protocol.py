@@ -1,5 +1,7 @@
 from typing import TYPE_CHECKING, Any, Protocol
 
+from gapi import GapiCustomizations
+
 if TYPE_CHECKING:
     from diving_board.__init__ import RESPONSE_MODELS
 
@@ -17,4 +19,5 @@ class DivingBoardProtocol(Protocol):
         response_model: type[T],
         data: dict[str, Any],
         name: str,
+        customizations: GapiCustomizations | None = None,
     ) -> T: ...
