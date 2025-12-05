@@ -88,25 +88,28 @@ CUSTOMIZATIONS2 = customizations = GapiCustomizations(
     custom_serializers=[
         CustomSerializer(
             class_name="Attributes2",
-            field_name="id",
+            field_name="text",
             serializer_code='strf_string ="%Y-%m-%dT%H:%M"\n'
             "return value.strftime(strf_string)",
         ),
         CustomSerializer(
             class_name="Attributes6",
             field_name="text",
-            serializer_code='strf_string ="%Y-%m-%dT%H:%M"\n'
+            serializer_code="isinstance(value, (str, type(None))):\n"
+            "    return value\n"
+            'strf_string ="%Y-%m-%dT%H:%M"\n'
             "return value.strftime(strf_string)",
         ),
         CustomSerializer(
             class_name="Group",
-            field_name="from_",
+            field_name="id",
             serializer_code='strf_string ="%Y-%m-%dT%H:%M"\n'
             "return value.strftime(strf_string)",
         ),
     ],
     custom_imports=[
         "from pydantic import NaiveDatetime",
+        "from datetime import datetime",
     ],
 )
 
