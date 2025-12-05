@@ -69,7 +69,7 @@ class VodMixin(DivingBoardProtocol):
                                 # Extract the date portion after "Original Premiere: "
                                 date_string = tag.attributes.text
                                 date = date_string.replace("Original Premiere: ", "")
-                                return datetime.fromisoformat(date)
+                                return datetime.strptime(date, "%B %d, %Y").astimezone()
 
         msg = "Original Premiere date not found in VOD data"
         raise ValueError(msg)
