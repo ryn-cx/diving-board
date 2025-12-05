@@ -52,7 +52,7 @@ class Paging(BaseModel):
     last_seen: int
 
 
-class Attributes(BaseModel):
+class SeasonBucketSeason(BaseModel):
     model_config = ConfigDict(
         extra="forbid",
     )
@@ -73,61 +73,3 @@ class Attributes(BaseModel):
     paging: Paging
     text: None
     label: None
-
-
-class Item1(BaseModel):
-    model_config = ConfigDict(
-        extra="forbid",
-    )
-    field_type: None
-    attributes: None
-    title: str
-    access_level: str
-    type: str
-    content_download: ContentDownload
-    description: str
-    long_description: str
-    duration: int
-    thumbnail_url: str
-    max_height: int
-    online_playback: str | None = None
-    computed_releases: list[None]
-    watch_status: str
-    id: int
-    cover_url: None
-    season_count: None
-    small_cover_url: None
-    poster_url: None
-    favourite: None
-    favourite_channel: None
-    has_permission: None
-    is_related: None
-    has_permission_granted_on_sign_in: None
-    vod_count: None
-
-
-class SeasonBucketSeason(BaseModel):
-    model_config = ConfigDict(
-        extra="forbid",
-    )
-    field_type: str | None = None
-    field_zone: str | None = None
-    attributes: Attributes | None = None
-    style: None = None
-    header: None = None
-    image: None = None
-    actions: None = None
-    content: None = None
-    id: int | None = None
-    type: str | None = None
-    active_tab: None = None
-    items: list[Item1] | None = None
-    series: None = None
-    season_id: int | None = None
-    seasons: None = None
-    tab: str | None = None
-    bucket_title: str | None = None
-    series_id: int | None = None
-    paging: Paging | None = None
-    text: None = None
-    label: None = None

@@ -141,16 +141,16 @@ class VodMixin(DivingBoardProtocol):
 
         for element in data.elements:
             if element.field_type == field_type:
-                hero_data = element.model_dump()
+                dumped_element = element.model_dump()
 
                 if update:
                     return self.parse_response(
                         response_model,
-                        hero_data,
+                        dumped_element,
                         f"vod/{field_name}",
                     )
 
-                return response_model.model_validate(hero_data)
+                return response_model.model_validate(dumped_element)
 
         msg = f"No {field_type} element found in VOD data"
         raise ValueError(msg)
