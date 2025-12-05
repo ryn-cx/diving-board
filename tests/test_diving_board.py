@@ -1,5 +1,6 @@
 import json
 from collections.abc import Iterator
+from datetime import datetime, timedelta
 from pathlib import Path
 
 import pytest
@@ -40,12 +41,29 @@ class TestParsing:
             parsed = client.parse_adjacent_series(file_content, update=True)
             assert file_content == client.dump_response(parsed)
 
-    def test_parse_season_bucket(self) -> None:
+    def test_extract_season_bucket_from_season(self) -> None:
         """Test parsing adjacent seasons JSON files."""
         for json_file in self.get_test_files("season"):
             file_content = json.loads(json_file.read_text())
             parsed = client.parse_season(file_content, update=True)
-            client.parse_season_bucket(parsed, update=True)
+            client.extract_season_bucket_from_season(parsed, update=True)
+
+    def test_extract_vods_from_schedule(self) -> None:
+        """Test extracting VODs from schedule JSON files."""
+        for json_file in self.get_test_files("schedule"):
+            file_content = json.loads(json_file.read_text())
+            parsed = client.parse_schedule(file_content, update=True)
+            vods = client.extract_vods_from_schedule(parsed)
+            assert isinstance(vods, list)
+            assert len(vods) > 0
+
+    def test_parse_schedule(self) -> None:
+        """Test parsing schedule JSON files."""
+        for json_file in self.get_test_files("schedule"):
+            file_content = json.loads(json_file.read_text())
+            parsed = client.parse_schedule(file_content, update=True)
+            dumped = parsed.model_dump(mode="json", by_alias=True, exclude_unset=True)
+            assert file_content == dumped
 
 
 class TestGet:
@@ -56,3 +74,13 @@ class TestGet:
     def test_get_other_seasons(self) -> None:
         """Test getting other seasons for a show."""
         client.get_adjacent_series(1081, 19334)
+
+    def test_get_schedule(self) -> None:
+        """Test getting the schedule."""
+        client.get_schedule()
+
+    def test_get_schedule_until_datetime(self) -> None:
+        """Test getting schedule until a specific datetime."""
+        end_datetime = datetime.now().astimezone() + timedelta(days=30)
+        asd = client.get_schedule_until_datetime(end_datetime=end_datetime)
+        assert len(asd) > 1

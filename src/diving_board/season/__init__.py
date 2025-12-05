@@ -9,7 +9,7 @@ class SeasonMixin(DivingBoardProtocol):
         self,
         season_id: int,
         *,
-        timezone: str = "America%2FLos_Angeles",
+        timezone: str = "America/Los_Angeles",
     ) -> dict[str, Any]:
         return self._get_api_request(
             "api/v1/view",
@@ -31,7 +31,7 @@ class SeasonMixin(DivingBoardProtocol):
         self,
         season_id: int,
         *,
-        timezone: str = "America%2FLos_Angeles",
+        timezone: str = "America/Los_Angeles",
     ) -> models.Season:
         data = self.download_season(season_id, timezone=timezone)
         return self.parse_season(data, update=True)

@@ -17,12 +17,14 @@ from diving_board.adjacent_series import AdjecentSeariessMixin
 from diving_board.adjacent_series.models import AdjacentSeries
 from diving_board.constants import DIVING_BOARD_PATH, FILES_PATH
 from diving_board.exceptions import HTTPError
+from diving_board.schedule import ScheduleMixin
+from diving_board.schedule import models as schedule_models
 from diving_board.season import SeasonMixin
 from diving_board.season.models import Season
 from diving_board.season_bucket import SeasonBucketMixin
 from diving_board.season_bucket.models import SeasonBucket
 
-RESPONSE_MODELS = AdjacentSeries | Season | SeasonBucket
+RESPONSE_MODELS = AdjacentSeries | Season | SeasonBucket | schedule_models.Schedule
 
 default_logger = logging.getLogger(__name__)
 
@@ -32,6 +34,7 @@ class DivingBoard(
     SeasonMixin,
     AdjecentSeariessMixin,
     SeasonBucketMixin,
+    ScheduleMixin,
 ):
     def __init__(self, logger: logging.Logger = default_logger) -> None:
         self.logger = logger
@@ -117,7 +120,11 @@ class DivingBoard(
         headers["Realm"] = self._get_realm()
 
         url = f"{self.api_domain}/{endpoint}"
-        self.logger.info("Downloading API data: %s", url)
+
+        # Build URL with params for logging
+        request = requests.Request("GET", url, params=params)
+        prepared = request.prepare()
+        self.logger.info("Downloading API data: %s", prepared.url)
         response = requests.get(
             url=url,
             headers=headers,

@@ -3,8 +3,10 @@ from diving_board.season import models as season_models
 from diving_board.season_bucket import models
 
 
+# Having this as a seperate mixin makes the types more accurate than just returning the
+# model from the season mixin.
 class SeasonBucketMixin(DivingBoardProtocol):
-    def parse_season_bucket(
+    def extract_season_bucket_from_season(
         self,
         data: season_models.Season,
         *,
