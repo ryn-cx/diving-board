@@ -1,8 +1,8 @@
-from typing import Any
+from typing import Any, Literal
 
 from diving_board.protocol import DivingBoardProtocol
 from diving_board.season import models
-from diving_board.season.bucket.season import models as bucket_season_models
+from diving_board.season.bucket import models as bucket_models
 from diving_board.season.series import models as series_models
 
 
@@ -38,26 +38,25 @@ class SeasonMixin(DivingBoardProtocol):
         data = self.download_season(season_id, timezone=timezone)
         return self.parse_season(data, update=True)
 
-    def extract_season_bucket_season(
+    def extract_season_bucket(
         self,
         data: models.Season,
+        subtype: Literal["related", "season"] = "season",
         *,
         update: bool = False,
-    ) -> bucket_season_models.SeasonBucketSeason:
+    ) -> bucket_models.SeasonBucketSeason:
         for element in data.elements:
-            if element.field_type == "bucket" and element.attributes.type == "season":
+            if element.field_type == "bucket" and element.attributes.type == subtype:
                 season_data = element.attributes.model_dump()
 
                 if update:
                     return self.parse_response(
-                        bucket_season_models.SeasonBucketSeason,
+                        bucket_models.SeasonBucketSeason,
                         season_data,
-                        "season/bucket/season",
+                        "season/bucket",
                     )
 
-                return bucket_season_models.SeasonBucketSeason.model_validate(
-                    season_data,
-                )
+                return bucket_models.SeasonBucketSeason.model_validate(season_data)
 
         msg = "No bucket season element found in season data"
         raise ValueError(msg)
@@ -79,9 +78,7 @@ class SeasonMixin(DivingBoardProtocol):
                         "season/series",
                     )
 
-                return series_models.SeasonSeries.model_validate(
-                    season_data,
-                )
+                return series_models.SeasonSeries.model_validate(season_data)
 
         msg = "No bucket season element found in season data"
         raise ValueError(msg)
