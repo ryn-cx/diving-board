@@ -103,6 +103,13 @@ class TestParse:
                 file_content = json.loads(json_file.read_text())
                 client.parse_schedule(file_content, update=True)
 
+        def test_extract_schedule_group_list(self) -> None:
+            """Test parsing adjacent seasons JSON files."""
+            for json_file in self.get_test_files("schedule"):
+                file_content = json.loads(json_file.read_text())
+                parsed = client.parse_schedule(file_content, update=True)
+                client.extract_schedule_group_list(parsed, update=True)
+
 
 class TestGet:
     def test_get_season(self) -> None:

@@ -69,7 +69,7 @@ class SeasonMixin(DivingBoardProtocol):
     ) -> series_models.SeasonSeries:
         for element in data.elements:
             if element.field_type == "series":
-                season_data = element.model_dump()
+                season_data = element.model_dump(mode="json")
 
                 if update:
                     return self.parse_response(

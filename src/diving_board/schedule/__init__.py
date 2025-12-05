@@ -5,6 +5,7 @@ from gapi import CustomField, CustomSerializer, GapiCustomizations
 
 from diving_board.protocol import DivingBoardProtocol
 from diving_board.schedule import models
+from diving_board.schedule.group_list import models as group_list_models
 
 CUSTOMIZATIONS = customizations = GapiCustomizations(
     custom_fields=[
@@ -117,6 +118,7 @@ class ScheduleMixin(DivingBoardProtocol):
         )
         return self.parse_schedule(data, update=True)
 
+    # TODO: Deprecate?
     def extract_schedule_vods(
         self,
         data: models.Schedule
@@ -208,3 +210,25 @@ class ScheduleMixin(DivingBoardProtocol):
                 for video in videos
             ):
                 return all_schedules
+
+    def extract_schedule_group_list(
+        self,
+        data: models.Schedule,
+        *,
+        update: bool = False,
+    ) -> group_list_models.ScheduleGroupList:
+        for element in data.elements:
+            if element.field_type == "groupList":
+                season_data = element.model_dump(mode="json")
+
+                if update:
+                    return self.parse_response(
+                        group_list_models.ScheduleGroupList,
+                        season_data,
+                        "schedule/group_list",
+                    )
+
+                return group_list_models.ScheduleGroupList.model_validate(season_data)
+
+        msg = "No bucket season element found in season data"
+        raise ValueError(msg)
