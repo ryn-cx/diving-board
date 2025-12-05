@@ -61,6 +61,33 @@ CUSTOMIZATIONS = customizations = GapiCustomizations(
     ],
 )
 
+CUSTOMIZATIONS2 = customizations = GapiCustomizations(
+    custom_fields=[
+        # No idea why this is detected as "AwareDatetime | None" when there
+        # are string inputs.
+        CustomField(
+            class_name="Attributes6",
+            field_name="text",
+            new_field="text: AwareDatetime | str | None = None",
+        ),
+        # Need to overrride the default datetime format because these
+        # datetimes are naive.
+        CustomField(
+            class_name="Attributes2",
+            field_name="text",
+            new_field="text: NaiveDatetime",
+        ),
+        CustomField(
+            class_name="Group",
+            field_name="id",
+            new_field="id: NaiveDatetime",
+        ),
+    ],
+    custom_imports=[
+        "from pydantic import NaiveDatetime",
+    ],
+)
+
 
 class ScheduleMixin(DivingBoardProtocol):
     def download_schedule(
@@ -226,6 +253,7 @@ class ScheduleMixin(DivingBoardProtocol):
                         group_list_models.ScheduleGroupList,
                         season_data,
                         "schedule/group_list",
+                        CUSTOMIZATIONS2,
                     )
 
                 return group_list_models.ScheduleGroupList.model_validate(season_data)
