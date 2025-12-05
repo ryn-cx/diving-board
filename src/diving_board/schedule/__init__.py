@@ -119,13 +119,24 @@ class ScheduleMixin(DivingBoardProtocol):
 
     def extract_vods_from_schedule(
         self,
-        data: models.Schedule | list[models.Schedule],
+        data: models.Schedule
+        | list[models.Schedule]
+        | dict[str, Any]
+        | list[dict[str, Any]],
     ) -> list[models.Data5]:
         if isinstance(data, list):
             vods: list[models.Data5] = []
             for schedule in data:
                 vods.extend(self.extract_vods_from_schedule(schedule))
             return vods
+
+        if isinstance(data, dict):
+            data = self.parse_response(
+                models.Schedule,
+                data,
+                "schedule",
+                CUSTOMIZATIONS,
+            )
 
         # ruff says this is the best way even though it's impossible to read...
         return [
