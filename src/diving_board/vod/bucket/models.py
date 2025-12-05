@@ -6,42 +6,28 @@ from __future__ import annotations
 from pydantic import BaseModel, ConfigDict
 
 
-class ContentDownload(BaseModel):
-    model_config = ConfigDict(
-        extra="forbid",
-    )
-    permission: str
-
-
 class Item(BaseModel):
     model_config = ConfigDict(
         extra="forbid",
     )
     field_type: None
     attributes: None
-    title: str
-    access_level: str
+    id: int
     type: str
-    content_download: ContentDownload
+    title: str
     description: str
     long_description: str
-    duration: int
-    thumbnail_url: str
-    max_height: int
-    online_playback: str | None = None
-    computed_releases: list[None]
+    cover_url: str
+    small_cover_url: str
+    season_count: str
+    poster_url: str
+    access_level: str
+    favourite: bool
     watch_status: str
-    id: int
-    cover_url: None
-    season_count: None
-    small_cover_url: None
-    poster_url: None
-    favourite: None
-    favourite_channel: None
-    has_permission: None
-    is_related: None
-    has_permission_granted_on_sign_in: None
-    vod_count: None
+    favourite_channel: str
+    has_permission: bool
+    is_related: bool
+    has_permission_granted_on_sign_in: bool
 
 
 class Paging(BaseModel):
@@ -49,7 +35,7 @@ class Paging(BaseModel):
         extra="forbid",
     )
     more_data_available: bool
-    last_seen: int
+    last_seen: str
 
 
 class Attributes(BaseModel):
@@ -60,22 +46,17 @@ class Attributes(BaseModel):
     image: None
     actions: None
     content: None
-    id: int
     type: str
+    id: None
     active_tab: None
     items: list[Item]
-    series: None
-    season_id: int
-    seasons: None
-    tab: str
-    bucket_title: str
-    series_id: int
-    paging: Paging
     text: None
     label: None
+    tab: str
+    paging: Paging
 
 
-class SeasonBucket(BaseModel):
+class VodBucket(BaseModel):
     model_config = ConfigDict(
         extra="forbid",
     )

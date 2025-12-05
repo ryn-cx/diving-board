@@ -117,7 +117,7 @@ class ScheduleMixin(DivingBoardProtocol):
         )
         return self.parse_schedule(data, update=True)
 
-    def extract_vods_from_schedule(
+    def extract_schedule_vods(
         self,
         data: models.Schedule
         | list[models.Schedule]
@@ -127,7 +127,7 @@ class ScheduleMixin(DivingBoardProtocol):
         if isinstance(data, list):
             vods: list[models.Data5] = []
             for schedule in data:
-                vods.extend(self.extract_vods_from_schedule(schedule))
+                vods.extend(self.extract_schedule_vods(schedule))
             return vods
 
         if isinstance(data, dict):
@@ -202,7 +202,7 @@ class ScheduleMixin(DivingBoardProtocol):
             # The order of the entries is sometimes really weird where an upcoming
             # episode from months in the future will be mixed into the upcoming releases
             # so wait until all videos are past the end_datetime value.
-            videos = self.extract_vods_from_schedule(result)
+            videos = self.extract_schedule_vods(result)
             if videos and all(
                 video.computed_releases[0].scheduled_at >= end_datetime
                 for video in videos

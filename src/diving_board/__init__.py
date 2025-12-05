@@ -14,17 +14,11 @@ from gapi import (
 )
 
 from diving_board.adjacent_series import AdjecentSeariessMixin
-from diving_board.adjacent_series.models import AdjacentSeries
 from diving_board.constants import DIVING_BOARD_PATH, FILES_PATH
 from diving_board.exceptions import HTTPError
 from diving_board.schedule import ScheduleMixin
-from diving_board.schedule import models as schedule_models
 from diving_board.season import SeasonMixin
-from diving_board.season.models import Season
-from diving_board.season_bucket import SeasonBucketMixin
-from diving_board.season_bucket.models import SeasonBucket
-
-RESPONSE_MODELS = AdjacentSeries | Season | SeasonBucket | schedule_models.Schedule
+from diving_board.vod import VodMixin
 
 default_logger = logging.getLogger(__name__)
 
@@ -33,8 +27,8 @@ class DivingBoard(
     AbstractGapiClient,
     SeasonMixin,
     AdjecentSeariessMixin,
-    SeasonBucketMixin,
     ScheduleMixin,
+    VodMixin,
 ):
     def __init__(self, logger: logging.Logger = default_logger) -> None:
         self.logger = logger
@@ -162,7 +156,12 @@ class DivingBoard(
         schema_path = DIVING_BOARD_PATH / f"{name}/schema.json"
         model_path = DIVING_BOARD_PATH / f"{name}/models.py"
         files_path = FILES_PATH / name
-        update_json_schema_and_pydantic_model(files_path, schema_path, model_path, name)
+        update_json_schema_and_pydantic_model(
+            files_path,
+            schema_path,
+            model_path,
+            name.replace("/", "_"),
+        )
         apply_customizations(model_path, customizations)
 
     def files_path(self) -> Path:

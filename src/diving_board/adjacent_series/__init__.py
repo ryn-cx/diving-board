@@ -12,10 +12,11 @@ class AdjecentSeariessMixin(DivingBoardProtocol):
         self,
         series_id: int,
         season_id: int,
+        size: int = 25,
     ) -> dict[str, Any]:
         return self._get_api_request(
             f"api/v4/series/{series_id}/adjacentTo/{season_id}",
-            {"size": 25},
+            {"size": size},
         )
 
     def parse_adjacent_series(
@@ -33,6 +34,7 @@ class AdjecentSeariessMixin(DivingBoardProtocol):
         self,
         series_id: int,
         season_id: int,
+        size: int = 25,
     ) -> models.AdjacentSeries:
-        data = self.download_adjacent_series(series_id, season_id)
+        data = self.download_adjacent_series(series_id, season_id, size)
         return self.parse_adjacent_series(data, update=True)

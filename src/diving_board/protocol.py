@@ -1,9 +1,7 @@
-from typing import TYPE_CHECKING, Any, Protocol
+from typing import Any, Protocol
 
 from gapi import GapiCustomizations
-
-if TYPE_CHECKING:
-    from diving_board.__init__ import RESPONSE_MODELS
+from pydantic import BaseModel
 
 
 class DivingBoardProtocol(Protocol):
@@ -14,7 +12,7 @@ class DivingBoardProtocol(Protocol):
         headers: dict[str, str] | None = None,
     ) -> dict[str, Any]: ...
 
-    def parse_response[T: RESPONSE_MODELS](
+    def parse_response[T: BaseModel](
         self,
         response_model: type[T],
         data: dict[str, Any],

@@ -40,11 +40,9 @@ class Data(BaseModel):
     model_config = ConfigDict(
         extra="forbid",
     )
+    access_level: str = Field(..., alias="accessLevel")
+    licence_ids: list[int] = Field(..., alias="licenceIds")
     id: int
-    video_id: int = Field(..., alias="videoId")
-    series_id: int = Field(..., alias="seriesId")
-    title: str
-    type: str
 
 
 class Action1(BaseModel):
@@ -59,10 +57,10 @@ class Attributes3(BaseModel):
     model_config = ConfigDict(
         extra="forbid",
     )
+    type: str
     has_initial_focus: bool = Field(..., alias="hasInitialFocus")
     text: str
     label: str
-    type: str
     icon: str
     action: Action1
 
@@ -79,7 +77,7 @@ class Attributes5(BaseModel):
     model_config = ConfigDict(
         extra="forbid",
     )
-    text: str
+    text: str | None = None
 
 
 class Tag(BaseModel):
@@ -96,9 +94,6 @@ class Data1(BaseModel):
     )
     id: int
     type: str
-    universal_link: str | None = Field(None, alias="universalLink")
-    tracking_parameters: list[None] | None = Field(None, alias="trackingParameters")
-    title: str
 
 
 class Action2(BaseModel):
@@ -169,37 +164,24 @@ class Attributes7(BaseModel):
     action: Action3
 
 
-class ContentDownload(BaseModel):
-    model_config = ConfigDict(
-        extra="forbid",
-    )
-    permission: str
-
-
 class Item(BaseModel):
     model_config = ConfigDict(
         extra="forbid",
     )
     field_type: str | None = Field(None, alias="$type")
     attributes: Attributes7 | None = None
-    title: str | None = None
-    access_level: str | None = Field(None, alias="accessLevel")
+    id: int | None = None
     type: str | None = None
-    content_download: ContentDownload | None = Field(None, alias="contentDownload")
+    title: str | None = None
     description: str | None = None
     long_description: str | None = Field(None, alias="longDescription")
-    duration: int | None = None
-    thumbnail_url: str | None = Field(None, alias="thumbnailUrl")
-    max_height: int | None = Field(None, alias="maxHeight")
-    online_playback: str | None = Field(None, alias="onlinePlayback")
-    computed_releases: list[None] | None = Field(None, alias="computedReleases")
-    watch_status: str | None = Field(None, alias="watchStatus")
-    id: int | None = None
     cover_url: str | None = Field(None, alias="coverUrl")
-    season_count: str | None = Field(None, alias="seasonCount")
     small_cover_url: str | None = Field(None, alias="smallCoverUrl")
+    season_count: str | None = Field(None, alias="seasonCount")
     poster_url: str | None = Field(None, alias="posterUrl")
+    access_level: str | None = Field(None, alias="accessLevel")
     favourite: bool | None = None
+    watch_status: str | None = Field(None, alias="watchStatus")
     favourite_channel: str | None = Field(None, alias="favouriteChannel")
     has_permission: bool | None = Field(None, alias="hasPermission")
     is_related: bool | None = Field(None, alias="isRelated")
@@ -207,28 +189,6 @@ class Item(BaseModel):
         None,
         alias="hasPermissionGrantedOnSignIn",
     )
-    vod_count: str | None = Field(None, alias="vodCount")
-
-
-class Series(BaseModel):
-    model_config = ConfigDict(
-        extra="forbid",
-    )
-    series_id: int = Field(..., alias="seriesId")
-    title: str
-
-
-class Item1(BaseModel):
-    model_config = ConfigDict(
-        extra="forbid",
-    )
-    title: str
-    description: str
-    long_description: str = Field(..., alias="longDescription")
-    season_number: int = Field(..., alias="seasonNumber")
-    episode_count: int = Field(..., alias="episodeCount")
-    id: int
-    series: Series
 
 
 class Paging(BaseModel):
@@ -236,22 +196,7 @@ class Paging(BaseModel):
         extra="forbid",
     )
     more_data_available: bool = Field(..., alias="moreDataAvailable")
-
-
-class Seasons(BaseModel):
-    model_config = ConfigDict(
-        extra="forbid",
-    )
-    items: list[Item1]
-    paging: Paging
-
-
-class Paging1(BaseModel):
-    model_config = ConfigDict(
-        extra="forbid",
-    )
-    more_data_available: bool = Field(..., alias="moreDataAvailable")
-    last_seen: int | str = Field(..., alias="lastSeen")
+    last_seen: str = Field(..., alias="lastSeen")
 
 
 class Attributes(BaseModel):
@@ -262,19 +207,14 @@ class Attributes(BaseModel):
     image: Image | None = None
     actions: list[Action] | None = None
     content: list[ContentItem] | None = None
-    id: int | None = None
     type: str | None = None
+    id: int | None = None
     active_tab: str | None = Field(None, alias="activeTab")
     items: list[Item] | None = None
-    series: Series | None = None
-    season_id: int | None = Field(None, alias="seasonId")
-    seasons: Seasons | None = None
-    tab: str | None = None
-    bucket_title: str | None = Field(None, alias="bucketTitle")
-    series_id: int | None = Field(None, alias="seriesId")
-    paging: Paging1 | None = None
     text: str | None = None
     label: str | None = None
+    tab: str | None = None
+    paging: Paging | None = None
 
 
 class Desktop(BaseModel):
@@ -325,27 +265,8 @@ class Element(BaseModel):
     style: Style | None = None
 
 
-class CurrentSeason(BaseModel):
+class Vod(BaseModel):
     model_config = ConfigDict(
         extra="forbid",
     )
-    season_id: int = Field(..., alias="seasonId")
-    title: str
-
-
-class Metadata(BaseModel):
-    model_config = ConfigDict(
-        extra="forbid",
-    )
-    type: str
-    series: Series
-    current_season: CurrentSeason = Field(..., alias="currentSeason")
-
-
-class Season(BaseModel):
-    model_config = ConfigDict(
-        extra="forbid",
-    )
-    layout: str
     elements: list[Element]
-    metadata: Metadata
