@@ -52,7 +52,7 @@ class Paging(BaseModel):
     last_seen: int
 
 
-class SeasonBucketSeason(BaseModel):
+class SeasonBucket(BaseModel):
     model_config = ConfigDict(
         extra="forbid",
     )

@@ -44,19 +44,19 @@ class SeasonMixin(DivingBoardProtocol):
         subtype: Literal["related", "season"] = "season",
         *,
         update: bool = False,
-    ) -> bucket_models.SeasonBucketSeason:
+    ) -> bucket_models.SeasonBucket:
         for element in data.elements:
             if element.field_type == "bucket" and element.attributes.type == subtype:
-                season_data = element.attributes.model_dump()
+                season_data = element.attributes.model_dump(mode="json")
 
                 if update:
                     return self.parse_response(
-                        bucket_models.SeasonBucketSeason,
+                        bucket_models.SeasonBucket,
                         season_data,
                         "season/bucket",
                     )
 
-                return bucket_models.SeasonBucketSeason.model_validate(season_data)
+                return bucket_models.SeasonBucket.model_validate(season_data)
 
         msg = "No bucket season element found in season data"
         raise ValueError(msg)
