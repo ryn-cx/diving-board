@@ -77,7 +77,7 @@ class ScheduleMixin(DivingBoardProtocol):
         }
 
         if from_value:
-            params["from"] = from_value.isoformat()
+            params["from"] = from_value.date().isoformat() + "T00:00:00"
 
         if last_seen:
             params["lastSeen"] = last_seen
