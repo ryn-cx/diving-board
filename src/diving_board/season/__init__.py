@@ -3,6 +3,7 @@ from typing import Any
 from diving_board.protocol import DivingBoardProtocol
 from diving_board.season import models
 from diving_board.season.bucket.season import models as bucket_season_models
+from diving_board.season.series import models as series_models
 
 
 class SeasonMixin(DivingBoardProtocol):
@@ -55,6 +56,30 @@ class SeasonMixin(DivingBoardProtocol):
                     )
 
                 return bucket_season_models.SeasonBucketSeason.model_validate(
+                    season_data,
+                )
+
+        msg = "No bucket season element found in season data"
+        raise ValueError(msg)
+
+    def extract_season_series(
+        self,
+        data: models.Season,
+        *,
+        update: bool = False,
+    ) -> series_models.SeasonSeries:
+        for element in data.elements:
+            if element.field_type == "series":
+                season_data = element.model_dump()
+
+                if update:
+                    return self.parse_response(
+                        series_models.SeasonSeries,
+                        season_data,
+                        "season/series",
+                    )
+
+                return series_models.SeasonSeries.model_validate(
                     season_data,
                 )
 

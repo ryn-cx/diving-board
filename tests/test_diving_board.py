@@ -43,6 +43,13 @@ class TestSeason(BaseTest):
             parsed = client.parse_season(file_content, update=True)
             client.extract_season_bucket_season(parsed, update=True)
 
+    def test_extract_season_series(self) -> None:
+        """Test parsing adjacent seasons JSON files."""
+        for json_file in self.get_test_files("season"):
+            file_content = json.loads(json_file.read_text())
+            parsed = client.parse_season(file_content, update=True)
+            client.extract_season_series(parsed, update=True)
+
 
 class TestAdjacentSeries(BaseTest):
     def test_parse_adjacent_series(self) -> None:
