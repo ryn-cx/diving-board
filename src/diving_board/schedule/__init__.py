@@ -83,6 +83,28 @@ CUSTOMIZATIONS2 = customizations = GapiCustomizations(
             new_field="id: NaiveDatetime",
         ),
     ],
+    # All of the NaiveDatetime fields need custom serialization code because
+    # they use an unusual format.
+    custom_serializers=[
+        CustomSerializer(
+            class_name="Attributes2",
+            field_name="id",
+            serializer_code='strf_string ="%Y-%m-%dT%H:%M"\n'
+            "return value.strftime(strf_string)",
+        ),
+        CustomSerializer(
+            class_name="Attributes6",
+            field_name="text",
+            serializer_code='strf_string ="%Y-%m-%dT%H:%M"\n'
+            "return value.strftime(strf_string)",
+        ),
+        CustomSerializer(
+            class_name="Group",
+            field_name="from_",
+            serializer_code='strf_string ="%Y-%m-%dT%H:%M"\n'
+            "return value.strftime(strf_string)",
+        ),
+    ],
     custom_imports=[
         "from pydantic import NaiveDatetime",
     ],
