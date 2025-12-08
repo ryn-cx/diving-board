@@ -23,7 +23,7 @@ class VodMixin(DivingBoardProtocol):
             "id": vod_id,
             "timezone": self.timezone,
         }
-        return self._get_api_request(endpoint, params)
+        return self._download_api_request(endpoint, params)
 
     def parse_vod(
         self,

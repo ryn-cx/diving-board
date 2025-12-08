@@ -159,7 +159,7 @@ class ScheduleMixin(DivingBoardProtocol):
         if last_seen:
             params["lastSeen"] = last_seen
 
-        return self._get_api_request(endpoint, params)
+        return self._download_api_request(endpoint, params)
 
     def parse_schedule(
         self,

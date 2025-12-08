@@ -21,7 +21,7 @@ class AdjecentSeariessMixin(DivingBoardProtocol):
 
         endpoint = f"api/v4/series/{series_id}/adjacentTo/{season_id}"
         params = {"size": size}
-        return self._get_api_request(endpoint, params)
+        return self._download_api_request(endpoint, params)
 
     def parse_adjacent_series(
         self,

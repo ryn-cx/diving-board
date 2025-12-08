@@ -22,7 +22,7 @@ class SeasonMixin(DivingBoardProtocol):
             "id": season_id,
             "timezone": self.timezone,
         }
-        return self._get_api_request(endpoint, parms)
+        return self._download_api_request(endpoint, parms)
 
     def parse_season(
         self,
