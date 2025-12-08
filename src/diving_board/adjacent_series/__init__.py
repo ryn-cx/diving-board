@@ -45,4 +45,4 @@ class AdjecentSeariessMixin(DivingBoardProtocol):
             season_id=season_id,
             size=size,
         )
-        return self.parse_adjacent_series(response, update=True)
+        return self.parse_adjacent_series(response)

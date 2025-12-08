@@ -40,7 +40,7 @@ class SeasonMixin(DivingBoardProtocol):
         season_id: int,
     ) -> models.Season:
         response = self.download_season(season_id)
-        return self.parse_season(response, update=True)
+        return self.parse_season(response)
 
     def extract_season_bucket_related(
         self,

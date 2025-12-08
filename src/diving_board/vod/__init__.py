@@ -38,7 +38,7 @@ class VodMixin(DivingBoardProtocol):
 
     def get_vod(self, vod_id: int) -> models.Vod:
         data = self.download_vod(vod_id)
-        return self.parse_vod(data, update=True)
+        return self.parse_vod(data)
 
     def extract_vod_original_premiere(
         self,

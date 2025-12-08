@@ -190,7 +190,7 @@ class ScheduleMixin(DivingBoardProtocol):
             from_value=from_value,
             last_seen=last_seen,
         )
-        return self.parse_schedule(response, update=True)
+        return self.parse_schedule(response)
 
     def get_schedule_until_datetime(
         self,
