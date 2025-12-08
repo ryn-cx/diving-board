@@ -12,7 +12,6 @@ client = DivingBoard()
 
 
 class BaseTest:
-    # TODO: Do not listify
     def get_test_files(self, endpoint: str) -> Iterator[Path]:
         """Get all JSON test files for a given endpoint."""
         dir_path = FILES_PATH / endpoint
@@ -22,7 +21,6 @@ class BaseTest:
         files = dir_path.glob("*.json")
 
         # Make sure at least 1 file is found
-        files = list(files)
         if not files:
             pytest.fail(f"No test files found in {dir_path}")
 
@@ -35,80 +33,84 @@ class TestParse:
             """Test parsing season JSON files."""
             for json_file in self.get_test_files("season"):
                 file_content = json.loads(json_file.read_text())
-                client.parse_season(file_content, update=True)
+                client.parse_season(file_content)
 
-        def test_extract_season_bucket(self) -> None:
+        def test_extract_season_bucket_related(self) -> None:
             """Test parsing adjacent seasons JSON files."""
             for json_file in self.get_test_files("season"):
                 file_content = json.loads(json_file.read_text())
-                parsed = client.parse_season(file_content, update=True)
-                client.extract_season_bucket(parsed, update=True)
+                parsed = client.parse_season(file_content)
+                client.extract_season_bucket_related(parsed)
+
+        def test_extract_season_bucket_season(self) -> None:
+            """Test parsing adjacent seasons JSON files."""
+            for json_file in self.get_test_files("season"):
+                file_content = json.loads(json_file.read_text())
+                parsed = client.parse_season(file_content)
+                client.extract_season_bucket_season(parsed)
 
         def test_extract_season_series(self) -> None:
             """Test parsing adjacent seasons JSON files."""
             for json_file in self.get_test_files("season"):
                 file_content = json.loads(json_file.read_text())
-                parsed = client.parse_season(file_content, update=True)
-                client.extract_season_series(parsed, update=True)
+                parsed = client.parse_season(file_content)
+                client.extract_season_series(parsed)
 
     class TestAdjacentSeries(BaseTest):
         def test_parse_adjacent_series(self) -> None:
             """Test parsing adjacent seasons JSON files."""
             for json_file in self.get_test_files("adjacent_series"):
                 file_content = json.loads(json_file.read_text())
-                client.parse_adjacent_series(file_content, update=True)
+                client.parse_adjacent_series(file_content)
 
     class TestVods(BaseTest):
-        def test_extract_vods_from_schedule(self) -> None:
-            """Test extracting VODs from schedule JSON files."""
-            for json_file in self.get_test_files("schedule"):
+        def test_parse_vod(self) -> None:
+            """Test extracting hero from VOD JSON files."""
+            for json_file in self.get_test_files("vod"):
                 file_content = json.loads(json_file.read_text())
-                parsed = client.parse_schedule(file_content, update=True)
-                vods = client.extract_schedule_vods(parsed)
-                assert isinstance(vods, list)
-                assert len(vods) > 0
+                client.parse_vod(file_content)
 
         def test_extract_vod_hero(self) -> None:
             """Test extracting hero from VOD JSON files."""
             for json_file in self.get_test_files("vod"):
                 file_content = json.loads(json_file.read_text())
-                parsed = client.parse_vod(file_content, update=True)
-                assert client.extract_vod_hero(parsed, update=True)
+                parsed = client.parse_vod(file_content)
+                assert client.extract_vod_hero(parsed)
 
         def test_extract_vod_bucket(self) -> None:
             """Test extracting bucket from VOD JSON files."""
             for json_file in self.get_test_files("vod"):
                 file_content = json.loads(json_file.read_text())
-                parsed = client.parse_vod(file_content, update=True)
-                assert client.extract_vod_bucket(parsed, update=True)
+                parsed = client.parse_vod(file_content)
+                assert client.extract_vod_bucket(parsed)
 
         def test_extract_vod_tabs(self) -> None:
             """Test extracting tabs from VOD JSON files."""
             for json_file in self.get_test_files("vod"):
                 file_content = json.loads(json_file.read_text())
-                parsed = client.parse_vod(file_content, update=True)
-                assert client.extract_vod_tabs(parsed, update=True)
+                parsed = client.parse_vod(file_content)
+                assert client.extract_vod_tabs(parsed)
 
         def test_extract_vod_text_block(self) -> None:
             """Test extracting text block from VOD JSON files."""
             for json_file in self.get_test_files("vod"):
                 file_content = json.loads(json_file.read_text())
-                parsed = client.parse_vod(file_content, update=True)
-                assert client.extract_vod_text_block(parsed, update=True)
+                parsed = client.parse_vod(file_content)
+                assert client.extract_vod_text_block(parsed)
 
     class TestSchedule(BaseTest):
         def test_parse_schedule(self) -> None:
             """Test parsing schedule JSON files."""
             for json_file in self.get_test_files("schedule"):
                 file_content = json.loads(json_file.read_text())
-                client.parse_schedule(file_content, update=True)
+                client.parse_schedule(file_content)
 
         def test_extract_schedule_group_list(self) -> None:
             """Test parsing adjacent seasons JSON files."""
             for json_file in self.get_test_files("schedule"):
                 file_content = json.loads(json_file.read_text())
-                parsed = client.parse_schedule(file_content, update=True)
-                client.extract_schedule_group_list(parsed, update=True)
+                parsed = client.parse_schedule(file_content)
+                client.extract_schedule_group_list(parsed)
 
 
 class TestGet:

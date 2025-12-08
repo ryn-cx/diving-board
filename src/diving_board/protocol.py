@@ -5,6 +5,8 @@ from pydantic import BaseModel
 
 
 class DivingBoardProtocol(Protocol):
+    timezone: str
+
     def _get_api_request(
         self,
         endpoint: str,

@@ -12,38 +12,35 @@ from diving_board.vod.text_block import models as text_block_models
 
 
 class VodMixin(DivingBoardProtocol):
-    def download_vod(
-        self,
-        vod_id: int,
-        *,
-        timezone: str = "America/Los_Angeles",
-    ) -> dict[str, Any]:
-        return self._get_api_request(
-            "api/v1/view",
-            {"type": "vod", "id": vod_id, "timezone": timezone},
-        )
+    def download_vod(self, vod_id: int) -> dict[str, Any]:
+        # The URL used for the api call can be found on the episode interstitial page:
+        # https://www.hidive.com/interstitial/532182
+        # Example API URL:
+        # https://dce-frontoffice.imggaming.com/api/v1/view?type=vod&id=532182&timezone=America%2FLos_Angeles
+        endpoint = "api/v1/view"
+        params: dict[str, str | int] = {
+            "type": "vod",
+            "id": vod_id,
+            "timezone": self.timezone,
+        }
+        return self._get_api_request(endpoint, params)
 
     def parse_vod(
         self,
         data: dict[str, Any],
         *,
-        update: bool = False,
+        update: bool = True,
     ) -> models.Vod:
         if update:
             return self.parse_response(models.Vod, data, "vod")
 
         return models.Vod.model_validate(data)
 
-    def get_vod(
-        self,
-        vod_id: int,
-        *,
-        timezone: str = "America/Los_Angeles",
-    ) -> models.Vod:
-        data = self.download_vod(vod_id, timezone=timezone)
+    def get_vod(self, vod_id: int) -> models.Vod:
+        data = self.download_vod(vod_id)
         return self.parse_vod(data, update=True)
 
-    def extract_original_premiere_from_vod(
+    def extract_vod_original_premiere(
         self,
         data: models.Vod,
     ) -> datetime:
@@ -78,7 +75,7 @@ class VodMixin(DivingBoardProtocol):
         self,
         data: models.Vod,
         *,
-        update: bool = False,
+        update: bool = True,
     ) -> hero_models.VodHero:
         return self._extract_vod_entry(
             hero_models.VodHero,
@@ -91,7 +88,7 @@ class VodMixin(DivingBoardProtocol):
         self,
         data: models.Vod,
         *,
-        update: bool = False,
+        update: bool = True,
     ) -> bucket_models.VodBucket:
         return self._extract_vod_entry(
             bucket_models.VodBucket,
@@ -104,7 +101,7 @@ class VodMixin(DivingBoardProtocol):
         self,
         data: models.Vod,
         *,
-        update: bool = False,
+        update: bool = True,
     ) -> tabs_models.VodTabs:
         return self._extract_vod_entry(
             tabs_models.VodTabs,
@@ -117,7 +114,7 @@ class VodMixin(DivingBoardProtocol):
         self,
         data: models.Vod,
         *,
-        update: bool = False,
+        update: bool = True,
     ) -> text_block_models.VodTextBlock:
         return self._extract_vod_entry(
             text_block_models.VodTextBlock,
@@ -127,6 +124,8 @@ class VodMixin(DivingBoardProtocol):
             field_name="text_block",
         )
 
+    # TODO: Consider removing requirement for both field_type and field_name and require
+    # only one or the other.
     def _extract_vod_entry[T: BaseModel](
         self,
         response_model: type[T],
@@ -134,7 +133,7 @@ class VodMixin(DivingBoardProtocol):
         data: models.Vod,
         *,
         field_name: str | None = None,
-        update: bool = False,
+        update: bool = True,
     ) -> T:
         if field_name is None:
             field_name = field_type

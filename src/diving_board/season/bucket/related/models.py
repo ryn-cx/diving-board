@@ -6,13 +6,6 @@ from __future__ import annotations
 from pydantic import BaseModel, ConfigDict
 
 
-class ContentDownload(BaseModel):
-    model_config = ConfigDict(
-        extra="forbid",
-    )
-    permission: str
-
-
 class Item(BaseModel):
     model_config = ConfigDict(
         extra="forbid",
@@ -22,26 +15,26 @@ class Item(BaseModel):
     title: str
     access_level: str
     type: str
-    content_download: ContentDownload
+    content_download: None
     description: str
     long_description: str
-    duration: int
-    thumbnail_url: str
-    max_height: int
-    online_playback: str | None = None
-    computed_releases: list[None]
+    duration: None
+    thumbnail_url: None
+    max_height: None
+    online_playback: None
+    computed_releases: None
     watch_status: str
     id: int
-    cover_url: None
-    season_count: None
-    small_cover_url: None
-    poster_url: None
-    favourite: None
-    favourite_channel: None
-    has_permission: None
-    is_related: None
-    has_permission_granted_on_sign_in: None
-    vod_count: None
+    cover_url: str
+    season_count: str | None = None
+    small_cover_url: str
+    poster_url: str
+    favourite: bool
+    favourite_channel: str
+    has_permission: bool
+    is_related: bool
+    has_permission_granted_on_sign_in: bool
+    vod_count: str | None = None
 
 
 class Paging(BaseModel):
@@ -49,10 +42,10 @@ class Paging(BaseModel):
         extra="forbid",
     )
     more_data_available: bool
-    last_seen: int
+    last_seen: str
 
 
-class SeasonBucket(BaseModel):
+class SeasonBucketRelated(BaseModel):
     model_config = ConfigDict(
         extra="forbid",
     )
@@ -60,7 +53,7 @@ class SeasonBucket(BaseModel):
     image: None
     actions: None
     content: None
-    id: int
+    id: None
     type: str
     active_tab: None
     items: list[Item]

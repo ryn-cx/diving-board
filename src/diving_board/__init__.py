@@ -1,26 +1,21 @@
-import json
 import logging
 import re
-import uuid
 from pathlib import Path
 from typing import Any, override
 
 import requests
-from gapi import (
-    AbstractGapiClient,
-    GapiCustomizations,
-    apply_customizations,
-    update_json_schema_and_pydantic_model,
-)
+from gapi import AbstractGapiClient
 
 from diving_board.adjacent_series import AdjecentSeariessMixin
-from diving_board.constants import DIVING_BOARD_PATH, FILES_PATH
+from diving_board.constants import DIVING_BOARD_PATH
 from diving_board.exceptions import HTTPError
 from diving_board.schedule import ScheduleMixin
 from diving_board.season import SeasonMixin
 from diving_board.vod import VodMixin
 
 default_logger = logging.getLogger(__name__)
+
+TIMEOUT = 30
 
 
 class DivingBoard(
@@ -30,74 +25,90 @@ class DivingBoard(
     ScheduleMixin,
     VodMixin,
 ):
-    def __init__(self, logger: logging.Logger = default_logger) -> None:
+    @override
+    def client_path(self) -> Path:
+        return DIVING_BOARD_PATH
+
+    def __init__(
+        self,
+        timezone: str = "America/Los_Angeles",
+        logger: logging.Logger = default_logger,
+    ) -> None:
+        self.timezone = timezone
         self.logger = logger
-        self.api_key = ""
+
+        self.cached_api_key = ""
         self.public_token = ""
         self.access_token = ""
+        self.cached_authorization_token = ""
+        self.cached_realm = ""
+
+        # TODO: Implement actually using refresh_token.
         self.refresh_token = ""
-        self.authorization_token = ""
-        self.realm = ""
+
         self.api_domain = "https://dce-frontoffice.imggaming.com"
         self.domain = "https://www.hidive.com"
+        super().__init__()
 
     def _get_api_key(self) -> str:
-        if self.api_key:
-            return self.api_key
-
         url = f"{self.domain}/code/js/app.8decd4739abfe3a59a45.js"
         self.logger.info("Downloading api key: %s", url)
-        response = requests.get(
-            url,
-            headers={
-                "Origin": self.domain,
-                "Referer": self.domain,
-            },
-            timeout=30,
-        )
+        headers = {"Origin": self.domain, "Referer": self.domain}
+        response = requests.get(url, headers=headers, timeout=TIMEOUT)
         response_text = response.text
 
         if not (match := re.search(r'API_KEY:"([0-9a-f-]+)"', response_text)):
             msg = "Failed to extract token from bundle.js"
             raise ValueError(msg)
 
-        self.api_key = match.group(1)
-        return self.api_key
+        self.cached_api_key = match.group(1)
+        return self.cached_api_key
 
-    def _get_second_layer_authorization(self) -> str:
+    def _api_key(self) -> str:
+        if not self.cached_api_key:
+            self._get_api_key()
+
+        return self.cached_api_key
+
+    def _get_authorization(self) -> None:
         """Get various authorization tokens from the second layer of authentication."""
         url = (
-            f"{self.api_domain}/api/v1/init/?lk=language&pk=subTitleLanguage"
-            "&pk=audioLanguage&pk=autoAdvance&pk=pluginAccessTokens&pk=videoBackgroundAutoPlay"
-            "&readLicences=true&countEvents=LIVE&menuTargetPlatform=WEB&readIconStore=ENABLED"
+            f"{self.api_domain}/api/v1/init/"
+            "?lk=language"
+            "&pk=subTitleLanguage"
+            "&pk=audioLanguage"
+            "&pk=autoAdvance"
+            "&pk=pluginAccessTokens"
+            "&pk=videoBackgroundAutoPlay"
+            "&readLicences=true"
+            "&countEvents=LIVE"
+            "&menuTargetPlatform=WEB"
+            "&readIconStore=ENABLED"
         )
         self.logger.info("Downloading second auth layer: %s", url)
-        response = requests.get(
-            url,
-            headers={
-                "Origin": self.domain,
-                "Referer": self.domain,
-                "x-api-key": self._get_api_key(),
-            },
-            timeout=30,
-        )
+        headers = {
+            "Origin": self.domain,
+            "Referer": self.domain,
+            "x-api-key": self._api_key(),
+        }
+        response = requests.get(url, headers=headers, timeout=TIMEOUT)
         json_response = response.json()
-        self.authorization_token = json_response["authentication"]["authorisationToken"]
-        self.refresh_token = json_response["authentication"]["refreshToken"]
-        self.realm = json_response["settings"]["realm"]
-        return self.authorization_token
+        self.cached_realm = json_response["settings"]["realm"]
+        authentication = json_response["authentication"]
+        self.cached_authorization_token = authentication["authorisationToken"]
+        self.refresh_token = authentication["refreshToken"]
 
-    def _get_authorization_bearer(self) -> str:
-        if not self.authorization_token:
-            self._get_second_layer_authorization()
+    def _authorization_token(self) -> str:
+        if not self.cached_authorization_token:
+            self._get_authorization()
 
-        return self.authorization_token
+        return self.cached_authorization_token
 
-    def _get_realm(self) -> str:
-        if not self.realm:
-            self._get_second_layer_authorization()
+    def _realm(self) -> str:
+        if not self.cached_realm:
+            self._get_authorization()
 
-        return self.realm
+        return self.cached_realm
 
     def _get_api_request(
         self,
@@ -107,15 +118,14 @@ class DivingBoard(
     ) -> dict[str, Any]:
         if headers is None:
             headers = {}
-        headers["authorization"] = f"Bearer {self._get_authorization_bearer()}"
-        headers["x-api-key"] = self._get_api_key()
+        headers["authorization"] = f"Bearer {self._authorization_token()}"
+        headers["x-api-key"] = self._api_key()
         headers["Origin"] = self.domain
         headers["Referer"] = self.domain
-        headers["Realm"] = self._get_realm()
+        headers["Realm"] = self._realm()
 
         url = f"{self.api_domain}/{endpoint}"
 
-        # Build URL with params for logging
         request = requests.Request("GET", url, params=params)
         prepared = request.prepare()
         self.logger.info("Downloading API data: %s", prepared.url)
@@ -123,7 +133,7 @@ class DivingBoard(
             url=url,
             headers=headers,
             params=params,
-            timeout=30,
+            timeout=TIMEOUT,
         )
 
         if response.status_code != 200:  # noqa: PLR2004
@@ -131,39 +141,3 @@ class DivingBoard(
             raise HTTPError(msg)
 
         return response.json()
-
-    @override
-    def save_file(
-        self,
-        name: str,
-        data: dict[str, Any],
-        model_type: str,
-    ) -> None:
-        """Add a new test file for a given endpoint."""
-        input_folder = FILES_PATH / name
-        new_json_path = input_folder / f"{uuid.uuid4()}.json"
-        new_json_path.parent.mkdir(parents=True, exist_ok=True)
-        new_json_path.write_text(json.dumps(data, indent=2))
-
-    @override
-    def update_model(
-        self,
-        name: str,
-        model_type: str,
-        customizations: GapiCustomizations | None = None,
-    ) -> None:
-        """Update a specific response model based on input data."""
-        schema_path = DIVING_BOARD_PATH / f"{name}/schema.json"
-        model_path = DIVING_BOARD_PATH / f"{name}/models.py"
-        files_path = FILES_PATH / name
-        update_json_schema_and_pydantic_model(
-            files_path,
-            schema_path,
-            model_path,
-            name.replace("/", "_"),
-        )
-        apply_customizations(model_path, customizations)
-
-    def files_path(self) -> Path:
-        """Get the path to the files directory."""
-        return FILES_PATH

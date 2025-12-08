@@ -32,9 +32,8 @@ class Image(BaseModel):
     model_config = ConfigDict(
         extra="forbid",
     )
-    field_type: str | None = None
+    field_type: str
     attributes: Attributes2
-    field_atype: str | None = None
 
 
 class Data(BaseModel):
