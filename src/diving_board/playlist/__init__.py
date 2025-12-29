@@ -39,7 +39,7 @@ class PlaylistMixin(DivingBoardProtocol):
         response = self.download_playlist(playlist_id)
         return self.parse_playlist(response)
 
-    def extract_season_bucket_playlist(
+    def extract_playlist_bucket_playlist(
         self,
         data: models.Playlist,
         *,

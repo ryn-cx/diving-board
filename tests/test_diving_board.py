@@ -68,7 +68,7 @@ class TestParsing:
             for json_file in self.get_test_files("playlist"):
                 file_content = json.loads(json_file.read_text())
                 parsed = client.parse_playlist(file_content)
-                client.extract_season_bucket_playlist(parsed)
+                client.extract_playlist_bucket_playlist(parsed)
 
     class TestAdjacentSeries(BaseTest):
         def test_parse_adjacent_series(self) -> None:
