@@ -27,7 +27,7 @@ class BaseTest:
         return files
 
 
-class TestParse:
+class TestParsing:
     class TestSeason(BaseTest):
         def test_parse_season(self) -> None:
             """Test parsing season JSON files."""
@@ -55,6 +55,20 @@ class TestParse:
                 file_content = json.loads(json_file.read_text())
                 parsed = client.parse_season(file_content)
                 client.extract_season_series(parsed)
+
+    class TestPlaylist(BaseTest):
+        def test_parse_playlist(self) -> None:
+            """Test parsing playlist JSON files."""
+            for json_file in self.get_test_files("playlist"):
+                file_content = json.loads(json_file.read_text())
+                client.parse_playlist(file_content)
+
+        def test_extract_season_bucket_playlist(self) -> None:
+            """Test parsing adjacent seasons JSON files."""
+            for json_file in self.get_test_files("playlist"):
+                file_content = json.loads(json_file.read_text())
+                parsed = client.parse_playlist(file_content)
+                client.extract_season_bucket_playlist(parsed)
 
     class TestAdjacentSeries(BaseTest):
         def test_parse_adjacent_series(self) -> None:
@@ -117,6 +131,10 @@ class TestGet:
     def test_get_season(self) -> None:
         """Test getting a season."""
         client.get_season(19334)
+
+    def test_get_playlist(self) -> None:
+        """Test getting a playlist."""
+        client.get_playlist(20431)
 
     def test_get_adjacent_series(self) -> None:
         """Test getting other seasons for a show."""

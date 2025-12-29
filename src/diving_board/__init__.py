@@ -9,6 +9,7 @@ from gapi import AbstractGapiClient
 from diving_board.adjacent_series import AdjecentSeariessMixin
 from diving_board.constants import DIVING_BOARD_PATH
 from diving_board.exceptions import HTTPError
+from diving_board.playlist import PlaylistMixin
 from diving_board.schedule import ScheduleMixin
 from diving_board.season import SeasonMixin
 from diving_board.vod import VodMixin
@@ -24,6 +25,7 @@ class DivingBoard(
     AdjecentSeariessMixin,
     ScheduleMixin,
     VodMixin,
+    PlaylistMixin,
 ):
     @override
     def client_path(self) -> Path:
