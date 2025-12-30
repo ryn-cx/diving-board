@@ -140,7 +140,11 @@ class VodMixin(DivingBoardProtocol):
 
         for element in data.elements:
             if element.field_type == field_type:
-                dumped_element = element.model_dump(mode="json")
+                dumped_element = element.model_dump(
+                    mode="json",
+                    by_alias=True,
+                    exclude_unset=True,
+                )
 
                 if update:
                     return self.parse_response(

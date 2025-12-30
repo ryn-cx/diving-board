@@ -43,6 +43,8 @@ class Data(BaseModel):
     access_level: str = Field(..., alias="accessLevel")
     licence_ids: list[int] = Field(..., alias="licenceIds")
     id: int
+    title: str
+    type: str
 
 
 class Action1(BaseModel):
@@ -93,6 +95,7 @@ class Data1(BaseModel):
         extra="forbid",
     )
     id: int
+    title: str
     type: str
 
 
@@ -129,7 +132,18 @@ class Attributes4(BaseModel):
     )
     tags: list[Tag] | None = None
     text: str | None = None
+    id: int | None = None
+    progress: None = None
+    duration: int | None = None
+    watch_status: str | None = Field(None, alias="watchStatus")
     buttons: list[Button] | None = None
+
+
+class Style(BaseModel):
+    model_config = ConfigDict(
+        extra="forbid",
+    )
+    display: str
 
 
 class ContentItem(BaseModel):
@@ -138,6 +152,7 @@ class ContentItem(BaseModel):
     )
     field_type: str = Field(..., alias="$type")
     attributes: Attributes4
+    style: Style | None = None
 
 
 class Data2(BaseModel):
@@ -164,6 +179,13 @@ class Attributes7(BaseModel):
     action: Action3
 
 
+class ContentDownload(BaseModel):
+    model_config = ConfigDict(
+        extra="forbid",
+    )
+    permission: str
+
+
 class Item(BaseModel):
     model_config = ConfigDict(
         extra="forbid",
@@ -175,6 +197,7 @@ class Item(BaseModel):
     title: str | None = None
     description: str | None = None
     long_description: str | None = Field(None, alias="longDescription")
+    content_download: ContentDownload | None = Field(None, alias="contentDownload")
     cover_url: str | None = Field(None, alias="coverUrl")
     small_cover_url: str | None = Field(None, alias="smallCoverUrl")
     season_count: str | None = Field(None, alias="seasonCount")
@@ -189,6 +212,14 @@ class Item(BaseModel):
         None,
         alias="hasPermissionGrantedOnSignIn",
     )
+
+
+class GroupName(BaseModel):
+    model_config = ConfigDict(
+        extra="forbid",
+    )
+    text: str
+    label: str
 
 
 class Paging(BaseModel):
@@ -214,6 +245,8 @@ class Attributes(BaseModel):
     text: str | None = None
     label: str | None = None
     tab: str | None = None
+    bucket_title: str | None = Field(None, alias="bucketTitle")
+    group_name: GroupName | None = Field(None, alias="groupName")
     paging: Paging | None = None
 
 
@@ -245,7 +278,7 @@ class Tablet(BaseModel):
     display: str
 
 
-class Style(BaseModel):
+class Style1(BaseModel):
     model_config = ConfigDict(
         extra="forbid",
     )
@@ -262,7 +295,7 @@ class Element(BaseModel):
     field_type: str = Field(..., alias="$type")
     field_zone: str = Field(..., alias="$zone")
     attributes: Attributes
-    style: Style | None = None
+    style: Style1 | None = None
 
 
 class Vod(BaseModel):

@@ -3,66 +3,68 @@
 
 from __future__ import annotations
 
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field
+
+
+class ContentDownload(BaseModel):
+    model_config = ConfigDict(
+        extra="forbid",
+    )
+    permission: str
 
 
 class Item(BaseModel):
     model_config = ConfigDict(
         extra="forbid",
     )
-    field_type: None
-    attributes: None
     title: str
-    access_level: str
+    access_level: str = Field(..., alias="accessLevel")
     type: str
-    content_download: None
+    content_download: ContentDownload = Field(..., alias="contentDownload")
     description: str
-    long_description: str
-    duration: None
-    thumbnail_url: None
-    max_height: None
-    online_playback: None
-    computed_releases: None
-    watch_status: str
+    long_description: str = Field(..., alias="longDescription")
+    watch_status: str = Field(..., alias="watchStatus")
     id: int
-    cover_url: str
-    season_count: str | None = None
-    small_cover_url: str
-    poster_url: str
+    cover_url: str = Field(..., alias="coverUrl")
+    season_count: str | None = Field(None, alias="seasonCount")
+    small_cover_url: str = Field(..., alias="smallCoverUrl")
+    poster_url: str = Field(..., alias="posterUrl")
     favourite: bool
-    favourite_channel: str
-    has_permission: bool
-    is_related: bool
-    has_permission_granted_on_sign_in: bool
-    vod_count: str | None = None
+    favourite_channel: str = Field(..., alias="favouriteChannel")
+    has_permission: bool = Field(..., alias="hasPermission")
+    is_related: bool = Field(..., alias="isRelated")
+    has_permission_granted_on_sign_in: bool = Field(
+        ...,
+        alias="hasPermissionGrantedOnSignIn",
+    )
+    vod_count: str | None = Field(None, alias="vodCount")
 
 
 class Paging(BaseModel):
     model_config = ConfigDict(
         extra="forbid",
     )
-    more_data_available: bool
-    last_seen: str
+    more_data_available: bool = Field(..., alias="moreDataAvailable")
+    last_seen: str = Field(..., alias="lastSeen")
+
+
+class GroupName(BaseModel):
+    model_config = ConfigDict(
+        extra="forbid",
+    )
+    text: str
+    label: str
 
 
 class SeasonBucketRelated(BaseModel):
     model_config = ConfigDict(
         extra="forbid",
     )
-    header: None
-    image: None
-    actions: None
-    content: None
-    id: None
     type: str
-    active_tab: None
     items: list[Item]
-    series: None
-    season_id: int
-    seasons: None
     tab: str
-    bucket_title: str
-    series_id: int
+    season_id: int = Field(..., alias="seasonId")
+    bucket_title: str = Field(..., alias="bucketTitle")
+    series_id: int = Field(..., alias="seriesId")
     paging: Paging
-    text: None
-    label: None
+    group_name: GroupName = Field(..., alias="groupName")

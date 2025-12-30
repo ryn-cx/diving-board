@@ -36,13 +36,23 @@ class Image(BaseModel):
     attributes: Attributes2
 
 
+class Token(BaseModel):
+    model_config = ConfigDict(
+        extra="forbid",
+    )
+    key: str
+    value: str
+
+
 class Data(BaseModel):
     model_config = ConfigDict(
         extra="forbid",
     )
-    access_level: str = Field(..., alias="accessLevel")
-    licence_ids: list[int] = Field(..., alias="licenceIds")
     id: int
+    video_id: int = Field(..., alias="videoId")
+    online_playback: str = Field(..., alias="onlinePlayback")
+    access_level: str = Field(..., alias="accessLevel")
+    series_id: int = Field(..., alias="seriesId")
     title: str
     type: str
 
@@ -59,10 +69,11 @@ class Attributes3(BaseModel):
     model_config = ConfigDict(
         extra="forbid",
     )
-    type: str
     has_initial_focus: bool = Field(..., alias="hasInitialFocus")
     text: str
     label: str
+    tokens: list[Token]
+    type: str
     icon: str
     action: Action1
 
@@ -79,7 +90,7 @@ class Attributes5(BaseModel):
     model_config = ConfigDict(
         extra="forbid",
     )
-    text: str | None = None
+    text: str
 
 
 class Tag(BaseModel):
@@ -95,8 +106,10 @@ class Data1(BaseModel):
         extra="forbid",
     )
     id: int
-    title: str
     type: str
+    universal_link: str | None = Field(None, alias="universalLink")
+    tracking_parameters: list[None] | None = Field(None, alias="trackingParameters")
+    title: str
 
 
 class Action2(BaseModel):
@@ -132,18 +145,7 @@ class Attributes4(BaseModel):
     )
     tags: list[Tag] | None = None
     text: str | None = None
-    id: int | None = None
-    progress: None = None
-    duration: int | None = None
-    watch_status: str | None = Field(None, alias="watchStatus")
     buttons: list[Button] | None = None
-
-
-class Style(BaseModel):
-    model_config = ConfigDict(
-        extra="forbid",
-    )
-    display: str
 
 
 class ContentItem(BaseModel):
@@ -152,7 +154,6 @@ class ContentItem(BaseModel):
     )
     field_type: str = Field(..., alias="$type")
     attributes: Attributes4
-    style: Style | None = None
 
 
 class Attributes(BaseModel):
@@ -165,7 +166,7 @@ class Attributes(BaseModel):
     content: list[ContentItem]
 
 
-class VodHero(BaseModel):
+class SeasonHero(BaseModel):
     model_config = ConfigDict(
         extra="forbid",
     )

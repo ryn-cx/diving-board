@@ -36,12 +36,22 @@ class Image(BaseModel):
     attributes: Attributes2
 
 
+class Token(BaseModel):
+    model_config = ConfigDict(
+        extra="forbid",
+    )
+    key: str
+    value: str
+
+
 class Data(BaseModel):
     model_config = ConfigDict(
         extra="forbid",
     )
     id: int
     video_id: int = Field(..., alias="videoId")
+    online_playback: str = Field(..., alias="onlinePlayback")
+    access_level: str = Field(..., alias="accessLevel")
     series_id: int = Field(..., alias="seriesId")
     title: str
     type: str
@@ -62,6 +72,7 @@ class Attributes3(BaseModel):
     has_initial_focus: bool = Field(..., alias="hasInitialFocus")
     text: str
     label: str
+    tokens: list[Token]
     type: str
     icon: str
     action: Action1
@@ -254,6 +265,14 @@ class Paging1(BaseModel):
     last_seen: int | str = Field(..., alias="lastSeen")
 
 
+class GroupName(BaseModel):
+    model_config = ConfigDict(
+        extra="forbid",
+    )
+    text: str
+    label: str
+
+
 class Attributes(BaseModel):
     model_config = ConfigDict(
         extra="forbid",
@@ -266,15 +285,17 @@ class Attributes(BaseModel):
     type: str | None = None
     active_tab: str | None = Field(None, alias="activeTab")
     items: list[Item] | None = None
+    tab: str | None = None
     series: Series | None = None
     season_id: int | None = Field(None, alias="seasonId")
     seasons: Seasons | None = None
-    tab: str | None = None
+    row_position: int | None = Field(None, alias="rowPosition")
     bucket_title: str | None = Field(None, alias="bucketTitle")
     series_id: int | None = Field(None, alias="seriesId")
     paging: Paging1 | None = None
     text: str | None = None
     label: str | None = None
+    group_name: GroupName | None = Field(None, alias="groupName")
 
 
 class Desktop(BaseModel):
@@ -333,6 +354,14 @@ class CurrentSeason(BaseModel):
     title: str
 
 
+class CurrentVod(BaseModel):
+    model_config = ConfigDict(
+        extra="forbid",
+    )
+    season_id: int = Field(..., alias="seasonId")
+    title: str
+
+
 class Metadata(BaseModel):
     model_config = ConfigDict(
         extra="forbid",
@@ -340,6 +369,7 @@ class Metadata(BaseModel):
     type: str
     series: Series
     current_season: CurrentSeason = Field(..., alias="currentSeason")
+    current_vod: CurrentVod = Field(..., alias="currentVod")
 
 
 class Season(BaseModel):

@@ -66,7 +66,11 @@ class PlaylistMixin(DivingBoardProtocol):
                 element.field_type == "bucket"
                 and element.attributes.type == attribute_type
             ):
-                season_data = element.attributes.model_dump(mode="json")
+                season_data = element.attributes.model_dump(
+                    mode="json",
+                    by_alias=True,
+                    exclude_unset=True,
+                )
 
                 if update:
                     return self.parse_response(

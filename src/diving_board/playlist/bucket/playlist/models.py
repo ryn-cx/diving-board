@@ -3,7 +3,7 @@
 
 from __future__ import annotations
 
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field
 
 
 class ContentDownload(BaseModel):
@@ -17,62 +17,38 @@ class Item(BaseModel):
     model_config = ConfigDict(
         extra="forbid",
     )
-    field_type: None
-    attributes: None
-    title: str
-    access_level: str
-    type: str
-    content_download: ContentDownload
-    description: str
-    long_description: str
-    duration: str
-    thumbnail_url: str
-    max_height: int
-    online_playback: None
-    computed_releases: list[None]
-    watch_status: str
     id: int
-    cover_url: None
-    season_count: None
-    small_cover_url: None
-    poster_url: str
-    favourite: None
-    favourite_channel: None
-    has_permission: None
-    is_related: None
-    has_permission_granted_on_sign_in: None
-    vod_count: None
-    licence_ids: list[int]
+    type: str
+    access_level: str = Field(..., alias="accessLevel")
+    licence_ids: list[int] = Field(..., alias="licenceIds")
+    description: str
+    long_description: str = Field(..., alias="longDescription")
+    thumbnail_url: str = Field(..., alias="thumbnailUrl")
+    max_height: int = Field(..., alias="maxHeight")
+    computed_releases: list[None] = Field(..., alias="computedReleases")
+    poster_url: str = Field(..., alias="posterUrl")
+    duration: str
+    content_download: ContentDownload = Field(..., alias="contentDownload")
+    watch_status: str = Field(..., alias="watchStatus")
+    title: str
 
 
 class Paging(BaseModel):
     model_config = ConfigDict(
         extra="forbid",
     )
-    more_data_available: bool
-    last_seen: int
+    more_data_available: bool = Field(..., alias="moreDataAvailable")
+    last_seen: int = Field(..., alias="lastSeen")
 
 
 class PlaylistBucketPlaylist(BaseModel):
     model_config = ConfigDict(
         extra="forbid",
     )
-    header: None
-    image: None
-    actions: None
-    content: None
     id: int
     type: str
-    active_tab: None
     items: list[Item]
-    series: None
-    season_id: None
-    seasons: None
     tab: str
-    bucket_title: str
-    series_id: None
+    row_position: int = Field(..., alias="rowPosition")
+    bucket_title: str = Field(..., alias="bucketTitle")
     paging: Paging
-    text: None
-    label: None
-    row_position: int
-    group_name: None

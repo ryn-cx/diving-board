@@ -3,56 +3,67 @@
 
 from __future__ import annotations
 
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field
+
+
+class ContentDownload(BaseModel):
+    model_config = ConfigDict(
+        extra="forbid",
+    )
+    permission: str
 
 
 class Item(BaseModel):
     model_config = ConfigDict(
         extra="forbid",
     )
-    field_type: None
-    attributes: None
     id: int
     type: str
     title: str
     description: str
-    long_description: str
-    cover_url: str
-    small_cover_url: str
-    season_count: str
-    poster_url: str
-    access_level: str
+    long_description: str = Field(..., alias="longDescription")
+    content_download: ContentDownload = Field(..., alias="contentDownload")
+    cover_url: str = Field(..., alias="coverUrl")
+    small_cover_url: str = Field(..., alias="smallCoverUrl")
+    season_count: str = Field(..., alias="seasonCount")
+    poster_url: str = Field(..., alias="posterUrl")
+    access_level: str = Field(..., alias="accessLevel")
     favourite: bool
-    watch_status: str
-    favourite_channel: str
-    has_permission: bool
-    is_related: bool
-    has_permission_granted_on_sign_in: bool
+    watch_status: str = Field(..., alias="watchStatus")
+    favourite_channel: str = Field(..., alias="favouriteChannel")
+    has_permission: bool = Field(..., alias="hasPermission")
+    is_related: bool = Field(..., alias="isRelated")
+    has_permission_granted_on_sign_in: bool = Field(
+        ...,
+        alias="hasPermissionGrantedOnSignIn",
+    )
+
+
+class GroupName(BaseModel):
+    model_config = ConfigDict(
+        extra="forbid",
+    )
+    text: str
+    label: str
 
 
 class Paging(BaseModel):
     model_config = ConfigDict(
         extra="forbid",
     )
-    more_data_available: bool
-    last_seen: str
+    more_data_available: bool = Field(..., alias="moreDataAvailable")
+    last_seen: str = Field(..., alias="lastSeen")
 
 
 class Attributes(BaseModel):
     model_config = ConfigDict(
         extra="forbid",
     )
-    header: None
-    image: None
-    actions: None
-    content: None
     type: str
-    id: None
-    active_tab: None
     items: list[Item]
-    text: None
-    label: None
     tab: str
+    bucket_title: str = Field(..., alias="bucketTitle")
+    group_name: GroupName = Field(..., alias="groupName")
     paging: Paging
 
 
@@ -60,7 +71,6 @@ class VodBucket(BaseModel):
     model_config = ConfigDict(
         extra="forbid",
     )
-    field_type: str
-    field_zone: str
+    field_type: str = Field(..., alias="$type")
+    field_zone: str = Field(..., alias="$zone")
     attributes: Attributes
-    style: None

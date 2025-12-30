@@ -3,7 +3,7 @@
 
 from __future__ import annotations
 
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field
 
 
 class Data(BaseModel):
@@ -34,42 +34,18 @@ class Item(BaseModel):
     model_config = ConfigDict(
         extra="forbid",
     )
-    field_type: str
+    field_type: str = Field(..., alias="$type")
     attributes: Attributes1
-    id: None
-    type: None
-    title: None
-    description: None
-    long_description: None
-    cover_url: None
-    small_cover_url: None
-    season_count: None
-    poster_url: None
-    access_level: None
-    favourite: None
-    watch_status: None
-    favourite_channel: None
-    has_permission: None
-    is_related: None
-    has_permission_granted_on_sign_in: None
 
 
 class Attributes(BaseModel):
     model_config = ConfigDict(
         extra="forbid",
     )
-    header: None
-    image: None
-    actions: None
-    content: None
     type: str
     id: int
-    active_tab: str
+    active_tab: str = Field(..., alias="activeTab")
     items: list[Item]
-    text: None
-    label: None
-    tab: None
-    paging: None
 
 
 class Desktop(BaseModel):
@@ -92,15 +68,13 @@ class Style(BaseModel):
     )
     desktop: Desktop
     tv: Tv
-    mobile: None
-    tablet: None
 
 
 class VodTabs(BaseModel):
     model_config = ConfigDict(
         extra="forbid",
     )
-    field_type: str
-    field_zone: str
+    field_type: str = Field(..., alias="$type")
+    field_zone: str = Field(..., alias="$zone")
     attributes: Attributes
     style: Style

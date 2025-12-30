@@ -7,6 +7,7 @@ from pydantic import (
     AwareDatetime,
     BaseModel,
     ConfigDict,
+    Field,
     NaiveDatetime,
     field_serializer,
 )
@@ -16,7 +17,7 @@ class Data(BaseModel):
     model_config = ConfigDict(
         extra="forbid",
     )
-    last_seen: str
+    last_seen: str = Field(..., alias="lastSeen")
 
 
 class Next(BaseModel):
@@ -31,8 +32,6 @@ class Actions(BaseModel):
     model_config = ConfigDict(
         extra="forbid",
     )
-    reset: None
-    apply: None
     next: Next
 
 
@@ -61,7 +60,7 @@ class Title(BaseModel):
     model_config = ConfigDict(
         extra="forbid",
     )
-    field_type: str
+    field_type: str = Field(..., alias="$type")
     attributes: Attributes2
     style: Style
 
@@ -79,7 +78,7 @@ class HeaderItem(BaseModel):
     model_config = ConfigDict(
         extra="forbid",
     )
-    field_type: str
+    field_type: str = Field(..., alias="$type")
     attributes: Attributes4
 
 
@@ -103,7 +102,7 @@ class Text(BaseModel):
     model_config = ConfigDict(
         extra="forbid",
     )
-    field_type: str
+    field_type: str = Field(..., alias="$type")
     attributes: Attributes8
     style: Style1
 
@@ -120,7 +119,7 @@ class Icon(BaseModel):
     model_config = ConfigDict(
         extra="forbid",
     )
-    field_type: str
+    field_type: str = Field(..., alias="$type")
     attributes: Attributes9
 
 
@@ -144,7 +143,7 @@ class Tag(BaseModel):
     model_config = ConfigDict(
         extra="forbid",
     )
-    field_type: str
+    field_type: str = Field(..., alias="$type")
     attributes: Attributes7 | None = None
     style: Style2 | None = None
 
@@ -162,7 +161,7 @@ class Attributes6(BaseModel):
     )
     text: AwareDatetime | str | None = None
     format: str | None = None
-    number_of_lines: int | None = None
+    number_of_lines: int | None = Field(None, alias="numberOfLines")
     tags: list[Tag] | None = None
     separator: bool | None = None
 
@@ -179,7 +178,7 @@ class Element(BaseModel):
     model_config = ConfigDict(
         extra="forbid",
     )
-    field_type: str
+    field_type: str = Field(..., alias="$type")
     attributes: Attributes6
     style: Style3 | None = None
 
@@ -203,7 +202,7 @@ class ContentItem(BaseModel):
     model_config = ConfigDict(
         extra="forbid",
     )
-    field_type: str
+    field_type: str = Field(..., alias="$type")
     attributes: Attributes5
     style: Style4
 
@@ -212,8 +211,8 @@ class ComputedRelease(BaseModel):
     model_config = ConfigDict(
         extra="forbid",
     )
-    scheduled_at: AwareDatetime
-    computed_state: str
+    scheduled_at: AwareDatetime = Field(..., alias="scheduledAt")
+    computed_state: str = Field(..., alias="computedState")
     state: str
     type: str
     description: str
@@ -225,10 +224,10 @@ class Data1(BaseModel):
     )
     type: str
     title: str
-    access_level: str
-    online_playback: str
+    access_level: str = Field(..., alias="accessLevel")
+    online_playback: str = Field(..., alias="onlinePlayback")
     id: str
-    computed_releases: list[ComputedRelease]
+    computed_releases: list[ComputedRelease] = Field(..., alias="computedReleases")
 
 
 class Action(BaseModel):
@@ -243,11 +242,11 @@ class Attributes3(BaseModel):
     model_config = ConfigDict(
         extra="forbid",
     )
-    has_initial_focus: bool
+    has_initial_focus: bool = Field(..., alias="hasInitialFocus")
     type: str
     header: list[HeaderItem]
     content: list[ContentItem]
-    grouping_data: bool
+    grouping_data: bool = Field(..., alias="groupingData")
     action: Action
 
 
@@ -255,7 +254,7 @@ class Card(BaseModel):
     model_config = ConfigDict(
         extra="forbid",
     )
-    field_type: str
+    field_type: str = Field(..., alias="$type")
     attributes: Attributes3
 
 
@@ -277,7 +276,7 @@ class Group(BaseModel):
     model_config = ConfigDict(
         extra="forbid",
     )
-    field_type: str
+    field_type: str = Field(..., alias="$type")
     id: NaiveDatetime
     attributes: Attributes1
 
@@ -286,9 +285,6 @@ class Attributes(BaseModel):
     model_config = ConfigDict(
         extra="forbid",
     )
-    elements: None
-    title: None
-    filters: None
     actions: Actions | None = None
     groups: list[Group]
 
@@ -297,6 +293,6 @@ class ScheduleGroupList(BaseModel):
     model_config = ConfigDict(
         extra="forbid",
     )
-    field_type: str
-    field_zone: str
+    field_type: str = Field(..., alias="$type")
+    field_zone: str = Field(..., alias="$zone")
     attributes: Attributes

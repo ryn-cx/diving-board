@@ -3,25 +3,15 @@
 
 from __future__ import annotations
 
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field
 
 
 class Attributes(BaseModel):
     model_config = ConfigDict(
         extra="forbid",
     )
-    header: None
-    image: None
-    actions: None
-    content: None
-    type: None
-    id: None
-    active_tab: None
-    items: None
     text: str
     label: str
-    tab: None
-    paging: None
 
 
 class Mobile(BaseModel):
@@ -42,8 +32,6 @@ class Style(BaseModel):
     model_config = ConfigDict(
         extra="forbid",
     )
-    desktop: None
-    tv: None
     mobile: Mobile
     tablet: Tablet
 
@@ -52,7 +40,7 @@ class VodTextBlock(BaseModel):
     model_config = ConfigDict(
         extra="forbid",
     )
-    field_type: str
-    field_zone: str
+    field_type: str = Field(..., alias="$type")
+    field_zone: str = Field(..., alias="$zone")
     attributes: Attributes
     style: Style

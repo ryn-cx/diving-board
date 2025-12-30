@@ -253,7 +253,11 @@ class ScheduleMixin(DivingBoardProtocol):
     ) -> group_list_models.ScheduleGroupList:
         for element in data.elements:
             if element.field_type == "groupList":
-                season_data = element.model_dump(mode="json")
+                season_data = element.model_dump(
+                    mode="json",
+                    by_alias=True,
+                    exclude_unset=True,
+                )
 
                 if update:
                     return self.parse_response(

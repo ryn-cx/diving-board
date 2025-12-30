@@ -3,14 +3,14 @@
 
 from __future__ import annotations
 
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field
 
 
 class Series(BaseModel):
     model_config = ConfigDict(
         extra="forbid",
     )
-    series_id: int
+    series_id: int = Field(..., alias="seriesId")
     title: str
 
 
@@ -20,9 +20,9 @@ class Item(BaseModel):
     )
     title: str
     description: str
-    long_description: str
-    season_number: int
-    episode_count: int
+    long_description: str = Field(..., alias="longDescription")
+    season_number: int = Field(..., alias="seasonNumber")
+    episode_count: int = Field(..., alias="episodeCount")
     id: int
     series: Series
 
@@ -31,7 +31,7 @@ class Paging(BaseModel):
     model_config = ConfigDict(
         extra="forbid",
     )
-    more_data_available: bool
+    more_data_available: bool = Field(..., alias="moreDataAvailable")
 
 
 class Seasons(BaseModel):
@@ -46,30 +46,18 @@ class Attributes(BaseModel):
     model_config = ConfigDict(
         extra="forbid",
     )
-    header: None
-    image: None
-    actions: None
-    content: None
     id: int
     type: str
-    active_tab: None
-    items: None
+    tab: str
     series: Series
-    season_id: int
+    season_id: int = Field(..., alias="seasonId")
     seasons: Seasons
-    tab: None
-    bucket_title: None
-    series_id: None
-    paging: None
-    text: None
-    label: None
 
 
 class SeasonSeries(BaseModel):
     model_config = ConfigDict(
         extra="forbid",
     )
-    field_type: str
-    field_zone: str
+    field_type: str = Field(..., alias="$type")
+    field_zone: str = Field(..., alias="$zone")
     attributes: Attributes
-    style: None

@@ -56,6 +56,13 @@ class TestParsing:
                 parsed = client.parse_season(file_content)
                 client.extract_season_series(parsed)
 
+        def test_extract_season_hero(self) -> None:
+            """Test parsing adjacent seasons JSON files."""
+            for json_file in self.get_test_files("season"):
+                file_content = json.loads(json_file.read_text())
+                parsed = client.parse_season(file_content)
+                client.extract_season_hero(parsed)
+
     class TestPlaylist(BaseTest):
         def test_parse_playlist(self) -> None:
             """Test parsing playlist JSON files."""
