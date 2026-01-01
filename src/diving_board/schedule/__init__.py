@@ -62,6 +62,11 @@ SCHEDULE_CUSTOMIZATIONS = customizations = GapiCustomizations(
 
 SCHEDULE_GROUP_LIST_CUSTOMIZATIONS = customizations = GapiCustomizations(
     custom_fields=[
+        CustomField(
+            class_name="Attributes6",
+            field_name="text",
+            new_field="text: NaiveDatetime | str | None = None",
+        ),
         # Need to overrride the default datetime format because these
         # datetimes are naive.
         CustomField(

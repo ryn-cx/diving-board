@@ -13,28 +13,6 @@ from pydantic import (
 )
 
 
-class Data(BaseModel):
-    model_config = ConfigDict(
-        extra="forbid",
-    )
-    last_seen: str = Field(..., alias="lastSeen")
-
-
-class Next(BaseModel):
-    model_config = ConfigDict(
-        extra="forbid",
-    )
-    type: str
-    data: Data
-
-
-class Actions(BaseModel):
-    model_config = ConfigDict(
-        extra="forbid",
-    )
-    next: Next
-
-
 class Attributes2(BaseModel):
     @field_serializer("text")
     def serialize_text(self, value: NaiveDatetime) -> str:
@@ -159,7 +137,7 @@ class Attributes6(BaseModel):
     model_config = ConfigDict(
         extra="forbid",
     )
-    text: str | AwareDatetime | None = None
+    text: NaiveDatetime | str | None = None
     format: str | None = None
     number_of_lines: int | None = Field(None, alias="numberOfLines")
     tags: list[Tag] | None = None
@@ -218,7 +196,7 @@ class ComputedRelease(BaseModel):
     description: str
 
 
-class Data1(BaseModel):
+class Data(BaseModel):
     model_config = ConfigDict(
         extra="forbid",
     )
@@ -235,7 +213,7 @@ class Action(BaseModel):
         extra="forbid",
     )
     type: str
-    data: Data1
+    data: Data
 
 
 class Attributes3(BaseModel):
@@ -281,12 +259,34 @@ class Group(BaseModel):
     attributes: Attributes1
 
 
+class Data1(BaseModel):
+    model_config = ConfigDict(
+        extra="forbid",
+    )
+    last_seen: str = Field(..., alias="lastSeen")
+
+
+class Next(BaseModel):
+    model_config = ConfigDict(
+        extra="forbid",
+    )
+    type: str
+    data: Data1
+
+
+class Actions(BaseModel):
+    model_config = ConfigDict(
+        extra="forbid",
+    )
+    next: Next
+
+
 class Attributes(BaseModel):
     model_config = ConfigDict(
         extra="forbid",
     )
-    actions: Actions | None = None
     groups: list[Group]
+    actions: Actions | None = None
 
 
 class ScheduleGroupList(BaseModel):
