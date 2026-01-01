@@ -479,7 +479,7 @@ class Attributes17(BaseModel):
     model_config = ConfigDict(
         extra="forbid",
     )
-    text: AwareDatetime | str | None = None
+    text: str | AwareDatetime | None = None
     format: str | None = None
     number_of_lines: int | None = Field(None, alias="numberOfLines")
     tags: list[Tag] | None = None

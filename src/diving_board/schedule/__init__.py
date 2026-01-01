@@ -9,15 +9,6 @@ from diving_board.schedule.group_list import models as group_list_models
 
 SCHEDULE_CUSTOMIZATIONS = customizations = GapiCustomizations(
     custom_fields=[
-        # No idea why this is detected as "AwareDatetime | None" when there are string
-        # inputs. Might be a problem with gapi that I need to fix at a later time, but a
-        # quick test added to gapi shows that it can correctly create a model with these
-        # parameters with the correct input.
-        CustomField(
-            class_name="Attributes17",
-            field_name="text",
-            new_field="text: AwareDatetime | str | None = None",
-        ),
         # Need to overrride the default datetime format because these
         # datetimes are naive.
         CustomField(
@@ -71,13 +62,6 @@ SCHEDULE_CUSTOMIZATIONS = customizations = GapiCustomizations(
 
 SCHEDULE_GROUP_LIST_CUSTOMIZATIONS = customizations = GapiCustomizations(
     custom_fields=[
-        # No idea why this is detected as "AwareDatetime | None" when there
-        # are string inputs.
-        CustomField(
-            class_name="Attributes6",
-            field_name="text",
-            new_field="text: AwareDatetime | str | None = None",
-        ),
         # Need to overrride the default datetime format because these
         # datetimes are naive.
         CustomField(
