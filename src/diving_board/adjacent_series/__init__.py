@@ -1,4 +1,4 @@
-"""Adjacent Series namespace for downloading and parsing adjacent series data."""
+"""Adjacent Series endpoint."""
 
 from __future__ import annotations
 

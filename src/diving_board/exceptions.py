@@ -1,3 +1,6 @@
+"""Exceptions for Diving Board."""
+
+
 class DivingBoardError(Exception):
     """Base exception for diving-board library."""
 
