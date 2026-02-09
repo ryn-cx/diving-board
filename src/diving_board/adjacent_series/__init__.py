@@ -1,48 +1,108 @@
-import logging
-from typing import Any
+"""Adjacent Series namespace for downloading and parsing adjacent series data."""
 
-from diving_board.adjacent_series import models
-from diving_board.protocol import DivingBoardProtocol
+from __future__ import annotations
 
-logger = logging.getLogger(__name__)
+from functools import cached_property
+from typing import Any, override
+
+from diving_board.adjacent_series.models import AdjacentSeries as AdjacentSeriesModel
+from diving_board.base_api_endpoint import BaseEndpoint
 
 
-class AdjecentSeariessMixin(DivingBoardProtocol):
-    def download_adjacent_series(
+class AdjacentSeries(BaseEndpoint[AdjacentSeriesModel]):
+    """Provides methods to download, parse, and retrieve adjacent series data."""
+
+    @cached_property
+    @override
+    def _response_model(self) -> type[AdjacentSeriesModel]:
+        """Return the Pydantic model class for this client."""
+        return AdjacentSeriesModel
+
+    def download(
         self,
         series_id: int,
         season_id: int,
         size: int = 25,
     ) -> dict[str, Any]:
-        # The URL used for the api call can be found on the season page for the series:
-        # https://www.hidive.com/season/33099
-        # Example API URL:
-        # https://dce-frontoffice.imggaming.com/api/v4/series/3592/adjacentTo/33099?size=25
+        """Downloads adjacent series data for a given series and season.
+
+        Args:
+            series_id: The ID of the series to get adjacent series for.
+            season_id: The ID of the season to get adjacent series for.
+            size: The number of adjacent series to return.
+
+        Returns:
+            The raw JSON response as a dict, suitable for passing to ``parse()``.
+        """
+        # Example request headers from https://www.hidive.com/season/34391
+        """GET /api/v4/series/1049/adjacentTo/34391?size=25 HTTP/2
+        Host: dce-frontoffice.imggaming.com
+        User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:147.0)
+                    Gecko/20100101 Firefox/147.0
+        Accept: application/json, text/plain, */*
+        Accept-Language: en-US
+        Accept-Encoding: gzip, deflate, br, zstd
+        Referer: https://www.hidive.com/
+        Content-Type: application/json
+        x-api-key: 857a1e5d-e35e-4fdf-805b-a87b6f8364bf
+        app: dice
+        Realm: dce.hidive
+        x-app-var: 6.60.0.b702efb
+        Authorization: Bearer TOKEN
+        Origin: https://www.hidive.com
+        Sec-GPC: 1
+        Connection: keep-alive
+        Sec-Fetch-Dest: empty
+        Sec-Fetch-Mode: cors
+        Sec-Fetch-Site: cross-site
+        Priority: u=4
+        TE: trailers"""
 
         endpoint = f"api/v4/series/{series_id}/adjacentTo/{season_id}"
         params = {"size": size}
-        return self._download_api_request(endpoint, params)
+        return self._client.download_api_request(endpoint, params)
 
-    def parse_adjacent_series(
+    def parse(
         self,
         data: dict[str, Any],
         *,
         update: bool = True,
-    ) -> models.AdjacentSeries:
+    ) -> AdjacentSeriesModel:
+        """Parses adjacent series data into an AdjacentSeries model.
+
+        Args:
+            data: The adjacent series data to parse.
+            update: Whether to update DivingBoard's models if parsing fails.
+
+        Returns:
+            An AdjacentSeries model containing the parsed data.
+        """
         if update:
-            return self.parse_response(models.AdjacentSeries, data, "adjacent_series")
+            return self._parse_response(data)
 
-        return models.AdjacentSeries.model_validate(data)
+        return AdjacentSeriesModel.model_validate(data)
 
-    def get_adjacent_series(
+    def get(
         self,
         series_id: int,
         season_id: int,
         size: int = 25,
-    ) -> models.AdjacentSeries:
-        response = self.download_adjacent_series(
+    ) -> AdjacentSeriesModel:
+        """Downloads and parses adjacent series data for a given series and season.
+
+        Convenience method that calls ``download()`` then ``parse()``.
+
+        Args:
+            series_id: The ID of the series to get adjacent series for.
+            season_id: The ID of the season to get adjacent series for.
+            size: The number of adjacent series to return.
+
+        Returns:
+            An AdjacentSeries model containing the parsed data.
+        """
+        response = self.download(
             series_id=series_id,
             season_id=season_id,
             size=size,
         )
-        return self.parse_adjacent_series(response)
+        return self.parse(response)

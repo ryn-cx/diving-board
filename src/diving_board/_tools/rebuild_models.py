@@ -1,24 +1,11 @@
-from diving_board import DivingBoard
-from diving_board.schedule import (
-    SCHEDULE_CUSTOMIZATIONS,
-    SCHEDULE_GROUP_LIST_CUSTOMIZATIONS,
-)
+import logging
+
+from diving_board import response_models
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 if __name__ == "__main__":
-    client = DivingBoard()
-
-    client.rebuild_models("adjacent_series")
-    client.rebuild_models("schedule", SCHEDULE_CUSTOMIZATIONS)
-    client.rebuild_models("schedule/group_list", SCHEDULE_GROUP_LIST_CUSTOMIZATIONS)
-    client.rebuild_models("season")
-    client.rebuild_models("season/bucket/related")
-    client.rebuild_models("season/bucket/season")
-    client.rebuild_models("season/series")
-    client.rebuild_models("season/hero")
-    client.rebuild_models("vod")
-    client.rebuild_models("vod/bucket")
-    client.rebuild_models("vod/hero")
-    client.rebuild_models("vod/tabs")
-    client.rebuild_models("vod/text_block")
-    client.rebuild_models("playlist")
-    client.rebuild_models("playlist/bucket/playlist")
+    for response_model in response_models():
+        logger.info("Rebuilding models: %s", response_model.__class__.__name__)
+        response_model.rebuild_models()

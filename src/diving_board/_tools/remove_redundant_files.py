@@ -1,12 +1,15 @@
 import logging
 from logging import getLogger
 
-from gapi import recursively_remove_redundant_files
-
-from diving_board.constants import FILES_PATH
+from diving_board import response_models
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 logger = getLogger(__name__)
 if __name__ == "__main__":
-    recursively_remove_redundant_files(FILES_PATH, logger=logger)
+    for response_model in response_models():
+        logger.info(
+            "Removing redundant JSON files: %s",
+            response_model.__class__.__name__,
+        )
+        response_model.remove_redundant_json_files()

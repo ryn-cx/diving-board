@@ -1,81 +1,177 @@
-import logging
+"""DivingBoard is a client for downloading and parsing data from HiDive."""
+
 import re
-from pathlib import Path
-from typing import Any, override
+from functools import cached_property
+from logging import Logger, getLogger
+from typing import Any
 
 import requests
-from gapi import AbstractGapiClient
 
-from diving_board.adjacent_series import AdjecentSeariessMixin
-from diving_board.constants import DIVING_BOARD_PATH
+from diving_board.adjacent_series import AdjacentSeries
+from diving_board.base_api_endpoint import BaseExtractor
 from diving_board.exceptions import HTTPError
-from diving_board.playlist import PlaylistMixin
-from diving_board.schedule import ScheduleMixin
-from diving_board.season import SeasonMixin
-from diving_board.vod import VodMixin
+from diving_board.playlist import BucketPlaylist, Playlist
+from diving_board.schedule import GroupList, Schedule
+from diving_board.season import BucketRelated, BucketSeason, Season, Series
+from diving_board.season import Hero as SeasonHero
+from diving_board.vod import Bucket as VodBucket
+from diving_board.vod import Hero as VodHero
+from diving_board.vod import Tabs, Vod
 
-default_logger = logging.getLogger(__name__)
+USER_AGENT = (
+    "Mozilla/5.0 (Linux; Android 10; K) "
+    "AppleWebKit/537.36 (KHTML, like Gecko) "
+    "Chrome/134.0.0.0 Mobile Safari/537.3"
+)
 
-TIMEOUT = 30
+
+def response_models() -> list[BaseExtractor[Any]]:
+    """Returns a list of ."""
+    diving_board = DivingBoard()
+
+    return [
+        diving_board.adjacent_series,
+        diving_board.playlist,
+        diving_board.schedule,
+        diving_board.season,
+        diving_board.vod,
+        BucketPlaylist(),
+        GroupList(),
+        SeasonHero(),
+        Series(),
+        VodHero(),
+        VodBucket(),
+        Tabs(),
+        BucketRelated(),
+        BucketSeason(),
+    ]
 
 
-class DivingBoard(
-    AbstractGapiClient,
-    SeasonMixin,
-    AdjecentSeariessMixin,
-    ScheduleMixin,
-    VodMixin,
-    PlaylistMixin,
-):
-    @override
-    def client_path(self) -> Path:
-        return DIVING_BOARD_PATH
+class DivingBoard:
+    """Interface for downloading and parsing data from HiDive."""
+
+    MAIN_DOMAIN = "hidive.com"
+    BASE_MAIN_URL = f"https://www.{MAIN_DOMAIN}"
+    API_DOMAIN = "dce-frontoffice.imggaming.com"
+    BASE_API_URL = f"https://{API_DOMAIN}"
 
     def __init__(
         self,
         timezone: str = "America/Los_Angeles",
-        logger: logging.Logger = default_logger,
+        logger: Logger | None = None,
+        timeout: int = 30,
     ) -> None:
+        """Initialize the DivingBoard client."""
         self.timezone = timezone
-        self.logger = logger
+        self.logger = logger or getLogger(__name__)
+        self.timeout = timeout
 
-        self.cached_api_key = ""
-        self.public_token = ""
-        self.access_token = ""
-        self.cached_authorization_token = ""
-        self.cached_realm = ""
+        self.__auth_token_value = ""
+        self.__realm_value = ""
 
-        # TODO: Implement actually using refresh_token.
-        self.refresh_token = ""
+        self.playlist = Playlist(self)
+        self.vod = Vod(self)
+        self.season = Season(self)
+        self.schedule = Schedule(self)
+        self.adjacent_series = AdjacentSeries(self)
 
-        self.api_domain = "https://dce-frontoffice.imggaming.com"
-        self.domain = "https://www.hidive.com"
         super().__init__()
 
-    def _get_api_key(self) -> str:
-        url = f"{self.domain}/code/js/app.8decd4739abfe3a59a45.js"
-        self.logger.info("Downloading api key: %s", url)
-        headers = {"Origin": self.domain, "Referer": self.domain}
-        response = requests.get(url, headers=headers, timeout=TIMEOUT)
+    @cached_property
+    def __api_key(self) -> str:
+        """Returns the API key.
+
+        Downloads and caches the API key from app.js.
+        """
+        # # Testing hardcoding the API key because it may never change.
+        return "857a1e5d-e35e-4fdf-805b-a87b6f8364bf"
+
+        # Example request headers:
+        """GET /code/js/app.43221e881b6a9a9bc6fe.js HTTP/3
+        Host: www.hidive.com
+        User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:147.0)
+                    Gecko/20100101 Firefox/147.0
+        Accept: */*
+        Accept-Language: en-US,en;q=0.9
+        Accept-Encoding: gzip, deflate, br, zstd
+        Sec-GPC: 1
+        Connection: keep-alive
+        Referer: https://www.hidive.com/browse
+        Sec-Fetch-Dest: script
+        Sec-Fetch-Mode: no-cors
+        Sec-Fetch-Site: same-origin
+        TE: trailers"""
+
+        # This URL is hard coded, but the URL changes sometimes, however though the old
+        # version of the URL will continue to work. So far hard coding the URL has had
+        # no negative consequences, but in the future it may be necessary to obtain the
+        # URL dynamically. For now, hardcoding the URL is considered to be the superior
+        # option because it means there will be one less network request needed to
+        # initialize the client.
+        # The URL was obtained from the network requests made when visiting any page but
+        # the homepage. For example: https://www.hidive.com/browse
+        app_js_file_name = "app.43221e881b6a9a9bc6fe.js"
+        url = f"{self.BASE_MAIN_URL}/code/js/{app_js_file_name}"
+        self.logger.info("Downloading API key: %s", url)
+        headers = {
+            "User-Agent": USER_AGENT,
+            # This URL is not returned on the homepage so set the referer to a commonly
+            # used page that actually returns the URL.
+            "Referer": f"{self.BASE_MAIN_URL}/browse",
+        }
+        response = requests.get(url, headers=headers, timeout=self.timeout)
         response_text = response.text
 
         if not (match := re.search(r'API_KEY:"([0-9a-f-]+)"', response_text)):
-            msg = "Failed to extract token from bundle.js"
+            msg = f"Failed to extract API key from {app_js_file_name}"
             raise ValueError(msg)
 
-        self.cached_api_key = match.group(1)
-        return self.cached_api_key
+        return match.group(1)
 
-    def _api_key(self) -> str:
-        if not self.cached_api_key:
-            self._get_api_key()
+    def __download_auth_values(self) -> None:
+        """Downloads and caches the authorisation token and realm."""
+        # Example request headers:
+        """GET /api/v1/init/
+                            ?lk=language
+                            &pk=subTitleLanguage
+                            &pk=subtitlePreferenceMode
+                            &pk=audioLanguage
+                            &pk=autoAdvance
+                            &pk=pluginAccessTokens
+                            &pk=videoBackgroundAutoPlay
+                            &readLicences=true
+                            &countEvents=LIVE
+                            &menuTargetPlatform=WEB
+                            &readIconStore=ENABLED
+                            &readUserProfiles=true
+                            &section=browse
+                            &geoBlockedContentDisplayMode=SHOW
+                            &displaySectionLinkBuckets=SHOW
+                            &displayEpgBuckets=HIDE
+                            &displayContentAvailableOnSignIn=SHOW
+                            &rpp=12&bpp=4&bspp=10 HTTP/2
+        Host: dce-frontoffice.imggaming.com
+        User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:147.0)
+                    Gecko/20100101 Firefox/147.0
+        Accept: application/json, text/plain, */*
+        Accept-Language: en-US
+        Accept-Encoding: gzip, deflate, br, zstd
+        Referer: https://www.hidive.com/
+        Content-Type: application/json
+        x-api-key: 857a1e5d-e35e-4fdf-805b-a87b6f8364bf
+        app: dice
+        x-app-var: 6.60.0.b702efb
+        Origin: https://www.hidive.com
+        Sec-GPC: 1
+        Connection: keep-alive
+        Sec-Fetch-Dest: empty
+        Sec-Fetch-Mode: cors
+        Sec-Fetch-Site: cross-site
+        Priority: u=4
+        TE: trailers"""
 
-        return self.cached_api_key
-
-    def _get_authorization(self) -> None:
-        """Get various authorization tokens from the second layer of authentication."""
         url = (
-            f"{self.api_domain}/api/v1/init/"
+            f"{self.BASE_API_URL}/api/v1/init/"
             "?lk=language"
             "&pk=subTitleLanguage"
             "&pk=audioLanguage"
@@ -87,46 +183,61 @@ class DivingBoard(
             "&menuTargetPlatform=WEB"
             "&readIconStore=ENABLED"
         )
-        self.logger.info("Downloading second auth layer: %s", url)
+        self.logger.info("Downloading authorisation token: %s", url)
+
         headers = {
-            "Origin": self.domain,
-            "Referer": self.domain,
-            "x-api-key": self._api_key(),
+            "User-Agent": USER_AGENT,
+            "Origin": self.BASE_MAIN_URL,
+            "Referer": f"{self.BASE_MAIN_URL}/",
+            "x-api-key": self.__api_key,
         }
-        response = requests.get(url, headers=headers, timeout=TIMEOUT)
+        response = requests.get(url, headers=headers, timeout=self.timeout)
         json_response = response.json()
-        self.cached_realm = json_response["settings"]["realm"]
+        self.__realm_value = json_response["settings"]["realm"]
         authentication = json_response["authentication"]
-        self.cached_authorization_token = authentication["authorisationToken"]
-        self.refresh_token = authentication["refreshToken"]
+        self.__auth_token_value = authentication["authorisationToken"]
+        # Although authentication has a refreshToken value there is no designated
+        # expiration date in the returned data, and testing has shown that authorisation
+        # tokens may not actually expire.
 
-    def _authorization_token(self) -> str:
-        if not self.cached_authorization_token:
-            self._get_authorization()
+    @property
+    def __auth_token(self) -> str:
+        if not self.__auth_token_value:
+            self.__download_auth_values()
 
-        return self.cached_authorization_token
+        return self.__auth_token_value
 
-    def _realm(self) -> str:
-        if not self.cached_realm:
-            self._get_authorization()
+    @__auth_token.setter
+    def __auth_token(self, value: str) -> None:
+        self.__auth_token_value = value
 
-        return self.cached_realm
+    @property
+    def __realm(self) -> str:
+        if not self.__realm_value:
+            self.__download_auth_values()
 
-    def _download_api_request(
+        return self.__realm_value
+
+    @__realm.setter
+    def __realm(self, value: str) -> None:
+        self.__realm_value = value
+
+    def download_api_request(
         self,
         endpoint: str,
         params: dict[str, Any],
-        headers: dict[str, str] | None = None,
     ) -> dict[str, Any]:
-        if headers is None:
-            headers = {}
-        headers["authorization"] = f"Bearer {self._authorization_token()}"
-        headers["x-api-key"] = self._api_key()
-        headers["Origin"] = self.domain
-        headers["Referer"] = self.domain
-        headers["Realm"] = self._realm()
+        """Downloads data from the API for a given endpoint and parameters."""
+        headers = {
+            "User-Agent": USER_AGENT,
+            "authorization": f"Bearer {self.__auth_token}",
+            "x-api-key": self.__api_key,
+            "Origin": self.BASE_MAIN_URL,
+            "Referer": f"{self.BASE_MAIN_URL}/",
+            "Realm": self.__realm,
+        }
 
-        url = f"{self.api_domain}/{endpoint}"
+        url = f"{self.BASE_API_URL}/{endpoint}"
 
         request = requests.Request("GET", url, params=params)
         prepared = request.prepare()
@@ -135,9 +246,10 @@ class DivingBoard(
             url=url,
             headers=headers,
             params=params,
-            timeout=TIMEOUT,
+            timeout=self.timeout,
         )
 
+        # PLR2004 - 200 represents the status code "200 OK".
         if response.status_code != 200:  # noqa: PLR2004
             msg = f"Unexpected response status code: {response.status_code}"
             raise HTTPError(msg)
