@@ -25,6 +25,11 @@ class BaseExtractor[T: BaseModel](GAPIClient[T]):
     def _root_files_path(self) -> Path:
         return FILES_PATH
 
+    @cached_property
+    def json_files_folder(self) -> Path:
+        """Model-specific subdirectory under ``_root_files_path``."""
+        return self._json_files_folder
+
 
 class BaseEndpoint[T: BaseModel](BaseExtractor[T]):
     """Base class for API endpoints."""
