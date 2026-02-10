@@ -257,6 +257,7 @@ class DivingBoard:
 
         output = response.json()
         output["diving_board"] = {}
+        output["diving_board"]["url"] = url
         output["diving_board"]["date"] = datetime.now().astimezone().isoformat()
         # Unlike authorization, x-api-key can be logged because it's basically a static
         # value.

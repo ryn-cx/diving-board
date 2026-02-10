@@ -73,6 +73,7 @@ class DivingBoard(BaseModel):
     model_config = ConfigDict(
         extra="forbid",
     )
+    url: str
     date: AwareDatetime
     headers: Headers
     params: Params
