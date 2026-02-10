@@ -4,7 +4,7 @@
 
 from __future__ import annotations
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import AwareDatetime, BaseModel, ConfigDict, Field
 
 
 class Attributes1(BaseModel):
@@ -44,8 +44,8 @@ class Data(BaseModel):
     access_level: str = Field(..., alias="accessLevel")
     licence_ids: list[int] = Field(..., alias="licenceIds")
     id: int
-    title: str | None = None
-    type: str | None = None
+    title: str
+    type: str
 
 
 class Action1(BaseModel):
@@ -96,7 +96,7 @@ class Data1(BaseModel):
         extra="forbid",
     )
     id: int
-    title: str | None = None
+    title: str
     type: str
 
 
@@ -299,8 +299,38 @@ class Element(BaseModel):
     style: Style1 | None = None
 
 
+class Headers(BaseModel):
+    model_config = ConfigDict(
+        extra="forbid",
+    )
+    user_agent: str = Field(..., alias="User-Agent")
+    x_api_key: str = Field(..., alias="x-api-key")
+    origin: str = Field(..., alias="Origin")
+    referer: str = Field(..., alias="Referer")
+    realm: str = Field(..., alias="Realm")
+
+
+class Params(BaseModel):
+    model_config = ConfigDict(
+        extra="forbid",
+    )
+    type: str
+    id: int
+    timezone: str
+
+
+class DivingBoard(BaseModel):
+    model_config = ConfigDict(
+        extra="forbid",
+    )
+    date: AwareDatetime
+    headers: Headers
+    params: Params
+
+
 class Vod(BaseModel):
     model_config = ConfigDict(
         extra="forbid",
     )
     elements: list[Element]
+    diving_board: DivingBoard

@@ -4,7 +4,7 @@
 
 from __future__ import annotations
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import AwareDatetime, BaseModel, ConfigDict, Field
 
 
 class Attributes1(BaseModel):
@@ -51,8 +51,8 @@ class Data(BaseModel):
     )
     id: int
     video_id: int = Field(..., alias="videoId")
-    online_playback: str | None = Field(None, alias="onlinePlayback")
-    access_level: str | None = Field(None, alias="accessLevel")
+    online_playback: str = Field(..., alias="onlinePlayback")
+    access_level: str = Field(..., alias="accessLevel")
     series_id: int = Field(..., alias="seriesId")
     title: str
     type: str
@@ -73,7 +73,7 @@ class Attributes3(BaseModel):
     has_initial_focus: bool = Field(..., alias="hasInitialFocus")
     text: str
     label: str
-    tokens: list[Token] | None = None
+    tokens: list[Token]
     type: str
     icon: str
     action: Action1
@@ -370,7 +370,36 @@ class Metadata(BaseModel):
     type: str
     series: Series
     current_season: CurrentSeason = Field(..., alias="currentSeason")
-    current_vod: CurrentVod | None = Field(None, alias="currentVod")
+    current_vod: CurrentVod = Field(..., alias="currentVod")
+
+
+class Headers(BaseModel):
+    model_config = ConfigDict(
+        extra="forbid",
+    )
+    user_agent: str = Field(..., alias="User-Agent")
+    x_api_key: str = Field(..., alias="x-api-key")
+    origin: str = Field(..., alias="Origin")
+    referer: str = Field(..., alias="Referer")
+    realm: str = Field(..., alias="Realm")
+
+
+class Params(BaseModel):
+    model_config = ConfigDict(
+        extra="forbid",
+    )
+    type: str
+    id: int
+    timezone: str
+
+
+class DivingBoard(BaseModel):
+    model_config = ConfigDict(
+        extra="forbid",
+    )
+    date: AwareDatetime
+    headers: Headers
+    params: Params
 
 
 class Season(BaseModel):
@@ -380,3 +409,4 @@ class Season(BaseModel):
     layout: str
     elements: list[Element]
     metadata: Metadata
+    diving_board: DivingBoard

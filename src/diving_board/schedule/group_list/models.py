@@ -287,7 +287,7 @@ class Attributes(BaseModel):
     model_config = ConfigDict(
         extra="forbid",
     )
-    actions: Actions
+    actions: Actions | None = None
     groups: list[Group]
 
 

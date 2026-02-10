@@ -622,6 +622,36 @@ class Element(BaseModel):
     attributes: Attributes
 
 
+class Headers(BaseModel):
+    model_config = ConfigDict(
+        extra="forbid",
+    )
+    user_agent: str = Field(..., alias="User-Agent")
+    x_api_key: str = Field(..., alias="x-api-key")
+    origin: str = Field(..., alias="Origin")
+    referer: str = Field(..., alias="Referer")
+    realm: str = Field(..., alias="Realm")
+
+
+class Params(BaseModel):
+    model_config = ConfigDict(
+        extra="forbid",
+    )
+    timezone: str
+    groups_per_page: int = Field(..., alias="groupsPerPage")
+    items_per_group: int = Field(..., alias="itemsPerGroup")
+    last_seen: str | None = Field(None, alias="lastSeen")
+
+
+class DivingBoard(BaseModel):
+    model_config = ConfigDict(
+        extra="forbid",
+    )
+    date: AwareDatetime
+    headers: Headers
+    params: Params
+
+
 class Schedule(BaseModel):
     model_config = ConfigDict(
         extra="forbid",
@@ -629,3 +659,4 @@ class Schedule(BaseModel):
     source: str
     layout: str
     elements: list[Element]
+    diving_board: DivingBoard

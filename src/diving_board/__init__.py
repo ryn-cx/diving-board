@@ -1,6 +1,7 @@
 """DivingBoard is a client for downloading and parsing data from HiDive."""
 
 import re
+from datetime import datetime
 from functools import cached_property
 from logging import Logger, getLogger
 from typing import Any
@@ -254,4 +255,13 @@ class DivingBoard:
             msg = f"Unexpected response status code: {response.status_code}"
             raise HTTPError(msg)
 
-        return response.json()
+        output = response.json()
+        output["diving_board"] = {}
+        output["diving_board"]["date"] = datetime.now().astimezone().isoformat()
+        # Unlike authorization, x-api-key can be logged because it's basically a static
+        # value.
+        headers.pop("authorization")
+        output["diving_board"]["headers"] = headers
+        output["diving_board"]["params"] = params
+
+        return output
