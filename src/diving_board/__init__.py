@@ -40,7 +40,7 @@ USER_AGENT = (
 
 
 def response_models() -> list[BaseExtractor[Any]]:
-    """Returns a list of ."""
+    """Returns a list of all of the response models for DivingBoard."""
     diving_board = DivingBoard()
 
     return [
