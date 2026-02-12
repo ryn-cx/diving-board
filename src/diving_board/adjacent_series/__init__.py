@@ -15,7 +15,6 @@ class AdjacentSeries(BaseEndpoint[AdjacentSeriesModel]):
     @cached_property
     @override
     def _response_model(self) -> type[AdjacentSeriesModel]:
-        """Return the Pydantic model class for this client."""
         return AdjacentSeriesModel
 
     def download(
@@ -61,26 +60,6 @@ class AdjacentSeries(BaseEndpoint[AdjacentSeriesModel]):
         endpoint = f"api/v4/series/{series_id}/adjacentTo/{season_id}"
         params = {"size": size}
         return self._client.download_api_request(endpoint, params)
-
-    def parse(
-        self,
-        data: dict[str, Any],
-        *,
-        update: bool = True,
-    ) -> AdjacentSeriesModel:
-        """Parses adjacent series data into an AdjacentSeries model.
-
-        Args:
-            data: The adjacent series data to parse.
-            update: Whether to update DivingBoard's models if parsing fails.
-
-        Returns:
-            An AdjacentSeries model containing the parsed data.
-        """
-        if update:
-            return self._parse_response(data)
-
-        return AdjacentSeriesModel.model_validate(data)
 
     def get(
         self,

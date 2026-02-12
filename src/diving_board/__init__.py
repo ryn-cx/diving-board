@@ -11,13 +11,26 @@ import requests
 from diving_board.adjacent_series import AdjacentSeries
 from diving_board.base_api_endpoint import BaseExtractor
 from diving_board.exceptions import HTTPError
-from diving_board.playlist import BucketPlaylist, Playlist
-from diving_board.schedule import GroupList, Schedule
-from diving_board.season import BucketRelated, BucketSeason, Season, Series
-from diving_board.season import Hero as SeasonHero
-from diving_board.vod import Bucket as VodBucket
-from diving_board.vod import Hero as VodHero
-from diving_board.vod import Tabs, Vod
+from diving_board.playlist import Playlist
+from diving_board.playlist.bucket import PlaylistBucket
+from diving_board.playlist.hero import PlaylistHero
+from diving_board.playlist.tabs import PlaylistTabs
+from diving_board.playlist.text_block import PlaylistTextBlock
+from diving_board.schedule import Schedule
+from diving_board.schedule import ScheduleGroupList as ScheduleGroupList
+from diving_board.schedule.filter_list import ScheduleFilterList
+from diving_board.schedule.grid_block import ScheduleGridBlock
+from diving_board.season import Season
+from diving_board.season.bucket import SeasonBucket
+from diving_board.season.hero import SeasonHero
+from diving_board.season.series import SeasonSeries
+from diving_board.season.tabs import SeasonTabs
+from diving_board.season.text_block import SeasonTextBlock
+from diving_board.vod import Vod
+from diving_board.vod.bucket import VodBucket
+from diving_board.vod.hero import VodHero
+from diving_board.vod.tabs import VodTabs
+from diving_board.vod.text_block import VodTextBlock
 
 USER_AGENT = (
     "Mozilla/5.0 (Linux; Android 10; K) "
@@ -33,18 +46,25 @@ def response_models() -> list[BaseExtractor[Any]]:
     return [
         diving_board.adjacent_series,
         diving_board.playlist,
+        PlaylistBucket(),
+        PlaylistHero(),
+        PlaylistTabs(),
+        PlaylistTextBlock(),
         diving_board.schedule,
+        ScheduleFilterList(),
+        ScheduleGridBlock(),
+        ScheduleGroupList(),
         diving_board.season,
-        diving_board.vod,
-        BucketPlaylist(),
-        GroupList(),
+        SeasonBucket(),
         SeasonHero(),
-        Series(),
-        VodHero(),
+        SeasonSeries(),
+        SeasonTabs(),
+        SeasonTextBlock(),
+        diving_board.vod,
         VodBucket(),
-        Tabs(),
-        BucketRelated(),
-        BucketSeason(),
+        VodHero(),
+        VodTabs(),
+        VodTextBlock(),
     ]
 
 

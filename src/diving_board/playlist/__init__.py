@@ -3,30 +3,36 @@
 from __future__ import annotations
 
 from functools import cached_property
-from typing import Any, override
+from typing import TYPE_CHECKING, Any, override
 
-from diving_board.base_api_endpoint import BaseEndpoint, BaseExtractor
-from diving_board.playlist import models
-from diving_board.playlist.bucket_playlist import models as bucket_playlist_models
+from diving_board.base_api_endpoint import BaseEndpoint
+from diving_board.playlist.bucket import PlaylistBucket
+from diving_board.playlist.hero import PlaylistHero
+from diving_board.playlist.models import PlaylistModel
+from diving_board.playlist.tabs import PlaylistTabs
+from diving_board.playlist.text_block import PlaylistTextBlock
+
+if TYPE_CHECKING:
+    from diving_board.playlist.bucket.model import PlaylistBucketModel
+    from diving_board.playlist.hero.model import PlaylistHeroModel
+    from diving_board.playlist.tabs.model import PlaylistTabsModel
+    from diving_board.playlist.text_block.model import PlaylistTextBlockModel
 
 
-class Playlist(BaseEndpoint[models.Playlist]):
-    """Provides methods to download, parse, and retrieve playlist data.
-
-    Interacts with the playlist API endpoint.
-    """
+class Playlist(BaseEndpoint[PlaylistModel]):
+    """Provides methods to download, parse, and retrieve playlist data."""
 
     @cached_property
     @override
-    def _response_model(self) -> type[models.Playlist]:
-        """Return the Pydantic model class for this client."""
-        return models.Playlist
+    def _response_model(self) -> type[PlaylistModel]:
+        return PlaylistModel
 
-    def download(self, playlist_id: int) -> dict[str, Any]:
-        """Downloads playlist data for a given playlist ID.
+    def download(self, playlist_id: int, timezone: str = "") -> dict[str, Any]:
+        """Downloads playlist data for a given playlist.
 
         Args:
             playlist_id: The ID of the playlist to download.
+            timezone: The timezone to use for the request.
 
         Returns:
             The raw JSON response as a dict, suitable for passing to ``parse()``.
@@ -53,101 +59,115 @@ class Playlist(BaseEndpoint[models.Playlist]):
             Sec-Fetch-Site: cross-site
             Priority: u=4"""
         endpoint = "api/v1/view"
-        params: dict[str, str | int] = {
+        params = {
             "type": "playlist",
             "id": playlist_id,
-            "timezone": self._client.timezone,
+            "timezone": timezone or self._client.timezone,
         }
         return self._client.download_api_request(endpoint, params)
 
-    def parse(
-        self,
-        data: dict[str, Any],
-        *,
-        update: bool = True,
-    ) -> models.Playlist:
-        """Parses playlist data into a Playlist model.
-
-        Args:
-            data: The playlist data to parse.
-            update: Whether to update DivingBoard's models if parsing fails.
-
-        Returns:
-            A Playlist model containing the parsed data.
-        """
-        if update:
-            return self._parse_response(data)
-
-        return models.Playlist.model_validate(data)
-
-    def get(self, playlist_id: int) -> models.Playlist:
-        """Downloads and parses playlist data for a given playlist ID.
+    def get(self, playlist_id: int, timezone: str = "") -> PlaylistModel:
+        """Downloads and parses playlist data for a given playlist.
 
         Convenience method that calls ``download()`` then ``parse()``.
 
         Args:
             playlist_id: The ID of the playlist to get.
+            timezone: The timezone to use for the request.
 
         Returns:
             A Playlist model containing the parsed data.
         """
-        response = self.download(playlist_id)
+        response = self.download(playlist_id, timezone)
         return self.parse(response)
 
-    def extract_bucket_playlist(
+    def extract_hero(
         self,
-        data: models.Playlist,
+        data: PlaylistModel,
         *,
         update: bool = True,
-    ) -> bucket_playlist_models.BucketPlaylist:
-        """Extract the playlist bucket element from playlist data.
+    ) -> PlaylistHeroModel:
+        """Extract the hero element from playlist data.
 
         Args:
             data: Playlist data to extract from.
             update: Whether to update DivingBoard's models if parsing fails.
 
         Returns:
-            A PlaylistBucketPlaylist model containing the parsed data.
+            A PlaylistHeroModel containing the parsed data.
         """
-        for element in data.elements:
-            if element.field_type == "bucket" and element.attributes.type == "playlist":
-                dumped_bucket_playlist = self._dump_response(element)
-                return BucketPlaylist().parse(dumped_bucket_playlist, update=update)
+        return self._extract_element(
+            data.elements,
+            "hero",
+            PlaylistHero,
+            update=update,
+        )
 
-        msg = "No bucket playlist element found in playlist data"
-        raise ValueError(msg)
-
-
-class BucketPlaylist(BaseExtractor[bucket_playlist_models.BucketPlaylist]):
-    """Provides methods to manage the playlist bucket element from playlist data."""
-
-    @cached_property
-    @override
-    def _response_model(self) -> type[bucket_playlist_models.BucketPlaylist]:
-        """Return the Pydantic model class for this client."""
-        return bucket_playlist_models.BucketPlaylist
-
-    def parse(
+    def extract_tabs(
         self,
-        data: dict[str, Any],
+        data: PlaylistModel,
         *,
         update: bool = True,
-    ) -> bucket_playlist_models.BucketPlaylist:
-        """Parses playlist bucket data into a PlaylistBucketPlaylist model.
+    ) -> PlaylistTabsModel:
+        """Extract the tabs element from playlist data.
 
         Args:
-            data: The playlist bucket data to parse.
+            data: Playlist data to extract from.
             update: Whether to update DivingBoard's models if parsing fails.
 
         Returns:
-            A PlaylistBucketPlaylist model containing the parsed data.
+            A PlaylistTabsModel containing the parsed data.
         """
-        if update:
-            return self._parse_response(data)
+        return self._extract_element(
+            data.elements,
+            "tabs",
+            PlaylistTabs,
+            update=update,
+        )
 
-        return bucket_playlist_models.BucketPlaylist.model_validate(data)
+    def extract_bucket(
+        self,
+        data: PlaylistModel,
+        bucket_type: str,
+        *,
+        update: bool = True,
+    ) -> PlaylistBucketModel:
+        """Extract a bucket element from playlist data.
 
-    @cached_property
-    def _response_model_folder_name(self) -> str:
-        """Return the folder name for this extractor's models."""
-        return "playlist/bucket/playlist"
+        Args:
+            data: Playlist data to extract from.
+            bucket_type: The bucket subtype to extract (e.g. "playlist", "related").
+            update: Whether to update DivingBoard's models if parsing fails.
+
+        Returns:
+            A PlaylistBucketModel containing the parsed data.
+        """
+        return self._extract_element(
+            data.elements,
+            "bucket",
+            PlaylistBucket,
+            attribute_type=bucket_type,
+            update=update,
+        )
+
+    def extract_text_block(
+        self,
+        data: PlaylistModel,
+        *,
+        update: bool = True,
+    ) -> PlaylistTextBlockModel:
+        """Extract the text block element from playlist data.
+
+        Args:
+            data: Playlist data to extract from.
+            update: Whether to update DivingBoard's models if parsing fails.
+
+        Returns:
+            A PlaylistTextBlockModel containing the parsed data.
+        """
+        return self._extract_element(
+            data.elements,
+            "textBlock",
+            PlaylistTextBlock,
+            update=update,
+        )

@@ -4,29 +4,33 @@ from __future__ import annotations
 
 from datetime import datetime
 from functools import cached_property
-from typing import Any, override
+from typing import TYPE_CHECKING, Any, override
 
 from gapi import CustomSerializer, ReplacementField
 
-from diving_board.base_api_endpoint import BaseEndpoint, BaseExtractor
-from diving_board.schedule import models
-from diving_board.schedule.group_list import models as group_list_models
+from diving_board.base_api_endpoint import BaseEndpoint
+from diving_board.schedule.filter_list import ScheduleFilterList
+from diving_board.schedule.grid_block import ScheduleGridBlock
+from diving_board.schedule.group_list import ScheduleGroupList
+from diving_board.schedule.models import ScheduleModel
+
+if TYPE_CHECKING:
+    from diving_board.schedule.filter_list.model import ScheduleFilterListModel
+    from diving_board.schedule.grid_block.model import ScheduleGridBlockModel
+    from diving_board.schedule.group_list.models import ScheduleGroupListModel
 
 
-class Schedule(BaseEndpoint[models.Schedule]):
+class Schedule(BaseEndpoint[ScheduleModel]):
     """Provides methods to download, parse, and retrieve schedule data."""
 
     @cached_property
     @override
-    def _response_model(self) -> type[models.Schedule]:
-        """Return the Pydantic model class for this client."""
-        return models.Schedule
+    def _response_model(self) -> type[ScheduleModel]:
+        return ScheduleModel
 
     @cached_property
     @override
-    def _custom_fields(self) -> list[ReplacementField]:
-        # Need to override the default datetime format because these
-        # datetimes are naive.
+    def _replacement_fields(self) -> list[ReplacementField]:
         return [
             ReplacementField(
                 class_name="Attributes13",
@@ -47,36 +51,33 @@ class Schedule(BaseEndpoint[models.Schedule]):
 
     @cached_property
     @override
-    def _custom_imports(self) -> list[str]:
+    def _additional_imports(self) -> list[str]:
         return ["from pydantic import NaiveDatetime"]
 
-    # All of the NaiveDatetime fields need custom serialization code because
-    # they use an unusual format.
     @cached_property
     @override
     def _custom_serializers(self) -> list[CustomSerializer]:
+        # All of the NaiveDatetime fields need custom serialization code because they
+        # use a unique format.
         return [
             CustomSerializer(
                 class_name="Group",
                 field_name="id",
-                serializer_code='strf_string ="%Y-%m-%dT%H:%M"\n'
-                "return value.strftime(strf_string)",
+                serializer_code='return value.strftime("%Y-%m-%dT%H:%M")',
                 input_type="NaiveDatetime",
                 output_type="str",
             ),
             CustomSerializer(
                 class_name="Attributes13",
                 field_name="text",
-                serializer_code='strf_string ="%Y-%m-%dT%H:%M"\n'
-                "return value.strftime(strf_string)",
+                serializer_code='return value.strftime("%Y-%m-%dT%H:%M")',
                 input_type="NaiveDatetime",
                 output_type="str",
             ),
             CustomSerializer(
                 class_name="Data",
                 field_name="from_",
-                serializer_code='strf_string ="%Y-%m-%dT%H:%M"\n'
-                "return value.strftime(strf_string)",
+                serializer_code='return value.strftime("%Y-%m-%dT%H:%M")',
                 input_type="NaiveDatetime",
                 output_type="str",
             ),
@@ -84,18 +85,21 @@ class Schedule(BaseEndpoint[models.Schedule]):
 
     def download(
         self,
+        from_: datetime | None = None,
+        last_seen: str | None = None,
         groups_per_page: int = 7,
         items_per_group: int = 7,
-        from_value: datetime | None = None,
-        last_seen: str | None = None,
+        timezone: str = "",
     ) -> dict[str, Any]:
-        """Downloads schedule data.
+        """Downloads schedule data for a given datetime and pagination token.
 
         Args:
             groups_per_page: Number of groups per page.
             items_per_group: Number of items per group.
-            from_value: Starting datetime for the schedule.
+            from_: Starting datetime for the schedule, to match the API used by the
+                website it should be the first day of a month at a time of 00:00:00.
             last_seen: Pagination token from a previous response.
+            timezone: The timezone to use for the request.
 
         Returns:
             The raw JSON response as a dict, suitable for passing to ``parse()``.
@@ -125,51 +129,31 @@ class Schedule(BaseEndpoint[models.Schedule]):
             TE: trailers"""
         endpoint = "api/v1/view/schedule"
 
-        params: dict[str, str | int] = {
-            "timezone": self._client.timezone,
+        params = {
+            "timezone": timezone or self._client.timezone,
             "groupsPerPage": groups_per_page,
             "itemsPerGroup": items_per_group,
         }
 
-        # from_value is not present when getting airing episodes for the current month.
-        if from_value:
-            params["from"] = from_value.date().isoformat() + "T00:00:00"
+        # from is not used when getting results from the current month so it should be
+        # an optional parameter.
+        if from_:
+            params["from"] = from_.date().isoformat() + "T00:00:00"
 
-        # last_seen is not present on the first page. For the most API consistent
-        # results the value should be set to the first of the month like
-        # 2026-06-01T00:00:00
+        # last_seen is not present on the first page so it should be optional parameter.
         if last_seen:
             params["lastSeen"] = last_seen
 
         return self._client.download_api_request(endpoint, params)
 
-    def parse(
-        self,
-        data: dict[str, Any],
-        *,
-        update: bool = True,
-    ) -> models.Schedule:
-        """Parses schedule data into a Schedule model.
-
-        Args:
-            data: The schedule data to parse.
-            update: Whether to update DivingBoard's models if parsing fails.
-
-        Returns:
-            A Schedule model containing the parsed data.
-        """
-        if update:
-            return self._parse_response(data)
-
-        return models.Schedule.model_validate(data)
-
     def get(
         self,
+        from_: datetime | None = None,
+        last_seen: str | None = None,
         groups_per_page: int = 7,
         items_per_group: int = 7,
-        from_value: datetime | None = None,
-        last_seen: str | None = None,
-    ) -> models.Schedule:
+        timezone: str = "",
+    ) -> ScheduleModel:
         """Downloads and parses schedule data.
 
         Convenience method that calls ``download()`` then ``parse()``.
@@ -177,8 +161,10 @@ class Schedule(BaseEndpoint[models.Schedule]):
         Args:
             groups_per_page: Number of groups per page.
             items_per_group: Number of items per group.
-            from_value: Starting datetime for the schedule.
+            from_: Starting datetime for the schedule, to match the API used by the
+                website it should be the first day of a month at a time of 00:00:00.
             last_seen: Pagination token from a previous response.
+            timezone: The timezone to use for the request.
 
         Returns:
             A Schedule model containing the parsed data.
@@ -186,34 +172,38 @@ class Schedule(BaseEndpoint[models.Schedule]):
         response = self.download(
             groups_per_page=groups_per_page,
             items_per_group=items_per_group,
-            from_value=from_value,
+            from_=from_,
             last_seen=last_seen,
+            timezone=timezone,
         )
         return self.parse(response)
 
     def get_until_datetime(
         self,
+        from_: datetime | None = None,
+        end_datetime: datetime | None = None,
         groups_per_page: int = 7,
         items_per_group: int = 7,
-        end_datetime: datetime | None = None,
-        *,
-        from_value: datetime | None = None,
-    ) -> list[models.Schedule]:
+        timezone: str = "",
+    ) -> list[ScheduleModel]:
         """Get all schedule pages until end_datetime is reached.
 
         Args:
             groups_per_page: Number of groups per page.
             items_per_group: Number of items per group.
-            end_datetime: Stop when reaching this datetime.
-            from_value: Starting datetime for the schedule.
+            from_: Starting datetime for the schedule, to match the API used by the
+                website it should be the first day of a month at a time of 00:00:00.
+            end_datetime: Stop when a release for this date or later is found.
+            timezone: The timezone to use for the request.
 
         Returns:
             List of Schedule pages.
         """
-        all_schedules: list[models.Schedule] = []
+        all_schedules: list[ScheduleModel] = []
         last_seen = ""
 
-        # Stop the user from doing something silly on accident
+        # If no end_datetime is given assume the user wants everything up to the current
+        # date for simplicity.
         if end_datetime is None:
             end_datetime = datetime.now().astimezone()
 
@@ -221,10 +211,14 @@ class Schedule(BaseEndpoint[models.Schedule]):
             schedule = self.get(
                 groups_per_page=groups_per_page,
                 items_per_group=items_per_group,
-                from_value=from_value,
+                from_=from_,
                 last_seen=last_seen,
+                timezone=timezone,
             )
-            from_value = None  # from is only for the first request
+            # When using the website from is only sent on the first request for a
+            # specific month. After that everything just uses lastSeen even if the
+            # results come from future months so the arguement can be removed.
+            from_ = None
             all_schedules.append(schedule)
 
             group_list = self.extract_group_list(schedule)
@@ -243,12 +237,56 @@ class Schedule(BaseEndpoint[models.Schedule]):
             ):
                 return all_schedules
 
-    def extract_group_list(
+    def extract_grid_block(
         self,
-        data: models.Schedule,
+        data: ScheduleModel,
         *,
         update: bool = True,
-    ) -> group_list_models.GroupList:
+    ) -> ScheduleGridBlockModel:
+        """Extract the grid block element from schedule data.
+
+        Args:
+            data: Schedule data to extract from.
+            update: Whether to update DivingBoard's models if parsing fails.
+
+        Returns:
+            A ScheduleGridBlockModel containing the parsed data.
+        """
+        return self._extract_element(
+            data.elements,
+            "gridBlock",
+            ScheduleGridBlock,
+            update=update,
+        )
+
+    def extract_filter_list(
+        self,
+        data: ScheduleModel,
+        *,
+        update: bool = True,
+    ) -> ScheduleFilterListModel:
+        """Extract the filter list element from schedule data.
+
+        Args:
+            data: Schedule data to extract from.
+            update: Whether to update DivingBoard's models if parsing fails.
+
+        Returns:
+            A ScheduleFilterListModel containing the parsed data.
+        """
+        return self._extract_element(
+            data.elements,
+            "filterList",
+            ScheduleFilterList,
+            update=update,
+        )
+
+    def extract_group_list(
+        self,
+        data: ScheduleModel,
+        *,
+        update: bool = True,
+    ) -> ScheduleGroupListModel:
         """Extract the group list element from schedule data.
 
         Args:
@@ -256,109 +294,11 @@ class Schedule(BaseEndpoint[models.Schedule]):
             update: Whether to update DivingBoard's models if parsing fails.
 
         Returns:
-            A ScheduleGroupList model containing the parsed data.
+            A ScheduleGroupListModel containing the parsed data.
         """
-        for element in data.elements:
-            if element.field_type == "groupList":
-                dumped_group_list = self._dump_response(element)
-                return GroupList().parse(dumped_group_list, update=update)
-
-        msg = "No groupList element found in schedule data"
-        raise ValueError(msg)
-
-
-class GroupList(BaseExtractor[group_list_models.GroupList]):
-    """Provides methods to manage the group list element from schedule data."""
-
-    @cached_property
-    def _custom_fields(self) -> list[ReplacementField]:
-        return [
-            ReplacementField(
-                class_name="Attributes6",
-                field_name="text",
-                new_field="text: NaiveDatetime | str | None = None",
-            ),
-            # Need to override the default datetime format because these
-            # datetimes are naive.
-            ReplacementField(
-                class_name="Attributes2",
-                field_name="text",
-                new_field="text: NaiveDatetime",
-            ),
-            ReplacementField(
-                class_name="Group",
-                field_name="id",
-                new_field="id: NaiveDatetime",
-            ),
-        ]
-
-    @cached_property
-    def _custom_imports(self) -> list[str]:
-        return [
-            "from pydantic import NaiveDatetime",
-            "from datetime import datetime",
-        ]
-
-    # All of the NaiveDatetime fields need custom serialization code because
-    # they use an unusual format.
-    @cached_property
-    def _custom_serializers(self) -> list[CustomSerializer]:
-        return [
-            CustomSerializer(
-                class_name="Attributes2",
-                field_name="text",
-                serializer_code='strf_string ="%Y-%m-%dT%H:%M"\n'
-                "return value.strftime(strf_string)",
-                input_type="NaiveDatetime",
-                output_type="str",
-            ),
-            CustomSerializer(
-                class_name="Attributes6",
-                field_name="text",
-                serializer_code="if isinstance(value, (str, type(None))):\n"
-                "    return value\n"
-                'strf_string ="%Y-%m-%dT%H:%M"\n'
-                "return value.strftime(strf_string)",
-                input_type="AwareDatetime | str | None",
-                output_type="str | None",
-            ),
-            CustomSerializer(
-                class_name="Group",
-                field_name="id",
-                serializer_code='strf_string ="%Y-%m-%dT%H:%M"\n'
-                "return value.strftime(strf_string)",
-                input_type="NaiveDatetime",
-                output_type="str",
-            ),
-        ]
-
-    @cached_property
-    @override
-    def _response_model(self) -> type[group_list_models.GroupList]:
-        """Return the Pydantic model class for this client."""
-        return group_list_models.GroupList
-
-    def parse(
-        self,
-        data: dict[str, Any],
-        *,
-        update: bool = True,
-    ) -> group_list_models.GroupList:
-        """Parses group list data into a GroupList model.
-
-        Args:
-            data: The group list data to parse.
-            update: Whether to update DivingBoard's models if parsing fails.
-
-        Returns:
-            A ScheduleGroupList model containing the parsed data.
-        """
-        if update:
-            return self._parse_response(data)
-
-        return group_list_models.GroupList.model_validate(data)
-
-    @cached_property
-    def _response_model_folder_name(self) -> str:
-        """Return the snake_case version of the response model's class name."""
-        return "schedule/" + super()._response_model_folder_name
+        return self._extract_element(
+            data.elements,
+            "groupList",
+            ScheduleGroupList,
+            update=update,
+        )
