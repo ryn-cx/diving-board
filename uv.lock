@@ -197,7 +197,7 @@ dev = [
 [[package]]
 name = "gapi"
 version = "0.1.0"
-source = { git = "https://github.com/ryn-cx/gapi#0a4350ac9969d2dcfd2e1801dcb3ad70f92e6495" }
+source = { git = "https://github.com/ryn-cx/gapi#c229dc6b7acd433cab612dc7b58745e17704dce3" }
 dependencies = [
     { name = "datamodel-code-generator" },
     { name = "degenson" },
