@@ -36,7 +36,6 @@ class BaseExtractor[T: BaseModel](GAPIClient[T]):
             class_name=class_name,
             field_name=field_name,
             serializer_code='return value.strftime("%Y-%m-%dT%H:%M")',
-            input_type="NaiveDatetime",
             output_type="str",
         )
 
