@@ -495,6 +495,11 @@ class Params(BaseModel):
     groups_per_page: int = Field(..., alias="groupsPerPage")
     items_per_group: int = Field(..., alias="itemsPerGroup")
     last_seen: str | None = Field(None, alias="lastSeen")
+    from_: NaiveDatetime | None = Field(None, alias="from")
+
+    @field_serializer("from_")
+    def serialize_from_(self, value: NaiveDatetime) -> str:
+        return value.strftime("%Y-%m-%dT%H:%M:%S")
 
 
 class DivingBoard(BaseModel):

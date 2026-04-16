@@ -22,20 +22,25 @@ class BaseExtractor[T: BaseModel](GAPIClient[T]):
     def _naive_datetime_serializer(
         class_name: str,
         field_name: str,
+        *,
+        include_seconds: bool = False,
     ) -> CustomSerializer:
         """Create a CustomSerializer for a NaiveDatetime field.
 
         Args:
             class_name: The Pydantic model class name containing the field.
             field_name: The field name to serialize.
+            include_seconds: Whether to include seconds in the serialized output.
 
         Returns:
-            A CustomSerializer that formats NaiveDatetime as ``%Y-%m-%dT%H:%M``.
+            A CustomSerializer that formats NaiveDatetime as ``%Y-%m-%dT%H:%M``
+            (or ``%Y-%m-%dT%H:%M:%S`` when ``include_seconds`` is True).
         """
+        fmt = "%Y-%m-%dT%H:%M:%S" if include_seconds else "%Y-%m-%dT%H:%M"
         return CustomSerializer(
             class_name=class_name,
             field_name=field_name,
-            serializer_code='return value.strftime("%Y-%m-%dT%H:%M")',
+            serializer_code=f'return value.strftime("{fmt}")',
             output_type="str",
         )
 

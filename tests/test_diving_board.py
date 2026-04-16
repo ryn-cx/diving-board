@@ -209,6 +209,18 @@ class TestGet:
             """Test getting the schedule."""
             client.schedule.get()
 
+        def test_get_schedule_from(self) -> None:
+            """Test getting the schedule with a from_ value."""
+            today = datetime.now().astimezone()
+            first_of_month = today.replace(
+                day=1,
+                hour=0,
+                minute=0,
+                second=0,
+                microsecond=0,
+            )
+            client.schedule.get(from_=first_of_month)
+
         def test_get_schedule_until_datetime(self) -> None:
             """Test getting schedule until datetime."""
             end_datetime = datetime.now().astimezone() + timedelta(days=30)

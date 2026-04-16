@@ -44,6 +44,11 @@ class Schedule(BaseEndpoint[ScheduleModel]):
                 field_name="from_",
                 new_type="NaiveDatetime",
             ),
+            ReplacementType(
+                class_name="Params",
+                field_name="from_",
+                new_type="NaiveDatetime",
+            ),
         ]
 
     @classmethod
@@ -58,6 +63,7 @@ class Schedule(BaseEndpoint[ScheduleModel]):
             cls._naive_datetime_serializer("Group", "id"),
             cls._naive_datetime_serializer("Attributes13", "text"),
             cls._naive_datetime_serializer("Data", "from_"),
+            cls._naive_datetime_serializer("Params", "from_", include_seconds=True),
         ]
 
     def download(
@@ -105,21 +111,21 @@ class Schedule(BaseEndpoint[ScheduleModel]):
             Priority: u=4
             TE: trailers"""
         endpoint = "api/v1/view/schedule"
-        timezone = timezone or self._client.timezone
 
         params: dict[str, str | int] = {
-            "timezone": timezone,
+            "timezone": timezone or self._client.timezone,
             "groupsPerPage": groups_per_page,
             "itemsPerGroup": items_per_group,
         }
 
         # from is not used when getting results from the current month so it should be
-        # an optional parameter.
+        # an optional parameter. The API expects a naive datetime string, so apply the
+        # timezone (from the param or client default) to from_ first if it has none.
         if from_:
             if from_.tzinfo is None:
-                tz = ZoneInfo(timezone)
+                tz = ZoneInfo(timezone or self._client.timezone)
                 from_ = from_.replace(tzinfo=tz)
-            params["from"] = from_.isoformat()
+            params["from"] = from_.strftime("%Y-%m-%dT%H:%M:%S")
 
         # last_seen is not present on the first page so it should be optional parameter.
         if last_seen:
