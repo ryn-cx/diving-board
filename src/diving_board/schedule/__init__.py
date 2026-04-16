@@ -43,6 +43,11 @@ class Schedule(BaseEndpoint[ScheduleModel]):
                 field_name="from_",
                 new_type="NaiveDatetime",
             ),
+            ReplacementType(
+                class_name="Params",
+                field_name="from_",
+                new_type="NaiveDatetime",
+            ),
         ]
 
     @classmethod
@@ -57,6 +62,7 @@ class Schedule(BaseEndpoint[ScheduleModel]):
             cls._naive_datetime_serializer("Group", "id"),
             cls._naive_datetime_serializer("Attributes13", "text"),
             cls._naive_datetime_serializer("Data", "from_"),
+            cls._naive_datetime_serializer("Params", "from_"),
         ]
 
     def download(
