@@ -225,6 +225,10 @@ class TestGet:
             """Test getting a VOD."""
             client.vod.get(532182)
 
+        def test_get_search(self) -> None:
+            """Test searching."""
+            client.search.get("Shojo")
+
     class TestInvalid:
         """Tests getting data with invalid inputs."""
 

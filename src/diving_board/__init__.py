@@ -6,13 +6,14 @@ from functools import cached_property
 from logging import NullHandler, getLogger
 from typing import Any
 
-import requests
+from get_around import GetAround
 
 from diving_board.adjacent_series import AdjacentSeries
 from diving_board.exceptions import HTTPError
 from diving_board.playlist import Playlist
 from diving_board.schedule import Schedule
 from diving_board.schedule import ScheduleGroupList as ScheduleGroupList
+from diving_board.search import Search
 from diving_board.season import Season
 from diving_board.vod import Vod
 
@@ -38,10 +39,17 @@ class DivingBoard:
         self,
         timezone: str = "America/Los_Angeles",
         timeout: int = 30,
+        get_around_server: str | None = None,
+        get_around_password: str | None = None,
     ) -> None:
         """Initialize the DivingBoard client."""
         self.timezone = timezone
         self.timeout = timeout
+
+        self.get_around_client = GetAround(
+            server=get_around_server,
+            password=get_around_password,
+        )
 
         self.__auth_token_value = ""
         self.__realm_value = ""
@@ -51,6 +59,7 @@ class DivingBoard:
         self.season = Season(self)
         self.schedule = Schedule(self)
         self.adjacent_series = AdjacentSeries(self)
+        self.search = Search(self)
 
         super().__init__()
 
@@ -98,7 +107,11 @@ class DivingBoard:
             # used page that actually returns the URL.
             "Referer": f"{self.BASE_MAIN_URL}/browse",
         }
-        response = requests.get(url, headers=headers, timeout=self.timeout)
+        response = self.get_around_client.get(
+            url,
+            headers=headers,
+            timeout=self.timeout,
+        )
         response_text = response.text
 
         if not (match := re.search(r'API_KEY:"([0-9a-f-]+)"', response_text)):
@@ -170,7 +183,11 @@ class DivingBoard:
             "Referer": f"{self.BASE_MAIN_URL}/",
             "x-api-key": self.__api_key,
         }
-        response = requests.get(url, headers=headers, timeout=self.timeout)
+        response = self.get_around_client.get(
+            url,
+            headers=headers,
+            timeout=self.timeout,
+        )
         json_response = response.json()
         self.__realm_value = json_response["settings"]["realm"]
         authentication = json_response["authentication"]
@@ -205,6 +222,7 @@ class DivingBoard:
         self,
         endpoint: str,
         params: dict[str, Any],
+        base_url: str | None = None,
     ) -> dict[str, Any]:
         """Downloads data from the API for a given endpoint and parameters."""
         headers = {
@@ -216,12 +234,10 @@ class DivingBoard:
             "Realm": self.__realm,
         }
 
-        url = f"{self.BASE_API_URL}/{endpoint}"
+        url = f"{base_url or self.BASE_API_URL}/{endpoint}"
 
-        request = requests.Request("GET", url, params=params)
-        prepared = request.prepare()
-        logger.info("Downloading API data: %s", prepared.url)
-        response = requests.get(
+        logger.info("Downloading API data: %s params=%s", url, params)
+        response = self.get_around_client.get(
             url=url,
             headers=headers,
             params=params,
