@@ -186,6 +186,37 @@ class TestExtract:
                 parsed_schedule = client.schedule.parse(json_content)
                 client.schedule.extract_group_list(parsed_schedule)
 
+    class TestSearch:
+        """Tests extracting search data."""
+
+        def test_extract_search_input(self) -> None:
+            """Test extracting search input."""
+            for json_file in client.search.json_files():
+                json_content = json.loads(json_file.read_text())
+                parsed_search = client.search.parse(json_content)
+                client.search.extract_input(parsed_search)
+
+        def test_extract_search_filter_list(self) -> None:
+            """Test extracting search filter list."""
+            for json_file in client.search.json_files():
+                json_content = json.loads(json_file.read_text())
+                parsed_search = client.search.parse(json_content)
+                client.search.extract_filter_list(parsed_search)
+
+        def test_extract_search_sort_list(self) -> None:
+            """Test extracting search sort list."""
+            for json_file in client.search.json_files():
+                json_content = json.loads(json_file.read_text())
+                parsed_search = client.search.parse(json_content)
+                client.search.extract_sort_list(parsed_search)
+
+        def test_extract_search_card_list(self) -> None:
+            """Test extracting search card list."""
+            for json_file in client.search.json_files():
+                json_content = json.loads(json_file.read_text())
+                parsed_search = client.search.parse(json_content)
+                client.search.extract_card_list(parsed_search)
+
 
 class TestGet:
     """Tests getting data."""
@@ -239,7 +270,7 @@ class TestGet:
 
         def test_get_search(self) -> None:
             """Test searching."""
-            client.search.get("Shojo")
+            client.search.get("One")
 
     class TestInvalid:
         """Tests getting data with invalid inputs."""
