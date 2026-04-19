@@ -29,30 +29,7 @@ class AdjacentSeries(BaseEndpoint[AdjacentSeriesModel]):
         Returns:
             The raw JSON response as a dict, suitable for passing to ``parse()``.
         """
-        # Example request headers from https://www.hidive.com/season/34391
-        """GET /api/v4/series/1049/adjacentTo/34391?size=25 HTTP/2
-        Host: dce-frontoffice.imggaming.com
-        User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:147.0)
-                    Gecko/20100101 Firefox/147.0
-        Accept: application/json, text/plain, */*
-        Accept-Language: en-US
-        Accept-Encoding: gzip, deflate, br, zstd
-        Referer: https://www.hidive.com/
-        Content-Type: application/json
-        x-api-key: 857a1e5d-e35e-4fdf-805b-a87b6f8364bf
-        app: dice
-        Realm: dce.hidive
-        x-app-var: 6.60.0.b702efb
-        Authorization: Bearer TOKEN
-        Origin: https://www.hidive.com
-        Sec-GPC: 1
-        Connection: keep-alive
-        Sec-Fetch-Dest: empty
-        Sec-Fetch-Mode: cors
-        Sec-Fetch-Site: cross-site
-        Priority: u=4
-        TE: trailers"""
-
+        # Request from: https://www.hidive.com/season/34391
         endpoint = f"api/v4/series/{series_id}/adjacentTo/{season_id}"
         params = {"size": size}
         return self._client.download(endpoint, params)

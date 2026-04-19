@@ -15,6 +15,7 @@ from diving_board.schedule import Schedule
 from diving_board.schedule import ScheduleGroupList as ScheduleGroupList
 from diving_board.search import Search
 from diving_board.season import Season
+from diving_board.series import Series
 from diving_board.vod import Vod
 
 logger = getLogger(__name__)
@@ -60,6 +61,7 @@ class DivingBoard:
         self.schedule = Schedule(self)
         self.adjacent_series = AdjacentSeries(self)
         self.search = Search(self)
+        self.series = Series(self)
 
         super().__init__()
 
@@ -73,22 +75,6 @@ class DivingBoard:
         # is the original code to extract it (not available in Git history because this
         # is before the initial commit).
         return "857a1e5d-e35e-4fdf-805b-a87b6f8364bf"
-
-        # Example request headers:
-        """GET /code/js/app.43221e881b6a9a9bc6fe.js HTTP/3
-        Host: www.hidive.com
-        User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:147.0)
-                    Gecko/20100101 Firefox/147.0
-        Accept: */*
-        Accept-Language: en-US,en;q=0.9
-        Accept-Encoding: gzip, deflate, br, zstd
-        Sec-GPC: 1
-        Connection: keep-alive
-        Referer: https://www.hidive.com/browse
-        Sec-Fetch-Dest: script
-        Sec-Fetch-Mode: no-cors
-        Sec-Fetch-Site: same-origin
-        TE: trailers"""
 
         # This URL is hard coded, but the URL changes sometimes, however though the old
         # version of the URL will continue to work. So far hard coding the URL has had
@@ -122,46 +108,6 @@ class DivingBoard:
 
     def __download_auth_values(self) -> None:
         """Downloads and caches the authorisation token and realm."""
-        # Example request headers:
-        """GET /api/v1/init/
-                            ?lk=language
-                            &pk=subTitleLanguage
-                            &pk=subtitlePreferenceMode
-                            &pk=audioLanguage
-                            &pk=autoAdvance
-                            &pk=pluginAccessTokens
-                            &pk=videoBackgroundAutoPlay
-                            &readLicences=true
-                            &countEvents=LIVE
-                            &menuTargetPlatform=WEB
-                            &readIconStore=ENABLED
-                            &readUserProfiles=true
-                            &section=browse
-                            &geoBlockedContentDisplayMode=SHOW
-                            &displaySectionLinkBuckets=SHOW
-                            &displayEpgBuckets=HIDE
-                            &displayContentAvailableOnSignIn=SHOW
-                            &rpp=12&bpp=4&bspp=10 HTTP/2
-        Host: dce-frontoffice.imggaming.com
-        User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:147.0)
-                    Gecko/20100101 Firefox/147.0
-        Accept: application/json, text/plain, */*
-        Accept-Language: en-US
-        Accept-Encoding: gzip, deflate, br, zstd
-        Referer: https://www.hidive.com/
-        Content-Type: application/json
-        x-api-key: 857a1e5d-e35e-4fdf-805b-a87b6f8364bf
-        app: dice
-        x-app-var: 6.60.0.b702efb
-        Origin: https://www.hidive.com
-        Sec-GPC: 1
-        Connection: keep-alive
-        Sec-Fetch-Dest: empty
-        Sec-Fetch-Mode: cors
-        Sec-Fetch-Site: cross-site
-        Priority: u=4
-        TE: trailers"""
-
         url = (
             f"{self.BASE_API_URL}/api/v1/init/"
             "?lk=language"

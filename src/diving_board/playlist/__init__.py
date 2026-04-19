@@ -35,27 +35,7 @@ class Playlist(BaseEndpoint[PlaylistModel]):
         Returns:
             The raw JSON response as a dict, suitable for passing to ``parse()``.
         """
-        # Example request headers from https://www.hidive.com/playlist/19078
-        """GET /api/v1/view?type=playlist&id=19078&timezone=America%2FLos_Angeles HTTP/2
-            Host: dce-frontoffice.imggaming.com
-            User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:147.0)
-                        Gecko/20100101 Firefox/147.0
-            Accept: application/json, text/plain, */*
-            Accept-Language: en-US
-            Accept-Encoding: gzip, deflate, br, zstd
-            Referer: https://www.hidive.com/
-            Content-Type: application/json
-            x-api-key: 857a1e5d-e35e-4fdf-805b-a87b6f8364bf
-            app: dice
-            Realm: dce.hidive
-            x-app-var: 6.60.0.ae5c96d
-            Authorization: Bearer TOKEN
-            Origin: https://www.hidive.com
-            Connection: keep-alive
-            Sec-Fetch-Dest: empty
-            Sec-Fetch-Mode: cors
-            Sec-Fetch-Site: cross-site
-            Priority: u=4"""
+        # Request from: https://www.hidive.com/playlist/19078
         endpoint = "api/v1/view"
         params: dict[str, str | int] = {
             "type": "playlist",

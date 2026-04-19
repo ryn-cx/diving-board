@@ -38,6 +38,12 @@ class TestParse:
             file_content = json.loads(json_file.read_text())
             client.vod.parse(file_content)
 
+    def test_parse_series(self) -> None:
+        """Test parsing series files."""
+        for json_file in client.series.json_files():
+            file_content = json.loads(json_file.read_text())
+            client.series.parse(file_content)
+
     def test_parse_schedule(self) -> None:
         """Test parsing schedule files."""
         for json_file in client.schedule.json_files():
@@ -232,6 +238,10 @@ class TestGet:
             """Test getting a playlist."""
             client.playlist.get(20431)
 
+        def test_get_series(self) -> None:
+            """Test getting a series."""
+            client.series.get(1286)
+
         def test_get_adjacent_series(self) -> None:
             """Test getting adjacent series."""
             client.adjacent_series.get(1081, 19334)
@@ -284,6 +294,11 @@ class TestGet:
             """Test getting an invalid playlist."""
             with pytest.raises(HTTPError):
                 client.playlist.get(0)
+
+        def test_get_series_invalid_id(self) -> None:
+            """Test getting an invalid series."""
+            with pytest.raises(HTTPError):
+                client.series.get(0)
 
         def test_get_adjacent_series_invalid_id(self) -> None:
             """Test getting an invalid adjacent series."""
