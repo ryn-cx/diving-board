@@ -97,7 +97,7 @@ class BaseEndpoint[T: GAPIBaseModel](BaseExtractor[T]):
             if result:
                 msg = f"Too many {type_desc} elements found"
                 raise ValueError(msg)
-            dumped = self.dump(element)
+            dumped = self.original_input(element)
             result = extractor_cls().parse(dumped, update_model=update_model)
 
         if result is None:

@@ -20,32 +20,34 @@ class TestGet:
     def test_get_season(self) -> None:
         """Test getting a season."""
         model = client.season.get(19334)
-        client.season.save_new_json_file(client.season.dump(model))
+        client.season.save_new_json_file(client.season.original_input(model))
 
     def test_get_playlist(self) -> None:
         """Test getting a playlist."""
         model = client.playlist.get(20431)
-        client.playlist.save_new_json_file(client.playlist.dump(model))
+        client.playlist.save_new_json_file(client.playlist.original_input(model))
 
     def test_get_vod(self) -> None:
         """Test getting a VOD."""
         model = client.vod.get(532182)
-        client.vod.save_new_json_file(client.vod.dump(model))
+        client.vod.save_new_json_file(client.vod.original_input(model))
 
     def test_get_series(self) -> None:
         """Test getting a series."""
         model = client.series.get(1286)
-        client.series.save_new_json_file(client.series.dump(model))
+        client.series.save_new_json_file(client.series.original_input(model))
 
     def test_get_adjacent_series(self) -> None:
         """Test getting adjacent series."""
         model = client.adjacent_series.get(1081, 19334)
-        client.adjacent_series.save_new_json_file(client.adjacent_series.dump(model))
+        client.adjacent_series.save_new_json_file(
+            client.adjacent_series.original_input(model),
+        )
 
     def test_get_schedule(self) -> None:
         """Test getting the schedule."""
         model = client.schedule.get()
-        client.schedule.save_new_json_file(client.schedule.dump(model))
+        client.schedule.save_new_json_file(client.schedule.original_input(model))
 
     def test_get_schedule_from(self) -> None:
         """Test getting the schedule with a from_ value."""
@@ -58,7 +60,7 @@ class TestGet:
             microsecond=0,
         )
         model = client.schedule.get(from_=first_of_month)
-        client.schedule.save_new_json_file(client.schedule.dump(model))
+        client.schedule.save_new_json_file(client.schedule.original_input(model))
 
     def test_get_schedule_until_datetime(self) -> None:
         """Test getting schedule until datetime."""
@@ -75,7 +77,7 @@ class TestGet:
     def test_get_search(self) -> None:
         """Test searching."""
         model = client.search.get("One")
-        client.search.save_new_json_file(client.search.dump(model))
+        client.search.save_new_json_file(client.search.original_input(model))
 
 
 class TestInvalidGet:
