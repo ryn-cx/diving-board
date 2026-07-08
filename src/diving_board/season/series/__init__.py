@@ -1,3 +1,4 @@
+# TODO: Validate
 """Season series extractor."""
 
 from __future__ import annotations

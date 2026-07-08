@@ -1,3 +1,4 @@
+# TODO: Validate
 """Schedule group list extractor."""
 
 from __future__ import annotations

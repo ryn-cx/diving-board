@@ -1,38 +1,37 @@
 # ruff: noqa: D100, D101
-from __future__ import annotations
+from good_ass_pydantic_integrator import GAPIBaseModel
+from pydantic import ConfigDict, Field
 
-from pydantic import BaseModel, ConfigDict, Field
 
-
-class Attributes1(BaseModel):
+class Attributes1(GAPIBaseModel):
     model_config = ConfigDict(extra="forbid")
     text: str
 
 
-class Header(BaseModel):
+class Header(GAPIBaseModel):
     model_config = ConfigDict(extra="forbid")
     field_type: str = Field(..., alias="$type")
     attributes: Attributes1
 
 
-class Attributes2(BaseModel):
+class Attributes2(GAPIBaseModel):
     model_config = ConfigDict(extra="forbid")
     source: str
 
 
-class Image(BaseModel):
+class Image(GAPIBaseModel):
     model_config = ConfigDict(extra="forbid")
     field_type: str = Field(..., alias="$type")
     attributes: Attributes2
 
 
-class Token(BaseModel):
+class Token(GAPIBaseModel):
     model_config = ConfigDict(extra="forbid")
     key: str
     value: str
 
 
-class Data(BaseModel):
+class Data(GAPIBaseModel):
     model_config = ConfigDict(extra="forbid")
     id: int
     video_id: int = Field(..., alias="videoId")
@@ -43,13 +42,13 @@ class Data(BaseModel):
     type: str
 
 
-class Action1(BaseModel):
+class Action1(GAPIBaseModel):
     model_config = ConfigDict(extra="forbid")
     type: str
     data: Data
 
 
-class Attributes3(BaseModel):
+class Attributes3(GAPIBaseModel):
     model_config = ConfigDict(extra="forbid")
     has_initial_focus: bool = Field(..., alias="hasInitialFocus")
     text: str
@@ -60,24 +59,24 @@ class Attributes3(BaseModel):
     action: Action1
 
 
-class Action(BaseModel):
+class Action(GAPIBaseModel):
     model_config = ConfigDict(extra="forbid")
     field_type: str = Field(..., alias="$type")
     attributes: Attributes3
 
 
-class Attributes5(BaseModel):
+class Attributes5(GAPIBaseModel):
     model_config = ConfigDict(extra="forbid")
     text: str
 
 
-class Tag(BaseModel):
+class Tag(GAPIBaseModel):
     model_config = ConfigDict(extra="forbid")
     field_type: str = Field(..., alias="$type")
     attributes: Attributes5
 
 
-class Data1(BaseModel):
+class Data1(GAPIBaseModel):
     model_config = ConfigDict(extra="forbid")
     id: int
     type: str
@@ -86,13 +85,13 @@ class Data1(BaseModel):
     title: str
 
 
-class Action2(BaseModel):
+class Action2(GAPIBaseModel):
     model_config = ConfigDict(extra="forbid")
     type: str
     data: Data1
 
 
-class Attributes6(BaseModel):
+class Attributes6(GAPIBaseModel):
     model_config = ConfigDict(extra="forbid")
     type: str
     text: str
@@ -101,26 +100,26 @@ class Attributes6(BaseModel):
     action: Action2
 
 
-class Button(BaseModel):
+class Button(GAPIBaseModel):
     model_config = ConfigDict(extra="forbid")
     field_type: str = Field(..., alias="$type")
     attributes: Attributes6
 
 
-class Attributes4(BaseModel):
+class Attributes4(GAPIBaseModel):
     model_config = ConfigDict(extra="forbid")
     tags: list[Tag] | None = None
     text: str | None = None
     buttons: list[Button] | None = None
 
 
-class ContentItem(BaseModel):
+class ContentItem(GAPIBaseModel):
     model_config = ConfigDict(extra="forbid")
     field_type: str = Field(..., alias="$type")
     attributes: Attributes4
 
 
-class Attributes(BaseModel):
+class Attributes(GAPIBaseModel):
     model_config = ConfigDict(extra="forbid")
     header: Header
     image: Image
@@ -128,7 +127,7 @@ class Attributes(BaseModel):
     content: list[ContentItem]
 
 
-class SeasonHeroModel(BaseModel):
+class SeasonHeroModel(GAPIBaseModel):
     model_config = ConfigDict(extra="forbid")
     field_type: str = Field(..., alias="$type")
     field_zone: str = Field(..., alias="$zone")

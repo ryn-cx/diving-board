@@ -1,3 +1,4 @@
+# TODO: Validate
 """Schedule grid block extractor."""
 
 from __future__ import annotations

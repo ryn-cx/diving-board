@@ -1,32 +1,31 @@
 # ruff: noqa: D100, D101
-from __future__ import annotations
+from good_ass_pydantic_integrator import GAPIBaseModel
+from pydantic import ConfigDict, Field
 
-from pydantic import BaseModel, ConfigDict, Field
 
-
-class Attributes(BaseModel):
+class Attributes(GAPIBaseModel):
     model_config = ConfigDict(extra="forbid")
     text: str
     label: str
 
 
-class Mobile(BaseModel):
+class Mobile(GAPIBaseModel):
     model_config = ConfigDict(extra="forbid")
     display: str
 
 
-class Tablet(BaseModel):
+class Tablet(GAPIBaseModel):
     model_config = ConfigDict(extra="forbid")
     display: str
 
 
-class Style(BaseModel):
+class Style(GAPIBaseModel):
     model_config = ConfigDict(extra="forbid")
     mobile: Mobile
     tablet: Tablet
 
 
-class PlaylistTextBlockModel(BaseModel):
+class PlaylistTextBlockModel(GAPIBaseModel):
     model_config = ConfigDict(extra="forbid")
     field_type: str = Field(..., alias="$type")
     field_zone: str = Field(..., alias="$zone")

@@ -1,0 +1,7 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(grep -h '\"\\\\$type\"' c:/Users/YBR/Developer/diving-board/src/diving_board/_files/search/2026-04-16T05_20_15.341.json)"
+    ]
+  }
+}

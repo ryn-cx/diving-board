@@ -1,12 +1,11 @@
-# ruff: noqa: TC003, D100, D101
-from __future__ import annotations
-
+# ruff: noqa: D100, D101, TC003
 from uuid import UUID
 
-from pydantic import AwareDatetime, BaseModel, ConfigDict, Field
+from good_ass_pydantic_integrator import GAPIBaseModel
+from pydantic import AwareDatetime, ConfigDict, Field
 
 
-class FollowingSeason(BaseModel):
+class FollowingSeason(GAPIBaseModel):
     model_config = ConfigDict(extra="forbid")
     title: str
     description: str
@@ -22,7 +21,7 @@ class FollowingSeason(BaseModel):
     id: int
 
 
-class FollowingItem(BaseModel):
+class FollowingItem(GAPIBaseModel):
     model_config = ConfigDict(extra="forbid")
     title: str
     description: str
@@ -38,13 +37,13 @@ class FollowingItem(BaseModel):
     id: int
 
 
-class WatchOrder(BaseModel):
+class WatchOrder(GAPIBaseModel):
     model_config = ConfigDict(extra="forbid")
     preceding: list[None]
     following: list[FollowingItem]
 
 
-class Headers(BaseModel):
+class Headers(GAPIBaseModel):
     model_config = ConfigDict(extra="forbid")
     user_agent: str = Field(..., alias="User-Agent")
     x_api_key: UUID = Field(..., alias="x-api-key")
@@ -53,12 +52,12 @@ class Headers(BaseModel):
     realm: str = Field(..., alias="Realm")
 
 
-class Params(BaseModel):
+class Params(GAPIBaseModel):
     model_config = ConfigDict(extra="forbid")
     size: int
 
 
-class DivingBoard(BaseModel):
+class DivingBoard(GAPIBaseModel):
     model_config = ConfigDict(extra="forbid")
     url: str
     timestamp: AwareDatetime
@@ -66,7 +65,7 @@ class DivingBoard(BaseModel):
     params: Params
 
 
-class AdjacentSeries(BaseModel):
+class AdjacentSeries(GAPIBaseModel):
     model_config = ConfigDict(extra="forbid")
     preceding_seasons: list[None] = Field(..., alias="precedingSeasons")
     following_seasons: list[FollowingSeason] = Field(..., alias="followingSeasons")

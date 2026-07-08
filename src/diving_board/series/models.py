@@ -1,40 +1,39 @@
-# ruff: noqa: COM812, TC003, D100, D101
-from __future__ import annotations
-
+# ruff: noqa: D100, D101, TC003
 from uuid import UUID
 
-from pydantic import AwareDatetime, BaseModel, ConfigDict, Field
+from good_ass_pydantic_integrator import GAPIBaseModel
+from pydantic import AwareDatetime, ConfigDict, Field
 
 
-class Attributes1(BaseModel):
+class Attributes1(GAPIBaseModel):
     model_config = ConfigDict(extra="forbid")
     text: str
 
 
-class Header(BaseModel):
+class Header(GAPIBaseModel):
     model_config = ConfigDict(extra="forbid")
     field_type: str = Field(..., alias="$type")
     attributes: Attributes1
 
 
-class Attributes2(BaseModel):
+class Attributes2(GAPIBaseModel):
     model_config = ConfigDict(extra="forbid")
     source: str
 
 
-class Image(BaseModel):
+class Image(GAPIBaseModel):
     model_config = ConfigDict(extra="forbid")
     field_type: str = Field(..., alias="$type")
     attributes: Attributes2
 
 
-class Token(BaseModel):
+class Token(GAPIBaseModel):
     model_config = ConfigDict(extra="forbid")
     key: str
     value: str
 
 
-class Data(BaseModel):
+class Data(GAPIBaseModel):
     model_config = ConfigDict(extra="forbid")
     id: int
     video_id: int = Field(..., alias="videoId")
@@ -45,13 +44,13 @@ class Data(BaseModel):
     type: str
 
 
-class Action1(BaseModel):
+class Action1(GAPIBaseModel):
     model_config = ConfigDict(extra="forbid")
     type: str
     data: Data
 
 
-class Attributes3(BaseModel):
+class Attributes3(GAPIBaseModel):
     model_config = ConfigDict(extra="forbid")
     has_initial_focus: bool = Field(..., alias="hasInitialFocus")
     text: str
@@ -62,24 +61,24 @@ class Attributes3(BaseModel):
     action: Action1
 
 
-class Action(BaseModel):
+class Action(GAPIBaseModel):
     model_config = ConfigDict(extra="forbid")
     field_type: str = Field(..., alias="$type")
     attributes: Attributes3
 
 
-class Attributes5(BaseModel):
+class Attributes5(GAPIBaseModel):
     model_config = ConfigDict(extra="forbid")
     text: str
 
 
-class Tag(BaseModel):
+class Tag(GAPIBaseModel):
     model_config = ConfigDict(extra="forbid")
     field_type: str = Field(..., alias="$type")
     attributes: Attributes5
 
 
-class Data1(BaseModel):
+class Data1(GAPIBaseModel):
     model_config = ConfigDict(extra="forbid")
     id: int
     type: str
@@ -88,13 +87,13 @@ class Data1(BaseModel):
     title: str
 
 
-class Action2(BaseModel):
+class Action2(GAPIBaseModel):
     model_config = ConfigDict(extra="forbid")
     type: str
     data: Data1
 
 
-class Attributes6(BaseModel):
+class Attributes6(GAPIBaseModel):
     model_config = ConfigDict(extra="forbid")
     type: str
     text: str
@@ -103,49 +102,49 @@ class Attributes6(BaseModel):
     action: Action2
 
 
-class Button(BaseModel):
+class Button(GAPIBaseModel):
     model_config = ConfigDict(extra="forbid")
     field_type: str = Field(..., alias="$type")
     attributes: Attributes6
 
 
-class Attributes4(BaseModel):
+class Attributes4(GAPIBaseModel):
     model_config = ConfigDict(extra="forbid")
     tags: list[Tag] | None = None
     text: str | None = None
     buttons: list[Button] | None = None
 
 
-class ContentItem(BaseModel):
+class ContentItem(GAPIBaseModel):
     model_config = ConfigDict(extra="forbid")
     field_type: str = Field(..., alias="$type")
     attributes: Attributes4
 
 
-class Data2(BaseModel):
+class Data2(GAPIBaseModel):
     model_config = ConfigDict(extra="forbid")
     tab: str
 
 
-class Action3(BaseModel):
+class Action3(GAPIBaseModel):
     model_config = ConfigDict(extra="forbid")
     type: str
     data: Data2
 
 
-class Attributes7(BaseModel):
+class Attributes7(GAPIBaseModel):
     model_config = ConfigDict(extra="forbid")
     text: str
     label: str
     action: Action3
 
 
-class ContentDownload(BaseModel):
+class ContentDownload(GAPIBaseModel):
     model_config = ConfigDict(extra="forbid")
     permission: str
 
 
-class Item(BaseModel):
+class Item(GAPIBaseModel):
     model_config = ConfigDict(extra="forbid")
     field_type: str | None = Field(None, alias="$type")
     attributes: Attributes7 | None = None
@@ -172,17 +171,18 @@ class Item(BaseModel):
     has_permission: bool | None = Field(None, alias="hasPermission")
     is_related: bool | None = Field(None, alias="isRelated")
     has_permission_granted_on_sign_in: bool | None = Field(
-        None, alias="hasPermissionGrantedOnSignIn"
+        None,
+        alias="hasPermissionGrantedOnSignIn",
     )
 
 
-class Series(BaseModel):
+class Series(GAPIBaseModel):
     model_config = ConfigDict(extra="forbid")
     series_id: int = Field(..., alias="seriesId")
     title: str
 
 
-class Item1(BaseModel):
+class Item1(GAPIBaseModel):
     model_config = ConfigDict(extra="forbid")
     title: str
     description: str
@@ -193,31 +193,31 @@ class Item1(BaseModel):
     series: Series
 
 
-class Paging(BaseModel):
+class Paging(GAPIBaseModel):
     model_config = ConfigDict(extra="forbid")
     more_data_available: bool = Field(..., alias="moreDataAvailable")
     last_seen: int = Field(..., alias="lastSeen")
 
 
-class Seasons(BaseModel):
+class Seasons(GAPIBaseModel):
     model_config = ConfigDict(extra="forbid")
     items: list[Item1]
     paging: Paging
 
 
-class Paging1(BaseModel):
+class Paging1(GAPIBaseModel):
     model_config = ConfigDict(extra="forbid")
     more_data_available: bool = Field(..., alias="moreDataAvailable")
     last_seen: int | str = Field(..., alias="lastSeen")
 
 
-class GroupName(BaseModel):
+class GroupName(GAPIBaseModel):
     model_config = ConfigDict(extra="forbid")
     text: str
     label: str
 
 
-class Attributes(BaseModel):
+class Attributes(GAPIBaseModel):
     model_config = ConfigDict(extra="forbid")
     header: Header | None = None
     image: Image | None = None
@@ -240,27 +240,27 @@ class Attributes(BaseModel):
     group_name: GroupName | None = Field(None, alias="groupName")
 
 
-class Desktop(BaseModel):
+class Desktop(GAPIBaseModel):
     model_config = ConfigDict(extra="forbid")
     display: str
 
 
-class Tv(BaseModel):
+class Tv(GAPIBaseModel):
     model_config = ConfigDict(extra="forbid")
     display: str
 
 
-class Mobile(BaseModel):
+class Mobile(GAPIBaseModel):
     model_config = ConfigDict(extra="forbid")
     display: str
 
 
-class Tablet(BaseModel):
+class Tablet(GAPIBaseModel):
     model_config = ConfigDict(extra="forbid")
     display: str
 
 
-class Style(BaseModel):
+class Style(GAPIBaseModel):
     model_config = ConfigDict(extra="forbid")
     desktop: Desktop | None = None
     tv: Tv | None = None
@@ -268,7 +268,7 @@ class Style(BaseModel):
     tablet: Tablet | None = None
 
 
-class Element(BaseModel):
+class Element(GAPIBaseModel):
     model_config = ConfigDict(extra="forbid")
     field_type: str = Field(..., alias="$type")
     field_zone: str = Field(..., alias="$zone")
@@ -276,19 +276,19 @@ class Element(BaseModel):
     style: Style | None = None
 
 
-class CurrentSeason(BaseModel):
+class CurrentSeason(GAPIBaseModel):
     model_config = ConfigDict(extra="forbid")
     season_id: int = Field(..., alias="seasonId")
     title: str
 
 
-class CurrentVod(BaseModel):
+class CurrentVod(GAPIBaseModel):
     model_config = ConfigDict(extra="forbid")
     season_id: int = Field(..., alias="seasonId")
     title: str
 
 
-class Metadata(BaseModel):
+class Metadata(GAPIBaseModel):
     model_config = ConfigDict(extra="forbid")
     type: str
     series: Series
@@ -296,7 +296,7 @@ class Metadata(BaseModel):
     current_vod: CurrentVod = Field(..., alias="currentVod")
 
 
-class Headers(BaseModel):
+class Headers(GAPIBaseModel):
     model_config = ConfigDict(extra="forbid")
     user_agent: str = Field(..., alias="User-Agent")
     x_api_key: UUID = Field(..., alias="x-api-key")
@@ -305,14 +305,14 @@ class Headers(BaseModel):
     realm: str = Field(..., alias="Realm")
 
 
-class Params(BaseModel):
+class Params(GAPIBaseModel):
     model_config = ConfigDict(extra="forbid")
     type: str
     id: int
     timezone: str
 
 
-class DivingBoard(BaseModel):
+class DivingBoard(GAPIBaseModel):
     model_config = ConfigDict(extra="forbid")
     url: str
     timestamp: AwareDatetime
@@ -320,9 +320,10 @@ class DivingBoard(BaseModel):
     params: Params
 
 
-class SeriesModel(BaseModel):
+class SeriesModel(GAPIBaseModel):
     model_config = ConfigDict(extra="forbid")
     layout: str
     elements: list[Element]
     metadata: Metadata
     diving_board: DivingBoard
+    source: str | None = None

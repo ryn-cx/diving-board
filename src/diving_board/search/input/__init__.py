@@ -1,3 +1,4 @@
+# TODO: Validate
 """Search input extractor."""
 
 from __future__ import annotations

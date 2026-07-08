@@ -1,3 +1,4 @@
+# TODO: Validate
 """Adjacent Series endpoint."""
 
 from __future__ import annotations

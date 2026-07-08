@@ -1,3 +1,4 @@
+# TODO: Validate
 """Search card list extractor."""
 
 from __future__ import annotations

@@ -1,48 +1,47 @@
 # ruff: noqa: D100, D101
-from __future__ import annotations
+from good_ass_pydantic_integrator import GAPIBaseModel
+from pydantic import ConfigDict, Field
 
-from pydantic import BaseModel, ConfigDict, Field
 
-
-class Attributes1(BaseModel):
+class Attributes1(GAPIBaseModel):
     model_config = ConfigDict(extra="forbid")
     text: str
     label: str
 
 
-class Style(BaseModel):
+class Style(GAPIBaseModel):
     model_config = ConfigDict(extra="forbid")
     size: int
     color: str
 
 
-class Title(BaseModel):
+class Title(GAPIBaseModel):
     model_config = ConfigDict(extra="forbid")
     field_type: str = Field(..., alias="$type")
     attributes: Attributes1
     style: Style
 
 
-class Attributes3(BaseModel):
+class Attributes3(GAPIBaseModel):
     model_config = ConfigDict(extra="forbid")
     label: str
     number_of_lines: int = Field(..., alias="numberOfLines")
 
 
-class Style1(BaseModel):
+class Style1(GAPIBaseModel):
     model_config = ConfigDict(extra="forbid")
     size: str
     color: str
 
 
-class Title1(BaseModel):
+class Title1(GAPIBaseModel):
     model_config = ConfigDict(extra="forbid")
     field_type: str = Field(..., alias="$type")
     attributes: Attributes3
     style: Style1
 
 
-class Option(BaseModel):
+class Option(GAPIBaseModel):
     model_config = ConfigDict(extra="forbid")
     type: str
     filter_key: str = Field(..., alias="filterKey")
@@ -52,64 +51,64 @@ class Option(BaseModel):
     value: str
 
 
-class Attributes2(BaseModel):
+class Attributes2(GAPIBaseModel):
     model_config = ConfigDict(extra="forbid")
     title: Title1
     filter_key: str = Field(..., alias="filterKey")
     options: list[Option]
 
 
-class Filter(BaseModel):
+class Filter(GAPIBaseModel):
     model_config = ConfigDict(extra="forbid")
     field_type: str = Field(..., alias="$type")
     attributes: Attributes2
 
 
-class Data(BaseModel):
+class Data(GAPIBaseModel):
     model_config = ConfigDict(extra="forbid")
     url: str
 
 
-class Action(BaseModel):
+class Action(GAPIBaseModel):
     model_config = ConfigDict(extra="forbid")
     type: str
     data: Data
 
 
-class Reset(BaseModel):
+class Reset(GAPIBaseModel):
     model_config = ConfigDict(extra="forbid")
     label: str
     text: str
     action: Action
 
 
-class Action1(BaseModel):
+class Action1(GAPIBaseModel):
     model_config = ConfigDict(extra="forbid")
     type: str
     data: Data
 
 
-class Apply(BaseModel):
+class Apply(GAPIBaseModel):
     model_config = ConfigDict(extra="forbid")
     label: str
     text: str
     action: Action1
 
 
-class Actions(BaseModel):
+class Actions(GAPIBaseModel):
     model_config = ConfigDict(extra="forbid")
     reset: Reset
     apply: Apply
 
 
-class Attributes(BaseModel):
+class Attributes(GAPIBaseModel):
     model_config = ConfigDict(extra="forbid")
     title: Title
     filters: list[Filter]
     actions: Actions
 
 
-class ScheduleFilterListModel(BaseModel):
+class ScheduleFilterListModel(GAPIBaseModel):
     model_config = ConfigDict(extra="forbid")
     field_type: str = Field(..., alias="$type")
     field_zone: str = Field(..., alias="$zone")

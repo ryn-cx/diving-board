@@ -1,40 +1,39 @@
 # ruff: noqa: D100, D101
-from __future__ import annotations
+from good_ass_pydantic_integrator import GAPIBaseModel
+from pydantic import ConfigDict, Field
 
-from pydantic import BaseModel, ConfigDict, Field
 
-
-class Data(BaseModel):
+class Data(GAPIBaseModel):
     model_config = ConfigDict(extra="forbid")
     url: str
 
 
-class Action(BaseModel):
+class Action(GAPIBaseModel):
     model_config = ConfigDict(extra="forbid")
     type: str
     data: Data
 
 
-class Attributes1(BaseModel):
+class Attributes1(GAPIBaseModel):
     model_config = ConfigDict(extra="forbid")
     text: str
     label: str
 
 
-class Style(BaseModel):
+class Style(GAPIBaseModel):
     model_config = ConfigDict(extra="forbid")
     size: str
     color: str
 
 
-class Title(BaseModel):
+class Title(GAPIBaseModel):
     model_config = ConfigDict(extra="forbid")
     field_type: str = Field(..., alias="$type")
     attributes: Attributes1
     style: Style
 
 
-class Option(BaseModel):
+class Option(GAPIBaseModel):
     model_config = ConfigDict(extra="forbid")
     text: str
     label: str
@@ -43,14 +42,14 @@ class Option(BaseModel):
     is_active: bool = Field(..., alias="isActive")
 
 
-class Attributes(BaseModel):
+class Attributes(GAPIBaseModel):
     model_config = ConfigDict(extra="forbid")
     action: Action
     title: Title
     options: list[Option]
 
 
-class SearchSortListModel(BaseModel):
+class SearchSortListModel(GAPIBaseModel):
     model_config = ConfigDict(extra="forbid")
     field_type: str = Field(..., alias="$type")
     field_zone: str = Field(..., alias="$zone")

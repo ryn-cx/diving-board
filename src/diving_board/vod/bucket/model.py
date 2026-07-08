@@ -1,15 +1,14 @@
-# ruff: noqa: COM812, D100, D101
-from __future__ import annotations
+# ruff: noqa: D100, D101
+from good_ass_pydantic_integrator import GAPIBaseModel
+from pydantic import ConfigDict, Field
 
-from pydantic import BaseModel, ConfigDict, Field
 
-
-class ContentDownload(BaseModel):
+class ContentDownload(GAPIBaseModel):
     model_config = ConfigDict(extra="forbid")
     permission: str
 
 
-class Item(BaseModel):
+class Item(GAPIBaseModel):
     model_config = ConfigDict(extra="forbid")
     id: int
     type: str
@@ -28,23 +27,24 @@ class Item(BaseModel):
     has_permission: bool = Field(..., alias="hasPermission")
     is_related: bool = Field(..., alias="isRelated")
     has_permission_granted_on_sign_in: bool = Field(
-        ..., alias="hasPermissionGrantedOnSignIn"
+        ...,
+        alias="hasPermissionGrantedOnSignIn",
     )
 
 
-class GroupName(BaseModel):
+class GroupName(GAPIBaseModel):
     model_config = ConfigDict(extra="forbid")
     text: str
     label: str
 
 
-class Paging(BaseModel):
+class Paging(GAPIBaseModel):
     model_config = ConfigDict(extra="forbid")
     more_data_available: bool = Field(..., alias="moreDataAvailable")
     last_seen: str = Field(..., alias="lastSeen")
 
 
-class Attributes(BaseModel):
+class Attributes(GAPIBaseModel):
     model_config = ConfigDict(extra="forbid")
     type: str
     items: list[Item]
@@ -54,7 +54,7 @@ class Attributes(BaseModel):
     paging: Paging
 
 
-class VodBucketModel(BaseModel):
+class VodBucketModel(GAPIBaseModel):
     model_config = ConfigDict(extra="forbid")
     field_type: str = Field(..., alias="$type")
     field_zone: str = Field(..., alias="$zone")

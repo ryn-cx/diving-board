@@ -1,11 +1,11 @@
+# TODO: Validate
 """Base API endpoints."""
 
 from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any, override
 
-from good_ass_pydantic_integrator import CustomSerializer, GAPIClient
-from pydantic import BaseModel
+from good_ass_pydantic_integrator import CustomSerializer, GAPIBaseModel, GAPIClient
 
 from diving_board.constants import FILES_PATH
 
@@ -15,7 +15,7 @@ if TYPE_CHECKING:
     from diving_board import DivingBoard
 
 
-class BaseExtractor[T: BaseModel](GAPIClient[T]):
+class BaseExtractor[T: GAPIBaseModel](GAPIClient[T]):
     """Base class to extract data from API responses."""
 
     @staticmethod
@@ -47,20 +47,20 @@ class BaseExtractor[T: BaseModel](GAPIClient[T]):
     @override
     @classmethod
     def json_files_folder(cls) -> Path:
-        folder_name = cls._to_folder_name(cls._get_model_name())
+        folder_name = cls._folder_name(cls._model_name())
         original_path = FILES_PATH / folder_name
         subfolder = original_path.name.replace("_model", "").split("_")
         return original_path.parent.joinpath(*subfolder)
 
 
-class BaseEndpoint[T: BaseModel](BaseExtractor[T]):
+class BaseEndpoint[T: GAPIBaseModel](BaseExtractor[T]):
     """Base class for API endpoints."""
 
     def __init__(self, client: DivingBoard) -> None:
         """Initialize the endpoint with the DivingBoard client."""
         self._client = client
 
-    def _extract_element[U: BaseModel](
+    def _extract_element[U: GAPIBaseModel](
         self,
         elements: list[Any],
         field_type: str,
@@ -97,7 +97,7 @@ class BaseEndpoint[T: BaseModel](BaseExtractor[T]):
             if result:
                 msg = f"Too many {type_desc} elements found"
                 raise ValueError(msg)
-            dumped = self.dump_response(element)
+            dumped = self.dump(element)
             result = extractor_cls().parse(dumped, update_model=update_model)
 
         if result is None:
