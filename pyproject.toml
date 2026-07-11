@@ -1,7 +1,7 @@
 [project]
 name = "diving-board"
 version = "0.1.0"
-description = "HiDive API Wrapper."
+description = "HiDive API wrapper."
 readme = "README.md"
 requires-python = ">=3.14"
 authors = [
