@@ -1,13 +1,13 @@
 # TODO: Validate
-"""Base API endpoints."""
-
 from __future__ import annotations
 
+from abc import abstractmethod
 from typing import TYPE_CHECKING, Any, override
 
-from good_ass_pydantic_integrator import CustomSerializer, GAPIBaseModel, GAPIClient
+from good_ass_pydantic_integrator import GAPIBaseModel, GAPIClient
 
 from diving_board.constants import FILES_PATH
+from diving_board.exceptions import NoContentError
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -17,32 +17,6 @@ if TYPE_CHECKING:
 
 class BaseExtractor[T: GAPIBaseModel](GAPIClient[T]):
     """Base class to extract data from API responses."""
-
-    @staticmethod
-    def _naive_datetime_serializer(
-        class_name: str,
-        field_name: str,
-        *,
-        include_seconds: bool = False,
-    ) -> CustomSerializer:
-        """Create a CustomSerializer for a NaiveDatetime field.
-
-        Args:
-            class_name: The Pydantic model class name containing the field.
-            field_name: The field name to serialize.
-            include_seconds: Whether to include seconds in the serialized output.
-
-        Returns:
-            A CustomSerializer that formats NaiveDatetime as ``%Y-%m-%dT%H:%M``
-            (or ``%Y-%m-%dT%H:%M:%S`` when ``include_seconds`` is True).
-        """
-        fmt = "%Y-%m-%dT%H:%M:%S" if include_seconds else "%Y-%m-%dT%H:%M"
-        return CustomSerializer(
-            class_name=class_name,
-            field_name=field_name,
-            serializer_code=f'return value.strftime("{fmt}")',
-            output_type="str",
-        )
 
     @override
     @classmethod
@@ -59,6 +33,32 @@ class BaseEndpoint[T: GAPIBaseModel](BaseExtractor[T]):
     def __init__(self, client: DivingBoard) -> None:
         """Initialize the endpoint with the DivingBoard client."""
         self._client = client
+
+    @staticmethod
+    @abstractmethod
+    def has_content(*args: Any, **kwargs: Any) -> bool:  # noqa: ANN401
+        """Return whether the response has meaningful content."""
+
+    def _parse_or_raise(self, response: dict[str, Any], *, has_content: bool) -> T:
+        """Parse `response`, or raise `NoContentError` when it is empty.
+
+        This is the single place `get` decides "nothing here". The raised
+        `NoContentError` carries `response`, so callers can still recover the
+        downloaded payload from the exception.
+
+        Args:
+            response: The raw JSON response to parse.
+            has_content: The endpoint's `has_content` verdict for `response`.
+
+        Returns:
+            The parsed model.
+
+        Raises:
+            NoContentError: If `has_content` is false.
+        """
+        if not has_content:
+            raise NoContentError(response, endpoint=type(self).__name__)
+        return self.parse(response)
 
     def _extract_element[U: GAPIBaseModel](
         self,

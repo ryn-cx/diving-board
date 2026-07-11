@@ -3,7 +3,7 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, override
 
 from diving_board.base_api_endpoint import BaseEndpoint
 from diving_board.playlist.bucket.playlist import PlaylistBucketPlaylist
@@ -45,6 +45,11 @@ class Playlist(BaseEndpoint[PlaylistModel]):
         }
         return self._client.download(endpoint, params)
 
+    @staticmethod
+    @override
+    def has_content(response: dict[str, Any]) -> bool:
+        return bool(response["elements"])
+
     def get(self, playlist_id: int, timezone: str = "") -> PlaylistModel:
         """Downloads and parses playlist data for a given playlist.
 
@@ -56,9 +61,13 @@ class Playlist(BaseEndpoint[PlaylistModel]):
 
         Returns:
             A Playlist model containing the parsed data.
+
+        Raises:
+            NoContentError: If the response has no meaningful content. The raw
+                response is available on the exception's `response` attribute.
         """
         response = self.download(playlist_id, timezone)
-        return self.parse(response)
+        return self._parse_or_raise(response, has_content=self.has_content(response))
 
     def extract_hero(
         self,

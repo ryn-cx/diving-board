@@ -1,4 +1,4 @@
-# ruff: noqa: D100, D101, D102
+# ruff: noqa: D100, D101, D102, TC001, TC002, TC003
 from good_ass_pydantic_integrator import GAPIBaseModel
 from pydantic import AwareDatetime, ConfigDict, Field, NaiveDatetime, field_serializer
 

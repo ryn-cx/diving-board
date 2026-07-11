@@ -1,4 +1,4 @@
-# ruff: noqa: D100, D101, TC003
+# ruff: noqa: D100, D101, D102, TC001, TC002, TC003
 from uuid import UUID
 
 from good_ass_pydantic_integrator import GAPIBaseModel

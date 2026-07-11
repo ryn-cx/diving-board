@@ -3,7 +3,7 @@
 
 from __future__ import annotations
 
-from typing import Any
+from typing import Any, override
 
 from diving_board.base_api_endpoint import BaseEndpoint
 from diving_board.series.models import SeriesModel
@@ -33,6 +33,11 @@ class Series(BaseEndpoint[SeriesModel]):
         }
         return self._client.download(endpoint, params)
 
+    @staticmethod
+    @override
+    def has_content(response: dict[str, Any]) -> bool:
+        return bool(response["elements"])
+
     def get(self, series_id: int, timezone: str = "") -> SeriesModel:
         """Downloads and parses series data for a given series ID.
 
@@ -44,6 +49,10 @@ class Series(BaseEndpoint[SeriesModel]):
 
         Returns:
             A SeriesModel containing the parsed data.
+
+        Raises:
+            NoContentError: If the response has no meaningful content. The raw
+                response is available on the exception's `response` attribute.
         """
         response = self.download(series_id, timezone)
-        return self.parse(response)
+        return self._parse_or_raise(response, has_content=self.has_content(response))

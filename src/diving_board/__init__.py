@@ -41,17 +41,13 @@ class DivingBoard:
         self,
         timezone: str = "America/Los_Angeles",
         timeout: int = 30,
-        get_around_server: str | None = None,
-        get_around_password: str | None = None,
+        get_around_client: GetAround | None = None,
     ) -> None:
         """Initialize the DivingBoard client."""
         self.timezone = timezone
         self.timeout = timeout
 
-        self.get_around_client = GetAround(
-            server=get_around_server,
-            password=get_around_password,
-        )
+        self.get_around_client = get_around_client or GetAround()
 
         self.__auth_token_value = ""
         self.__realm_value = ""

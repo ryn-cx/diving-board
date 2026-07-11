@@ -3,7 +3,7 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, override
 
 from diving_board.base_api_endpoint import BaseEndpoint
 from diving_board.season.bucket.related import SeasonBucketRelated
@@ -47,6 +47,11 @@ class Season(BaseEndpoint[SeasonModel]):
         }
         return self._client.download(endpoint, params)
 
+    @staticmethod
+    @override
+    def has_content(response: dict[str, Any]) -> bool:
+        return bool(response["elements"])
+
     def get(
         self,
         season_id: int,
@@ -62,9 +67,13 @@ class Season(BaseEndpoint[SeasonModel]):
 
         Returns:
             A Season model containing the parsed data.
+
+        Raises:
+            NoContentError: If the response has no meaningful content. The raw
+                response is available on the exception's `response` attribute.
         """
         response = self.download(season_id, timezone)
-        return self.parse(response)
+        return self._parse_or_raise(response, has_content=self.has_content(response))
 
     def extract_hero(
         self,

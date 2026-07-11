@@ -1,4 +1,4 @@
-# ruff: noqa: D100, D101, D102
+# TODO: Validate
 from good_ass_pydantic_integrator import GAPIBaseModel
 from pydantic import ConfigDict, Field, NaiveDatetime, field_serializer
 

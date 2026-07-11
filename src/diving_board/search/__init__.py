@@ -3,7 +3,7 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, override
 
 from diving_board.base_api_endpoint import BaseEndpoint
 from diving_board.search.card_list import SearchCardList
@@ -43,6 +43,18 @@ class Search(BaseEndpoint[SearchModel]):
         }
         return self._client.download(endpoint, params, base_url=self.SEARCH_API_URL)
 
+    @staticmethod
+    @override
+    def has_content(response: dict[str, Any]) -> bool:
+        # A no-result search still returns 200 with the search/filter/sort/cardList
+        # scaffolding present, so the ``elements`` list is never empty. Meaningful
+        # content means the cardList element actually holds cards.
+        return any(
+            element.get("attributes", {}).get("cards")
+            for element in response["elements"]
+            if element.get("$type") == "cardList"
+        )
+
     def get(self, query: str, timezone: str = "") -> SearchModel:
         """Downloads and parses search data for a given query.
 
@@ -54,9 +66,13 @@ class Search(BaseEndpoint[SearchModel]):
 
         Returns:
             A SearchModel containing the parsed data.
+
+        Raises:
+            NoContentError: If the response has no meaningful content. The raw
+                response is available on the exception's `response` attribute.
         """
         response = self.download(query, timezone)
-        return self.parse(response)
+        return self._parse_or_raise(response, has_content=self.has_content(response))
 
     def extract_input(
         self,

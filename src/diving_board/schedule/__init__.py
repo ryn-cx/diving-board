@@ -7,8 +7,6 @@ from datetime import datetime
 from typing import TYPE_CHECKING, Any, override
 from zoneinfo import ZoneInfo
 
-from good_ass_pydantic_integrator import CustomSerializer, ReplacementType
-
 from diving_board.base_api_endpoint import BaseEndpoint
 from diving_board.schedule.filter_list import ScheduleFilterList
 from diving_board.schedule.grid_block import ScheduleGridBlock
@@ -25,47 +23,6 @@ class Schedule(BaseEndpoint[ScheduleModel]):
     """Provides methods to download, parse, and retrieve schedule data."""
 
     _response_model = ScheduleModel
-
-    @classmethod
-    @override
-    def _replacement_types(cls) -> list[ReplacementType]:
-        return [
-            ReplacementType(
-                class_name="Attributes13",
-                field_name="text",
-                new_type="NaiveDatetime",
-            ),
-            ReplacementType(
-                class_name="Group",
-                field_name="id",
-                new_type="NaiveDatetime",
-            ),
-            ReplacementType(
-                class_name="Data",
-                field_name="from_",
-                new_type="NaiveDatetime",
-            ),
-            ReplacementType(
-                class_name="Params",
-                field_name="from_",
-                new_type="NaiveDatetime",
-            ),
-        ]
-
-    @classmethod
-    @override
-    def _additional_imports(cls) -> list[str]:
-        return ["from pydantic import NaiveDatetime"]
-
-    @classmethod
-    @override
-    def _custom_serializers(cls) -> list[CustomSerializer]:
-        return [
-            cls._naive_datetime_serializer("Group", "id"),
-            cls._naive_datetime_serializer("Attributes13", "text"),
-            cls._naive_datetime_serializer("Data", "from_"),
-            cls._naive_datetime_serializer("Params", "from_", include_seconds=True),
-        ]
 
     def download(
         self,
@@ -112,6 +69,11 @@ class Schedule(BaseEndpoint[ScheduleModel]):
 
         return self._client.download(endpoint, params)
 
+    @staticmethod
+    @override
+    def has_content(response: dict[str, Any]) -> bool:
+        return bool(response["elements"])
+
     def get(
         self,
         from_: datetime | None = None,
@@ -134,6 +96,10 @@ class Schedule(BaseEndpoint[ScheduleModel]):
 
         Returns:
             A Schedule model containing the parsed data.
+
+        Raises:
+            NoContentError: If the response has no meaningful content. The raw
+                response is available on the exception's `response` attribute.
         """
         response = self.download(
             groups_per_page=groups_per_page,
@@ -142,7 +108,7 @@ class Schedule(BaseEndpoint[ScheduleModel]):
             last_seen=last_seen,
             timezone=timezone,
         )
-        return self.parse(response)
+        return self._parse_or_raise(response, has_content=self.has_content(response))
 
     def get_until_datetime(
         self,

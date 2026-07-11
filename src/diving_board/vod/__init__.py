@@ -3,7 +3,7 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, override
 
 from diving_board.base_api_endpoint import BaseEndpoint
 from diving_board.vod.bucket import VodBucket
@@ -43,6 +43,11 @@ class Vod(BaseEndpoint[VodModel]):
         }
         return self._client.download(endpoint, params)
 
+    @staticmethod
+    @override
+    def has_content(response: dict[str, Any]) -> bool:
+        return bool(response["elements"])
+
     def get(self, vod_id: int, timezone: str = "") -> VodModel:
         """Downloads and parses VOD data for a given VOD ID.
 
@@ -54,9 +59,13 @@ class Vod(BaseEndpoint[VodModel]):
 
         Returns:
             A Vod model containing the parsed data.
+
+        Raises:
+            NoContentError: If the response has no meaningful content. The raw
+                response is available on the exception's `response` attribute.
         """
         data = self.download(vod_id, timezone)
-        return self.parse(data)
+        return self._parse_or_raise(data, has_content=self.has_content(data))
 
     def extract_hero(
         self,
