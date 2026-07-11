@@ -1,6 +1,4 @@
-# TODO: Validate
-_files
-z_files
+_files/
 
 # Mac OS
 .DS_Store
