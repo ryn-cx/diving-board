@@ -208,7 +208,7 @@ class Seasons(GAPIBaseModel):
 class Paging1(GAPIBaseModel):
     model_config = ConfigDict(extra="forbid")
     more_data_available: bool = Field(..., alias="moreDataAvailable")
-    last_seen: int | str = Field(..., alias="lastSeen")
+    last_seen: int | str | None = Field(None, alias="lastSeen")
 
 
 class GroupName(GAPIBaseModel):
@@ -325,5 +325,5 @@ class SeriesModel(GAPIBaseModel):
     layout: str
     elements: list[Element]
     metadata: Metadata
-    diving_board: DivingBoard
+    diving_board: DivingBoard | None = None
     source: str | None = None

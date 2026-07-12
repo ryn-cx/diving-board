@@ -1,4 +1,4 @@
-# TODO: Validate
+# ruff: noqa: D100, D101, D102, TC001, TC002, TC003
 from good_ass_pydantic_integrator import GAPIBaseModel
 from pydantic import ConfigDict, Field
 
@@ -16,10 +16,10 @@ class Item(GAPIBaseModel):
     description: str
     long_description: str = Field(..., alias="longDescription")
     content_download: ContentDownload = Field(..., alias="contentDownload")
-    cover_url: str = Field(..., alias="coverUrl")
-    small_cover_url: str = Field(..., alias="smallCoverUrl")
-    season_count: str = Field(..., alias="seasonCount")
-    poster_url: str = Field(..., alias="posterUrl")
+    cover_url: str | None = Field(None, alias="coverUrl")
+    small_cover_url: str | None = Field(None, alias="smallCoverUrl")
+    season_count: str | None = Field(None, alias="seasonCount")
+    poster_url: str | None = Field(None, alias="posterUrl")
     access_level: str = Field(..., alias="accessLevel")
     favourite: bool
     watch_status: str = Field(..., alias="watchStatus")
@@ -30,6 +30,8 @@ class Item(GAPIBaseModel):
         ...,
         alias="hasPermissionGrantedOnSignIn",
     )
+    duration: str | None = None
+    thumbnail_url: str | None = Field(None, alias="thumbnailUrl")
 
 
 class GroupName(GAPIBaseModel):

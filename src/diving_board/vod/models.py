@@ -167,6 +167,8 @@ class Item(GAPIBaseModel):
         None,
         alias="hasPermissionGrantedOnSignIn",
     )
+    duration: str | None = None
+    thumbnail_url: str | None = Field(None, alias="thumbnailUrl")
 
 
 class GroupName(GAPIBaseModel):
@@ -263,3 +265,4 @@ class VodModel(GAPIBaseModel):
     model_config = ConfigDict(extra="forbid")
     elements: list[Element]
     diving_board: DivingBoard
+    source: str | None = None

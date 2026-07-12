@@ -324,4 +324,5 @@ class SeasonModel(GAPIBaseModel):
     layout: str
     elements: list[Element]
     metadata: Metadata
-    diving_board: DivingBoard
+    diving_board: DivingBoard | None = None
+    source: str | None = None
