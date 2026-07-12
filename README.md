@@ -1,11 +1,8 @@
-<!-- TODO: Validate -->
 # Diving Board
 
-Unofficial [HiDive](https://www.hidive.com) API.
-
-`diving-board` wraps HiDive's private web API and parses its raw JSON into typed
-[Pydantic](https://docs.pydantic.dev/) models, giving you a small, structured API for
-reading data about HiDive series, seasons, VODs, playlists, schedules, and search.
+[HiDive](https://www.hidive.com) API wrapper built using [Good Ass Pydantic
+Integrator](https://github.com/ryn-cx/good-ass-pydantic-integrator) and [Get
+Around](https://github.com/ryn-cx/get-around).
 
 ## Installation
 
@@ -15,40 +12,17 @@ uv add git+https://github.com/ryn-cx/diving-board
 
 ## Usage
 
-Create a client, then call `get(...)` on an endpoint to download from HiDive and
-get back a parsed, typed model.
+Every endpoint has `get()` (parsed, typed model) and `download()` (raw JSON).
 
 ```python
 from diving_board import DivingBoard
 
 client = DivingBoard()
 
-# A series, by series ID.
-series = client.series.get(1091)
-
-# A season, by season ID.
-season = client.season.get(19078)
-
-# A single VOD, by VOD ID.
-vod = client.vod.get(542391)
-
-# A playlist, by playlist ID.
-playlist = client.playlist.get(19078)
-
-# Search, by query string.
-results = client.search.get("frieren")
-
-# Other series in the same franchise, by series ID and season ID.
-adjacent = client.adjacent_series.get(1091, 19078)
-
-# The release schedule. Defaults to the current month.
+series = client.series.get(series_id)
+season = client.season.get(season_id)
+vod = client.vod.get(vod_id)
+search = client.search.get(query)
+adjacent_series_to = client.adjacent_series_to.get(series_id, season_id)
 schedule = client.schedule.get()
-
-# Every schedule page from a starting date up to a given end date.
-from datetime import datetime
-
-pages = client.schedule.get_until_datetime(
-    from_=datetime(2026, 1, 1),
-    end_datetime=datetime(2026, 6, 1),
-)
 ```

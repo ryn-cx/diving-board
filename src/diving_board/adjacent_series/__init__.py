@@ -1,72 +1,56 @@
-# TODO: Validate
-"""Adjacent Series endpoint."""
+"""Contains the AdjacentSeries class."""
 
 from __future__ import annotations
 
-from typing import Any, override
+from typing import Any
 
 from diving_board.adjacent_series.models import AdjacentSeries as AdjacentSeriesModel
 from diving_board.base_api_endpoint import BaseEndpoint
+from diving_board.constants import BASE_API_URL
 
 
-class AdjacentSeries(BaseEndpoint[AdjacentSeriesModel]):
-    """Provides methods to download, parse, and retrieve adjacent series data."""
+class SeriesAdjacentTo(BaseEndpoint[AdjacentSeriesModel]):
+    """Manage the series adjacent to file."""
 
     _response_model = AdjacentSeriesModel
 
-    def download(
-        self,
-        series_id: int,
-        season_id: int,
-        size: int = 25,
-    ) -> dict[str, Any]:
-        """Downloads adjacent series data for a given series and season.
-
-        Args:
-            series_id: The ID of the series to get adjacent series for.
-            season_id: The ID of the season to get adjacent series for.
-            size: The number of adjacent series to return.
-
-        Returns:
-            The raw JSON response as a dict, suitable for passing to ``parse()``.
-        """
-        # Request from: https://www.hidive.com/season/34391
-        endpoint = f"api/v4/series/{series_id}/adjacentTo/{season_id}"
-        params = {"size": size}
-        return self._client.download(endpoint, params)
-
-    @staticmethod
-    @override
-    def has_content(response: dict[str, Any]) -> bool:
-        # An unknown series/season still returns 200 with both adjacency lists
-        # empty, so treat "no preceding and no following seasons" as no content.
-        return bool(response["followingSeasons"] or response["precedingSeasons"])
-
-    def get(
-        self,
-        series_id: int,
-        season_id: int,
-        size: int = 25,
-    ) -> AdjacentSeriesModel:
-        """Downloads and parses adjacent series data for a given series and season.
-
-        Convenience method that calls ``download()`` then ``parse()``.
-
-        Args:
-            series_id: The ID of the series to get adjacent series for.
-            season_id: The ID of the season to get adjacent series for.
-            size: The number of adjacent series to return.
-
-        Returns:
-            An AdjacentSeries model containing the parsed data.
+    def download(self, series_id: int, season_id: int) -> dict[str, Any]:
+        """Downloads the series adjacent to file.
 
         Raises:
-            NoContentError: If the response has no meaningful content. The raw
-                response is available on the exception's `response` attribute.
+            HTTPError: If series_id or season_id is invalid.
+
+        Example request: https://www.hidive.com/season/18908
+            GET /api/v4/series/1019/adjacentTo/18908?size=25 HTTP/2
+            Host: dce-frontoffice.imggaming.com
+            User-Agent: __REDACTED__
+            Accept: application/json, text/plain, */*
+            Accept-Language: en-US
+            Accept-Encoding: gzip, deflate, br, zstd
+            Referer: https://www.hidive.com/
+            Content-Type: application/json
+            x-api-key: 857a1e5d-e35e-4fdf-805b-a87b6f8364bf (This is a public value)
+            app: dice
+            Realm: dce.hidive
+            x-app-var: 6.60.0.5aaf921
+            Authorization: Bearer __REDACTED__
+            Origin: https://www.hidive.com
+            Connection: keep-alive
+            Sec-Fetch-Dest: empty
+            Sec-Fetch-Mode: cors
+            Sec-Fetch-Site: cross-site
         """
-        response = self.download(
-            series_id=series_id,
-            season_id=season_id,
-            size=size,
+        return self._client.download(
+            f"{BASE_API_URL}/api/v4/series/{series_id}/adjacentTo/{season_id}",
+            {"size": 25},
+            f"{self.__class__.__name__} {series_id}/{season_id}",
         )
-        return self._parse_or_raise(response, has_content=self.has_content(response))
+
+    def get(self, series_id: int, season_id: int) -> AdjacentSeriesModel:
+        """Downloads and parses the series adjacent to file.
+
+        Raises:
+            HTTPError: If series_id or season_id is invalid.
+        """
+        response = self.download(series_id=series_id, season_id=season_id)
+        return self.parse(response)

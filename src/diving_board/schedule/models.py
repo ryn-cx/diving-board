@@ -2,7 +2,7 @@
 from uuid import UUID
 
 from good_ass_pydantic_integrator import GAPIBaseModel
-from pydantic import AwareDatetime, ConfigDict, Field, NaiveDatetime, field_serializer
+from pydantic import AwareDatetime, ConfigDict, Field
 
 
 class Attributes3(GAPIBaseModel):
@@ -19,11 +19,7 @@ class Icon(GAPIBaseModel):
 
 class Data(GAPIBaseModel):
     model_config = ConfigDict(extra="forbid")
-    from_: NaiveDatetime = Field(..., alias="from")
-
-    @field_serializer("from_")
-    def serialize_from_(self, value: NaiveDatetime) -> str:
-        return value.strftime("%Y-%m-%dT%H:%M")
+    from_: str = Field(..., alias="from")
 
 
 class Action(GAPIBaseModel):
@@ -273,12 +269,8 @@ class Actions(GAPIBaseModel):
 
 class Attributes13(GAPIBaseModel):
     model_config = ConfigDict(extra="forbid")
-    text: NaiveDatetime
+    text: str
     format: str
-
-    @field_serializer("text")
-    def serialize_text(self, value: NaiveDatetime) -> str:
-        return value.strftime("%Y-%m-%dT%H:%M")
 
 
 class Style7(GAPIBaseModel):
@@ -448,12 +440,8 @@ class Attributes12(GAPIBaseModel):
 class Group(GAPIBaseModel):
     model_config = ConfigDict(extra="forbid")
     field_type: str = Field(..., alias="$type")
-    id: NaiveDatetime
+    id: str
     attributes: Attributes12
-
-    @field_serializer("id")
-    def serialize_id(self, value: NaiveDatetime) -> str:
-        return value.strftime("%Y-%m-%dT%H:%M")
 
 
 class Attributes(GAPIBaseModel):
@@ -486,12 +474,8 @@ class Params(GAPIBaseModel):
     timezone: str
     groups_per_page: int = Field(..., alias="groupsPerPage")
     items_per_group: int = Field(..., alias="itemsPerGroup")
-    from_: NaiveDatetime = Field(None, alias="from")
+    from_: AwareDatetime | None = Field(None, alias="from")
     last_seen: str | None = Field(None, alias="lastSeen")
-
-    @field_serializer("from_")
-    def serialize_from_(self, value: NaiveDatetime) -> str:
-        return value.strftime("%Y-%m-%dT%H:%M:%S")
 
 
 class DivingBoard(GAPIBaseModel):
@@ -507,4 +491,4 @@ class ScheduleModel(GAPIBaseModel):
     source: str | None = None
     layout: str
     elements: list[Element]
-    diving_board: DivingBoard
+    diving_board: DivingBoard | None = None

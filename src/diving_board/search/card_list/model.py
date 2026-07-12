@@ -1,4 +1,4 @@
-# TODO: Validate
+# ruff: noqa: D100, D101
 from good_ass_pydantic_integrator import GAPIBaseModel
 from pydantic import AwareDatetime, ConfigDict, Field
 
@@ -143,6 +143,9 @@ class Attributes(GAPIBaseModel):
     is_fallback_cards_enabled: bool | None = Field(None, alias="isFallbackCardsEnabled")
     gap: int | None = None
     disable_force_focus: bool | None = Field(None, alias="disableForceFocus")
+    show_fallback_cards: bool | None = Field(None, alias="showFallbackCards")
+    empty_title: str | None = Field(None, alias="emptyTitle")
+    empty_description: str | None = Field(None, alias="emptyDescription")
 
 
 class SearchCardListModel(GAPIBaseModel):

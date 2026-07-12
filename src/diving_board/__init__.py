@@ -1,17 +1,14 @@
-# TODO: Validate
-"""DivingBoard is a client for downloading and parsing data from HiDive."""
+"""Contains the DivingBoard class."""
 
-import re
-from datetime import datetime
-from functools import cached_property
+import time
 from logging import NullHandler, getLogger
 from typing import Any
 
 from get_around import GetAround
 
-from diving_board.adjacent_series import AdjacentSeries
+from diving_board.adjacent_series import SeriesAdjacentTo
+from diving_board.constants import BASE_API_URL
 from diving_board.exceptions import HTTPError
-from diving_board.playlist import Playlist
 from diving_board.schedule import Schedule
 from diving_board.schedule import ScheduleGroupList as ScheduleGroupList
 from diving_board.search import Search
@@ -30,83 +27,39 @@ USER_AGENT = (
 
 
 class DivingBoard:
-    """Interface for downloading and parsing data from HiDive."""
+    """HiDive API wrapper."""
 
     MAIN_DOMAIN = "hidive.com"
     BASE_MAIN_URL = f"https://www.{MAIN_DOMAIN}"
-    API_DOMAIN = "dce-frontoffice.imggaming.com"
-    BASE_API_URL = f"https://{API_DOMAIN}"
+    # This API key can be hardcoded because it appears to never change. It was
+    # originally extracted from app.js on the website.
+    API_KEY = "857a1e5d-e35e-4fdf-805b-a87b6f8364bf"
 
     def __init__(
         self,
-        timezone: str = "America/Los_Angeles",
-        timeout: int = 30,
         get_around_client: GetAround | None = None,
+        timezone: str = "America/Los_Angeles",
     ) -> None:
         """Initialize the DivingBoard client."""
         self.timezone = timezone
-        self.timeout = timeout
-
         self.get_around_client = get_around_client or GetAround()
 
-        self.__auth_token_value = ""
-        self.__realm_value = ""
+        self._authentication_token_value = ""
+        self._realm_value = ""
 
-        self.playlist = Playlist(self)
         self.vod = Vod(self)
         self.season = Season(self)
         self.schedule = Schedule(self)
-        self.adjacent_series = AdjacentSeries(self)
+        self.adjacent_series_to = SeriesAdjacentTo(self)
         self.search = Search(self)
         self.series = Series(self)
 
         super().__init__()
 
-    @cached_property
-    def __api_key(self) -> str:
-        """Returns the API key.
-
-        Downloads and caches the API key from app.js.
-        """
-        # This API key can be hardcoded because it appears to never change. Below this
-        # is the original code to extract it (not available in Git history because this
-        # is before the initial commit).
-        return "857a1e5d-e35e-4fdf-805b-a87b6f8364bf"
-
-        # This URL is hard coded, but the URL changes sometimes, however though the old
-        # version of the URL will continue to work. So far hard coding the URL has had
-        # no negative consequences, but in the future it may be necessary to obtain the
-        # URL dynamically. For now, hardcoding the URL is considered to be the superior
-        # option because it means there will be one less network request needed to
-        # initialize the client.
-        # The URL was obtained from the network requests made when visiting any page but
-        # the homepage. For example: https://www.hidive.com/browse
-        app_js_file_name = "app.43221e881b6a9a9bc6fe.js"
-        url = f"{self.BASE_MAIN_URL}/code/js/{app_js_file_name}"
-        logger.info("Downloading API key: %s", url)
-        headers = {
-            "User-Agent": USER_AGENT,
-            # This URL is not returned on the homepage so set the referer to a commonly
-            # used page that actually returns the URL.
-            "Referer": f"{self.BASE_MAIN_URL}/browse",
-        }
-        response = self.get_around_client.get(
-            url,
-            headers=headers,
-            timeout=self.timeout,
-        )
-        response_text = response.text
-
-        if not (match := re.search(r'API_KEY:"([0-9a-f-]+)"', response_text)):
-            msg = f"Failed to extract API key from {app_js_file_name}"
-            raise ValueError(msg)
-
-        return match.group(1)
-
-    def __download_auth_values(self) -> None:
+    def __fetch_auth_values(self) -> None:
         """Downloads and caches the authorisation token and realm."""
         url = (
-            f"{self.BASE_API_URL}/api/v1/init/"
+            f"{BASE_API_URL}/api/v1/init/"
             "?lk=language"
             "&pk=subTitleLanguage"
             "&pk=audioLanguage"
@@ -118,88 +71,70 @@ class DivingBoard:
             "&menuTargetPlatform=WEB"
             "&readIconStore=ENABLED"
         )
-        logger.info("Downloading authorisation token: %s", url)
-
         headers = {
             "User-Agent": USER_AGENT,
             "Origin": self.BASE_MAIN_URL,
             "Referer": f"{self.BASE_MAIN_URL}/",
-            "x-api-key": self.__api_key,
+            "x-api-key": self.API_KEY,
         }
-        response = self.get_around_client.get(
-            url,
-            headers=headers,
-            timeout=self.timeout,
-        )
+        operation = "init (Authentication)"
+        logger.debug("Downloading: %s", operation)
+        start = time.monotonic()
+        response = self.get_around_client.get(url, headers=headers)
+        logger.debug("Downloaded %s (%.4f s)", operation, time.monotonic() - start)
         json_response = response.json()
-        self.__realm_value = json_response["settings"]["realm"]
+        self._realm_value = json_response["settings"]["realm"]
         authentication = json_response["authentication"]
-        self.__auth_token_value = authentication["authorisationToken"]
+        self._authentication_token_value = authentication["authorisationToken"]
         # Although authentication has a refreshToken value there is no designated
         # expiration date in the returned data, and testing has shown that authorisation
         # tokens may not actually expire.
 
     @property
-    def __auth_token(self) -> str:
-        if not self.__auth_token_value:
-            self.__download_auth_values()
+    def _authentication_token(self) -> str:
+        if not self._authentication_token_value:
+            self.__fetch_auth_values()
 
-        return self.__auth_token_value
+        return self._authentication_token_value
 
-    @__auth_token.setter
-    def __auth_token(self, value: str) -> None:
-        self.__auth_token_value = value
+    @_authentication_token.setter
+    def _authentication_token(self, value: str) -> None:
+        self._authentication_token_value = value
 
     @property
-    def __realm(self) -> str:
-        if not self.__realm_value:
-            self.__download_auth_values()
+    def _realm(self) -> str:
+        if not self._realm_value:
+            self.__fetch_auth_values()
 
-        return self.__realm_value
+        return self._realm_value
 
-    @__realm.setter
-    def __realm(self, value: str) -> None:
-        self.__realm_value = value
+    @_realm.setter
+    def _realm(self, value: str) -> None:
+        self._realm_value = value
 
     def download(
         self,
-        endpoint: str,
+        url: str,
         params: dict[str, Any],
-        base_url: str | None = None,
+        operation: str,
     ) -> dict[str, Any]:
-        """Downloads data from the API for a given endpoint and parameters."""
+        """Downloads from the API."""
         headers = {
             "User-Agent": USER_AGENT,
-            "authorization": f"Bearer {self.__auth_token}",
-            "x-api-key": self.__api_key,
+            "authorization": f"Bearer {self._authentication_token}",
+            "x-api-key": self.API_KEY,
             "Origin": self.BASE_MAIN_URL,
             "Referer": f"{self.BASE_MAIN_URL}/",
-            "Realm": self.__realm,
+            "Realm": self._realm,
         }
 
-        url = f"{base_url or self.BASE_API_URL}/{endpoint}"
+        logger.debug("Downloading: %s", operation)
+        start = time.monotonic()
+        response = self.get_around_client.get(url=url, headers=headers, params=params)
 
-        logger.info("Downloading API data: %s params=%s", url, params)
-        response = self.get_around_client.get(
-            url=url,
-            headers=headers,
-            params=params,
-            timeout=self.timeout,
-        )
+        if response.is_success:
+            logger.debug("Downloaded %s (%.4f s)", operation, time.monotonic() - start)
+            return response.json()
 
-        # PLR2004 - 200 represents the status code "200 OK".
-        if response.status_code != 200:  # noqa: PLR2004
-            msg = f"Unexpected response status code: {response.status_code}"
-            raise HTTPError(msg)
-
-        output = response.json()
-        output["diving_board"] = {}
-        output["diving_board"]["url"] = url
-        output["diving_board"]["timestamp"] = (
-            datetime.now().astimezone().isoformat().replace("+00:00", "Z")
-        )
-        headers.pop("authorization")
-        output["diving_board"]["headers"] = headers
-        output["diving_board"]["params"] = params
-
-        return output
+        msg = f"Unexpected response status code: {response.status_code}"
+        raise HTTPError(msg)

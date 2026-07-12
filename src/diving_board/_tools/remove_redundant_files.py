@@ -1,4 +1,5 @@
-# TODO: Validate
+"""Removes redundant DivingBoard files."""
+
 import logging
 
 from good_ass_pydantic_integrator.utils import remove_redundant_files

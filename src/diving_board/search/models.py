@@ -316,6 +316,9 @@ class Attributes(GAPIBaseModel):
     is_fallback_cards_enabled: bool | None = Field(None, alias="isFallbackCardsEnabled")
     gap: int | None = None
     disable_force_focus: bool | None = Field(None, alias="disableForceFocus")
+    show_fallback_cards: bool | None = Field(None, alias="showFallbackCards")
+    empty_title: str | None = Field(None, alias="emptyTitle")
+    empty_description: str | None = Field(None, alias="emptyDescription")
 
 
 class Style6(GAPIBaseModel):
@@ -357,5 +360,5 @@ class DivingBoard(GAPIBaseModel):
 class SearchModel(GAPIBaseModel):
     model_config = ConfigDict(extra="forbid")
     elements: list[Element]
-    diving_board: DivingBoard
+    diving_board: DivingBoard | None = None
     source: str | None = None

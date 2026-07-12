@@ -1,11 +1,11 @@
-# TODO: Validate
-"""Season API endpoint."""
+"""Contains the Season class."""
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, override
+from typing import TYPE_CHECKING, Any
 
 from diving_board.base_api_endpoint import BaseEndpoint
+from diving_board.constants import BASE_API_URL
 from diving_board.season.bucket.related import SeasonBucketRelated
 from diving_board.season.bucket.season import SeasonBucketSeason
 from diving_board.season.hero import SeasonHero
@@ -24,56 +24,59 @@ if TYPE_CHECKING:
 
 
 class Season(BaseEndpoint[SeasonModel]):
-    """Provides methods to download, parse, and retrieve season data."""
+    """Manage the season file."""
 
     _response_model = SeasonModel
 
-    def download(self, season_id: int, timezone: str = "") -> dict[str, Any]:
-        """Downloads season data for a given season ID.
+    def download(self, season_id: int, timezone: str | None = None) -> dict[str, Any]:
+        """Downloads the season file.
 
-        Args:
-            season_id: The ID of the season to download.
-            timezone: The timezone to use for the request.
+        Raises:
+            HTTPError: If season_id is invalid.
 
-        Returns:
-            The raw JSON response as a dict, suitable for passing to ``parse()``.
+        Example request: https://www.hidive.com/season/24579?seriesId=2311
+            GET /api/v1/view?type=season&id=24579&timezone=America%2FLos_Angeles HTTP/2
+            Host: dce-frontoffice.imggaming.com
+            User-Agent: __REDACTED__
+            Accept: application/json, text/plain, */*
+            Accept-Language: en-US
+            Accept-Encoding: gzip, deflate, br, zstd
+            Referer: https://www.hidive.com/
+            Content-Type: application/json
+            x-api-key: 857a1e5d-e35e-4fdf-805b-a87b6f8364bf
+            app: dice
+            Realm: dce.hidive
+            x-app-var: 6.60.0.5aaf921
+            Authorization: Bearer __REDACTED__
+            Connection: keep-alive
+            Sec-Fetch-Dest: empty
+            Sec-Fetch-Mode: cors
+            Sec-Fetch-Site: cross-site
+            Priority: u=4
+            TE: trailers
         """
-        # Request from: https://www.hidive.com/season/19078
-        endpoint = "api/v1/view"
-        params: dict[str, str | int] = {
-            "type": "season",
-            "id": season_id,
-            "timezone": timezone or self._client.timezone,
-        }
-        return self._client.download(endpoint, params)
-
-    @staticmethod
-    @override
-    def has_content(response: dict[str, Any]) -> bool:
-        return bool(response["elements"])
+        return self._client.download(
+            f"{BASE_API_URL}/api/v1/view",
+            {
+                "type": "season",
+                "id": season_id,
+                "timezone": timezone or self._client.timezone,
+            },
+            f"season {season_id}",
+        )
 
     def get(
         self,
         season_id: int,
-        timezone: str = "",
+        timezone: str | None = None,
     ) -> SeasonModel:
-        """Downloads and parses season data for a given season ID.
-
-        Convenience method that calls ``download()`` then ``parse()``.
-
-        Args:
-            season_id: The ID of the season to get.
-            timezone: The timezone to use for the request.
-
-        Returns:
-            A Season model containing the parsed data.
+        """Downloads and parses the season file.
 
         Raises:
-            NoContentError: If the response has no meaningful content. The raw
-                response is available on the exception's `response` attribute.
+            HTTPError: If season_id is invalid.
         """
         response = self.download(season_id, timezone)
-        return self._parse_or_raise(response, has_content=self.has_content(response))
+        return self.parse(response)
 
     def extract_hero(
         self,
@@ -81,15 +84,7 @@ class Season(BaseEndpoint[SeasonModel]):
         *,
         update_model: bool = True,
     ) -> SeasonHeroModel:
-        """Extract the hero element from season data.
-
-        Args:
-            data: Season data to extract from.
-            update_model: Whether to update DivingBoard's models if parsing fails.
-
-        Returns:
-            A SeasonHeroModel model containing the parsed data.
-        """
+        """Extract the hero element from Season."""
         return self._extract_element(
             data.elements,
             "hero",
@@ -103,15 +98,7 @@ class Season(BaseEndpoint[SeasonModel]):
         *,
         update_model: bool = True,
     ) -> SeasonTabsModel:
-        """Extract the tabs element from season data.
-
-        Args:
-            data: Season data to extract from.
-            update_model: Whether to update DivingBoard's models if parsing fails.
-
-        Returns:
-            A SeasonTabsModel model containing the parsed data.
-        """
+        """Extract the tabs element from Season."""
         return self._extract_element(
             data.elements,
             "tabs",
@@ -125,15 +112,7 @@ class Season(BaseEndpoint[SeasonModel]):
         *,
         update_model: bool = True,
     ) -> SeasonSeriesModel:
-        """Extract the series element from season data.
-
-        Args:
-            data: Season data to extract from.
-            update_model: Whether to update DivingBoard's models if parsing fails.
-
-        Returns:
-            A SeasonSeriesModel model containing the parsed data.
-        """
+        """Extract the series element from Season."""
         return self._extract_element(
             data.elements,
             "series",
@@ -147,20 +126,12 @@ class Season(BaseEndpoint[SeasonModel]):
         *,
         update_model: bool = True,
     ) -> SeasonBucketSeasonModel:
-        """Extract the season-type bucket element from season data.
-
-        Args:
-            data: Season data to extract from.
-            update_model: Whether to update DivingBoard's models if parsing fails.
-
-        Returns:
-            A SeasonBucketSeasonModel containing the parsed data.
-        """
-        return self._extract_element(
+        """Extract the season-type bucket element from Season."""
+        return self._extract_typed_element(
             data.elements,
             "bucket",
+            "season",
             SeasonBucketSeason,
-            attribute_type="season",
             update_model=update_model,
         )
 
@@ -170,20 +141,12 @@ class Season(BaseEndpoint[SeasonModel]):
         *,
         update_model: bool = True,
     ) -> SeasonBucketRelatedModel:
-        """Extract the related-type bucket element from season data.
-
-        Args:
-            data: Season data to extract from.
-            update_model: Whether to update DivingBoard's models if parsing fails.
-
-        Returns:
-            A SeasonBucketRelatedModel containing the parsed data.
-        """
-        return self._extract_element(
+        """Extract the related-type bucket element from Season."""
+        return self._extract_typed_element(
             data.elements,
             "bucket",
+            "related",
             SeasonBucketRelated,
-            attribute_type="related",
             update_model=update_model,
         )
 
@@ -193,15 +156,7 @@ class Season(BaseEndpoint[SeasonModel]):
         *,
         update_model: bool = True,
     ) -> SeasonTextBlockModel:
-        """Extract the text block element from season data.
-
-        Args:
-            data: Season data to extract from.
-            update_model: Whether to update DivingBoard's models if parsing fails.
-
-        Returns:
-            A SeasonTextBlockModel model containing the parsed data.
-        """
+        """Extract the text block element from Season."""
         return self._extract_element(
             data.elements,
             "textBlock",

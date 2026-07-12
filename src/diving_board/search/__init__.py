@@ -1,9 +1,8 @@
-# TODO: Validate
-"""Search API endpoint."""
+"""Contains the Search class."""
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, override
+from typing import TYPE_CHECKING, Any
 
 from diving_board.base_api_endpoint import BaseEndpoint
 from diving_board.search.card_list import SearchCardList
@@ -22,57 +21,46 @@ if TYPE_CHECKING:
 class Search(BaseEndpoint[SearchModel]):
     """Provides methods to download, parse, and retrieve search data."""
 
-    SEARCH_API_URL = "https://search.dce-prod.dicelaboratory.com"
-
     _response_model = SearchModel
 
-    def download(self, query: str, timezone: str = "") -> dict[str, Any]:
-        """Downloads search data for a given query.
+    def download(self, query: str, timezone: str | None = None) -> dict[str, Any]:
+        """Downloads the search file.
 
-        Args:
-            query: The search query string.
-            timezone: The timezone to use for the request.
-
-        Returns:
-            The raw JSON response as a dict, suitable for passing to ``parse()``.
+        Example request: https://www.hidive.com/search
+            OPTIONS /search?query=2.5&timezone=America%2FLos_Angeles HTTP/2
+            Host: search.dce-prod.dicelaboratory.com
+            User-Agent: __REDACTED__
+            Accept: */*
+            Accept-Language: en-US,en;q=0.9
+            Accept-Encoding: gzip, deflate, br, zstd
+            Access-Control-Request-Method: GET
+            Access-Control-Request-Headers: app,authorization,content-type,realm,x-api-key,x-app-var
+            Referer: https://www.hidive.com/
+            Origin: https://www.hidive.com
+            Connection: keep-alive
+            Sec-Fetch-Dest: empty
+            Sec-Fetch-Mode: cors
+            Sec-Fetch-Site: cross-site
+            Priority: u=4
+            TE: trailers
         """
-        endpoint = "search"
-        params: dict[str, str | int] = {
-            "query": query,
-            "timezone": timezone or self._client.timezone,
-        }
-        return self._client.download(endpoint, params, base_url=self.SEARCH_API_URL)
-
-    @staticmethod
-    @override
-    def has_content(response: dict[str, Any]) -> bool:
-        # A no-result search still returns 200 with the search/filter/sort/cardList
-        # scaffolding present, so the ``elements`` list is never empty. Meaningful
-        # content means the cardList element actually holds cards.
-        return any(
-            element.get("attributes", {}).get("cards")
-            for element in response["elements"]
-            if element.get("$type") == "cardList"
+        return self._client.download(
+            "https://search.dce-prod.dicelaboratory.com/search",
+            {
+                "query": query,
+                "timezone": timezone or self._client.timezone,
+            },
+            f"search {query}",
         )
 
-    def get(self, query: str, timezone: str = "") -> SearchModel:
-        """Downloads and parses search data for a given query.
-
-        Convenience method that calls ``download()`` then ``parse()``.
-
-        Args:
-            query: The search query string.
-            timezone: The timezone to use for the request.
+    def get(self, query: str, timezone: str | None = None) -> SearchModel:
+        """Downloads and parses the search file.
 
         Returns:
             A SearchModel containing the parsed data.
-
-        Raises:
-            NoContentError: If the response has no meaningful content. The raw
-                response is available on the exception's `response` attribute.
         """
         response = self.download(query, timezone)
-        return self._parse_or_raise(response, has_content=self.has_content(response))
+        return self.parse(response)
 
     def extract_input(
         self,
@@ -80,15 +68,7 @@ class Search(BaseEndpoint[SearchModel]):
         *,
         update_model: bool = True,
     ) -> SearchInputModel:
-        """Extract the search input element from search data.
-
-        Args:
-            data: Search data to extract from.
-            update_model: Whether to update DivingBoard's models if parsing fails.
-
-        Returns:
-            A SearchInputModel containing the parsed data.
-        """
+        """Extract the search input element from Search."""
         return self._extract_element(
             data.elements,
             "search",
@@ -102,15 +82,7 @@ class Search(BaseEndpoint[SearchModel]):
         *,
         update_model: bool = True,
     ) -> SearchFilterListModel:
-        """Extract the filter list element from search data.
-
-        Args:
-            data: Search data to extract from.
-            update_model: Whether to update DivingBoard's models if parsing fails.
-
-        Returns:
-            A SearchFilterListModel containing the parsed data.
-        """
+        """Extract the filter list element from Search."""
         return self._extract_element(
             data.elements,
             "filterList",
@@ -124,15 +96,7 @@ class Search(BaseEndpoint[SearchModel]):
         *,
         update_model: bool = True,
     ) -> SearchSortListModel:
-        """Extract the sort list element from search data.
-
-        Args:
-            data: Search data to extract from.
-            update_model: Whether to update DivingBoard's models if parsing fails.
-
-        Returns:
-            A SearchSortListModel containing the parsed data.
-        """
+        """Extract the sort list element from Search."""
         return self._extract_element(
             data.elements,
             "sortList",
@@ -146,15 +110,7 @@ class Search(BaseEndpoint[SearchModel]):
         *,
         update_model: bool = True,
     ) -> SearchCardListModel:
-        """Extract the card list element from search data.
-
-        Args:
-            data: Search data to extract from.
-            update_model: Whether to update DivingBoard's models if parsing fails.
-
-        Returns:
-            A SearchCardListModel containing the parsed data.
-        """
+        """Extract the card list element from Search."""
         return self._extract_element(
             data.elements,
             "cardList",

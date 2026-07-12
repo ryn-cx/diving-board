@@ -264,5 +264,5 @@ class DivingBoard(GAPIBaseModel):
 class VodModel(GAPIBaseModel):
     model_config = ConfigDict(extra="forbid")
     elements: list[Element]
-    diving_board: DivingBoard
+    diving_board: DivingBoard | None = None
     source: str | None = None

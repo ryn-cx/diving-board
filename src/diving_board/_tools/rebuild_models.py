@@ -1,4 +1,5 @@
-# TODO: Validate
+"""Rebuilds DivingBoard models."""
+
 import logging
 
 from good_ass_pydantic_integrator.utils import rebuild_models
