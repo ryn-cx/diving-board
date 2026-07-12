@@ -19,7 +19,7 @@ if TYPE_CHECKING:
 
 
 class Search(BaseEndpoint[SearchModel]):
-    """Provides methods to download, parse, and retrieve search data."""
+    """Manage the search file."""
 
     _response_model = SearchModel
 
@@ -54,11 +54,7 @@ class Search(BaseEndpoint[SearchModel]):
         )
 
     def get(self, query: str, timezone: str | None = None) -> SearchModel:
-        """Downloads and parses the search file.
-
-        Returns:
-            A SearchModel containing the parsed data.
-        """
+        """Downloads and parses the search file."""
         response = self.download(query, timezone)
         return self.parse(response)
 

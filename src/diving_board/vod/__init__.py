@@ -20,12 +20,12 @@ if TYPE_CHECKING:
 
 
 class Vod(BaseEndpoint[VodModel]):
-    """Provides methods to download, parse, and retrieve VOD data."""
+    """Manage the vod file."""
 
     _response_model = VodModel
 
     def download(self, vod_id: int, timezone: str | None = None) -> dict[str, Any]:
-        """Downloads VOD data for a given VOD ID.
+        """Downloads the vod file.
 
         Raises:
             HTTPError: If vod_id is invalid.
@@ -61,7 +61,7 @@ class Vod(BaseEndpoint[VodModel]):
         )
 
     def get(self, vod_id: int, timezone: str | None = None) -> VodModel:
-        """Downloads and parses VOD data for a given VOD ID.
+        """Downloads and parses the vod file.
 
         Raises:
             HTTPError: If vod_id is invalid.

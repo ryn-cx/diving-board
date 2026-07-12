@@ -1,4 +1,4 @@
-"""Contains the AdjacentSeries class."""
+"""Contains the SeriesAdjacentTo class."""
 
 from __future__ import annotations
 
