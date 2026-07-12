@@ -97,20 +97,12 @@ class DivingBoard:
 
         return self._authentication_token_value
 
-    @_authentication_token.setter
-    def _authentication_token(self, value: str) -> None:
-        self._authentication_token_value = value
-
     @property
     def _realm(self) -> str:
         if not self._realm_value:
             self.__fetch_auth_values()
 
         return self._realm_value
-
-    @_realm.setter
-    def _realm(self, value: str) -> None:
-        self._realm_value = value
 
     def download(
         self,
