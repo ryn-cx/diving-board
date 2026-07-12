@@ -57,7 +57,7 @@ class Vod(BaseEndpoint[VodModel]):
                 "id": vod_id,
                 "timezone": timezone or self._client.timezone,
             },
-            operation=f"{self.__class__.__name__} {vod_id}",
+            log_id=f"{self.__class__.__name__} {vod_id}",
         )
 
     def get(self, vod_id: int, timezone: str | None = None) -> VodModel:

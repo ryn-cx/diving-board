@@ -50,7 +50,7 @@ class Search(BaseEndpoint[SearchModel]):
                 "query": query,
                 "timezone": timezone or self._client.timezone,
             },
-            f"search {query}",
+            f"{self.__class__.__name__} {query}",
         )
 
     def get(self, query: str, timezone: str | None = None) -> SearchModel:

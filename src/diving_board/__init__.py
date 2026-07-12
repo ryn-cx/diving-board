@@ -116,7 +116,7 @@ class DivingBoard:
         self,
         url: str,
         params: dict[str, Any],
-        operation: str,
+        log_id: str,
     ) -> dict[str, Any]:
         """Downloads from the API."""
         headers = {
@@ -128,12 +128,12 @@ class DivingBoard:
             "Realm": self._realm,
         }
 
-        logger.debug("Downloading: %s", operation)
+        logger.debug("Downloading: %s", log_id)
         start = time.monotonic()
         response = self.get_around_client.get(url=url, headers=headers, params=params)
 
         if response.is_success:
-            logger.debug("Downloaded %s (%.4f s)", operation, time.monotonic() - start)
+            logger.debug("Downloaded %s (%.4f s)", log_id, time.monotonic() - start)
             return response.json()
 
         msg = f"Unexpected response status code: {response.status_code}"

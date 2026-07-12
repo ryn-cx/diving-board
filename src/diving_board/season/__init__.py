@@ -62,7 +62,7 @@ class Season(BaseEndpoint[SeasonModel]):
                 "id": season_id,
                 "timezone": timezone or self._client.timezone,
             },
-            f"season {season_id}",
+            f"{self.__class__.__name__} {season_id}",
         )
 
     def get(

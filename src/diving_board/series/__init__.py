@@ -49,7 +49,7 @@ class Series(BaseEndpoint[SeriesModel]):
                 "id": series_id,
                 "timezone": timezone or self._client.timezone,
             },
-            f"series {series_id}",
+            f"{self.__class__.__name__} {series_id}",
         )
 
     def get(self, series_id: int, timezone: str | None = None) -> SeriesModel:
