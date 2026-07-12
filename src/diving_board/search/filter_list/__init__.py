@@ -1,5 +1,4 @@
-# TODO: Validate
-"""Search filter list extractor."""
+"""Contains the SearchFilterList class."""
 
 from __future__ import annotations
 
@@ -8,6 +7,6 @@ from diving_board.search.filter_list.model import SearchFilterListModel
 
 
 class SearchFilterList(BaseExtractor[SearchFilterListModel]):
-    """Extracts data from Search where field_type=filterList."""
+    """Extract the filter list element from Search."""
 
     _response_model = SearchFilterListModel

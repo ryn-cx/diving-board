@@ -1,5 +1,4 @@
-# TODO: Validate
-"""Search card list extractor."""
+"""Contains the SearchCardList class."""
 
 from __future__ import annotations
 
@@ -8,6 +7,6 @@ from diving_board.search.card_list.model import SearchCardListModel
 
 
 class SearchCardList(BaseExtractor[SearchCardListModel]):
-    """Extracts data from Search where field_type=cardList."""
+    """Extract the card list element from Search."""
 
     _response_model = SearchCardListModel

@@ -1,5 +1,5 @@
 # TODO: Validate
-"""Vod hero extractor."""
+"""Contains the VodHero class."""
 
 from __future__ import annotations
 
@@ -8,6 +8,6 @@ from diving_board.vod.hero.model import VodHeroModel
 
 
 class VodHero(BaseExtractor[VodHeroModel]):
-    """Extracts data from Vod where field_type=hero."""
+    """Extract the hero element from Vod."""
 
     _response_model = VodHeroModel

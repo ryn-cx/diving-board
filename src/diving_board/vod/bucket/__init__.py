@@ -1,5 +1,5 @@
 # TODO: Validate
-"""Vod bucket extractor."""
+"""Contains the VodBucket class."""
 
 from __future__ import annotations
 
@@ -8,6 +8,6 @@ from diving_board.vod.bucket.model import VodBucketModel
 
 
 class VodBucket(BaseExtractor[VodBucketModel]):
-    """Extracts data from Vod where field_type=bucket."""
+    """Extract the bucket element from Vod."""
 
     _response_model = VodBucketModel

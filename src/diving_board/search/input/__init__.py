@@ -1,5 +1,4 @@
-# TODO: Validate
-"""Search input extractor."""
+"""Contains the SearchInput class."""
 
 from __future__ import annotations
 
@@ -8,6 +7,6 @@ from diving_board.search.input.model import SearchInputModel
 
 
 class SearchInput(BaseExtractor[SearchInputModel]):
-    """Extracts data from Search where field_type=search."""
+    """Extract the search input element from Search."""
 
     _response_model = SearchInputModel

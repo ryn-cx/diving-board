@@ -1,5 +1,4 @@
-# TODO: Validate
-"""Season text block extractor."""
+"""Contains the SeasonTextBlock class."""
 
 from __future__ import annotations
 
@@ -8,6 +7,6 @@ from diving_board.season.text_block.model import SeasonTextBlockModel
 
 
 class SeasonTextBlock(BaseExtractor[SeasonTextBlockModel]):
-    """Extracts data from Season where field_type=textBlock."""
+    """Extract the text block element from Season."""
 
     _response_model = SeasonTextBlockModel

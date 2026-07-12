@@ -1,5 +1,4 @@
-# TODO: Validate
-"""Schedule filter list extractor."""
+"""Contains the ScheduleFilterList class."""
 
 from __future__ import annotations
 
@@ -8,6 +7,6 @@ from diving_board.schedule.filter_list.model import ScheduleFilterListModel
 
 
 class ScheduleFilterList(BaseExtractor[ScheduleFilterListModel]):
-    """Extracts data from Schedule where field_type=filterList."""
+    """Extract the filter list element from Schedule."""
 
     _response_model = ScheduleFilterListModel

@@ -1,5 +1,4 @@
-# TODO: Validate
-"""Season hero extractor."""
+"""Contains the SeasonHero class."""
 
 from __future__ import annotations
 
@@ -8,6 +7,6 @@ from diving_board.season.hero.model import SeasonHeroModel
 
 
 class SeasonHero(BaseExtractor[SeasonHeroModel]):
-    """Extracts data from Season where field_type=hero."""
+    """Extract the hero element from Season."""
 
     _response_model = SeasonHeroModel

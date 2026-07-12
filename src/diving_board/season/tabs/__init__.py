@@ -1,5 +1,4 @@
-# TODO: Validate
-"""Season tabs extractor."""
+"""Contains the SeasonTabs class."""
 
 from __future__ import annotations
 
@@ -8,6 +7,6 @@ from diving_board.season.tabs.model import SeasonTabsModel
 
 
 class SeasonTabs(BaseExtractor[SeasonTabsModel]):
-    """Extracts data from Season where field_type=tabs."""
+    """Extract the tabs element from Season."""
 
     _response_model = SeasonTabsModel

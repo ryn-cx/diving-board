@@ -1,5 +1,4 @@
-# TODO: Validate
-"""Vod text block extractor."""
+"""Contains the VodTextBlock class."""
 
 from __future__ import annotations
 
@@ -8,6 +7,6 @@ from diving_board.vod.text_block.model import VodTextBlockModel
 
 
 class VodTextBlock(BaseExtractor[VodTextBlockModel]):
-    """Extracts data from Vod where field_type=textBlock."""
+    """Extract the text block element from Vod."""
 
     _response_model = VodTextBlockModel

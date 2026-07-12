@@ -1,5 +1,4 @@
-# TODO: Validate
-"""Schedule grid block extractor."""
+"""Contains the ScheduleGridBlock class."""
 
 from __future__ import annotations
 
@@ -8,6 +7,6 @@ from diving_board.schedule.grid_block.model import ScheduleGridBlockModel
 
 
 class ScheduleGridBlock(BaseExtractor[ScheduleGridBlockModel]):
-    """Extracts data from Schedule where field_type=gridBlock."""
+    """Extract the grid block element from Schedule."""
 
     _response_model = ScheduleGridBlockModel
