@@ -122,11 +122,11 @@ class DivingBoard:
 
         logger.debug("Downloading: %s", log_id)
         start = time.monotonic()
-        response = self.get_around_client.get(url=url, headers=headers, params=params)
+        response = self.get_around_client.get(url, headers=headers, params=params)
 
-        if response.is_success:
-            logger.debug("Downloaded %s (%.4f s)", log_id, time.monotonic() - start)
-            return response.json()
+        if not response.is_success:
+            msg = f"Unexpected response status code: {response.status_code}"
+            raise HTTPError(msg)
 
-        msg = f"Unexpected response status code: {response.status_code}"
-        raise HTTPError(msg)
+        logger.debug("Downloaded %s (%.4f s)", log_id, time.monotonic() - start)
+        return response.json()
