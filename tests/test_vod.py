@@ -41,20 +41,20 @@ class TestVod:
 
     def test_extract_hero(self, endpoint: Vod) -> None:
         for json_file in endpoint.json_files():
-            model = endpoint.parse(json.loads(json_file.read_text()))
-            endpoint.extract_hero(model)
+            data = endpoint.parse(json.loads(json_file.read_text()))
+            endpoint.extract_hero(data)
 
     def test_extract_tabs(self, endpoint: Vod) -> None:
         for json_file in endpoint.json_files():
-            model = endpoint.parse(json.loads(json_file.read_text()))
-            endpoint.extract_tabs(model)
+            data = endpoint.parse(json.loads(json_file.read_text()))
+            endpoint.extract_tabs(data)
 
     def test_extract_bucket(self, endpoint: Vod) -> None:
         for json_file in endpoint.json_files():
-            model = endpoint.parse(json.loads(json_file.read_text()))
-            endpoint.extract_bucket(model)
+            data = endpoint.parse(json.loads(json_file.read_text()))
+            endpoint.extract_bucket(data)
 
     def test_extract_text_block(self, endpoint: Vod) -> None:
         for json_file in endpoint.json_files():
-            model = endpoint.parse(json.loads(json_file.read_text()))
-            endpoint.extract_text_block(model)
+            data = endpoint.parse(json.loads(json_file.read_text()))
+            endpoint.extract_text_block(data)

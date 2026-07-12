@@ -16,7 +16,7 @@ if TYPE_CHECKING:
 
     from diving_board.schedule.filter_list.model import ScheduleFilterListModel
     from diving_board.schedule.grid_block.model import ScheduleGridBlockModel
-    from diving_board.schedule.group_list.models import ScheduleGroupListModel
+    from diving_board.schedule.group_list.models import Card, ScheduleGroupListModel
 
 
 class Schedule(BaseEndpoint[ScheduleModel]):
@@ -203,3 +203,21 @@ class Schedule(BaseEndpoint[ScheduleModel]):
             ScheduleGroupList,
             update_model=update_model,
         )
+
+    def compile_cards(
+        self,
+        input_data: ScheduleModel | list[ScheduleModel],
+    ) -> list[Card]:
+        """Compile all of the Schedule cards into a single list of Cards."""
+        if isinstance(input_data, list):
+            result: list[Card] = []
+            for response in input_data:
+                result.extend(self.compile_cards(response))
+            return result
+
+        group_list = self.extract_group_list(input_data)
+        return [
+            card
+            for group in group_list.attributes.groups
+            for card in group.attributes.cards
+        ]

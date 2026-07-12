@@ -49,15 +49,40 @@ class TestSchedule:
 
     def test_extract_grid_block(self, endpoint: Schedule) -> None:
         for json_file in endpoint.json_files():
-            model = endpoint.parse(json.loads(json_file.read_text()))
-            endpoint.extract_grid_block(model)
+            data = endpoint.parse(json.loads(json_file.read_text()))
+            endpoint.extract_grid_block(data)
 
     def test_extract_filter_list(self, endpoint: Schedule) -> None:
         for json_file in endpoint.json_files():
-            model = endpoint.parse(json.loads(json_file.read_text()))
-            endpoint.extract_filter_list(model)
+            data = endpoint.parse(json.loads(json_file.read_text()))
+            endpoint.extract_filter_list(data)
 
     def test_extract_group_list(self, endpoint: Schedule) -> None:
         for json_file in endpoint.json_files():
-            model = endpoint.parse(json.loads(json_file.read_text()))
-            endpoint.extract_group_list(model)
+            data = endpoint.parse(json.loads(json_file.read_text()))
+            endpoint.extract_group_list(data)
+
+    def test_compile_entries(self, endpoint: Schedule) -> None:
+        for json_file in endpoint.json_files():
+            data = endpoint.parse(json.loads(json_file.read_text()))
+            entries = endpoint.compile_cards(data)
+            group_list = endpoint.extract_group_list(data)
+            expected = [
+                card
+                for group in group_list.attributes.groups
+                for card in group.attributes.cards
+            ]
+            assert entries == expected
+
+    def test_compile_entries_from_list(self, endpoint: Schedule) -> None:
+        data_list = [
+            endpoint.parse(json.loads(f.read_text())) for f in endpoint.json_files()
+        ]
+        entries = endpoint.compile_cards(data_list)
+        expected = [
+            card
+            for data in data_list
+            for group in endpoint.extract_group_list(data).attributes.groups
+            for card in group.attributes.cards
+        ]
+        assert entries == expected

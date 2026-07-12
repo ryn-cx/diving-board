@@ -41,30 +41,30 @@ class TestSeason:
 
     def test_extract_hero(self, endpoint: Season) -> None:
         for json_file in endpoint.json_files():
-            model = endpoint.parse(json.loads(json_file.read_text()))
-            endpoint.extract_hero(model)
+            data = endpoint.parse(json.loads(json_file.read_text()))
+            endpoint.extract_hero(data)
 
     def test_extract_tabs(self, endpoint: Season) -> None:
         for json_file in endpoint.json_files():
-            model = endpoint.parse(json.loads(json_file.read_text()))
-            endpoint.extract_tabs(model)
+            data = endpoint.parse(json.loads(json_file.read_text()))
+            endpoint.extract_tabs(data)
 
     def test_extract_series(self, endpoint: Season) -> None:
         for json_file in endpoint.json_files():
-            model = endpoint.parse(json.loads(json_file.read_text()))
-            endpoint.extract_series(model)
+            data = endpoint.parse(json.loads(json_file.read_text()))
+            endpoint.extract_series(data)
 
     def test_extract_bucket_season(self, endpoint: Season) -> None:
         for json_file in endpoint.json_files():
-            model = endpoint.parse(json.loads(json_file.read_text()))
-            endpoint.extract_bucket_season(model)
+            data = endpoint.parse(json.loads(json_file.read_text()))
+            endpoint.extract_bucket_season(data)
 
     def test_extract_bucket_related(self, endpoint: Season) -> None:
         for json_file in endpoint.json_files():
-            model = endpoint.parse(json.loads(json_file.read_text()))
-            endpoint.extract_bucket_related(model)
+            data = endpoint.parse(json.loads(json_file.read_text()))
+            endpoint.extract_bucket_related(data)
 
     def test_extract_text_block(self, endpoint: Season) -> None:
         for json_file in endpoint.json_files():
-            model = endpoint.parse(json.loads(json_file.read_text()))
-            endpoint.extract_text_block(model)
+            data = endpoint.parse(json.loads(json_file.read_text()))
+            endpoint.extract_text_block(data)

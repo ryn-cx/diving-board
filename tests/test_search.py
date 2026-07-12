@@ -53,20 +53,20 @@ class TestSearch:
 
     def test_extract_input(self, endpoint: Search) -> None:
         for json_file in endpoint.json_files():
-            model = endpoint.parse(json.loads(json_file.read_text()))
-            endpoint.extract_input(model)
+            data = endpoint.parse(json.loads(json_file.read_text()))
+            endpoint.extract_input(data)
 
     def test_extract_filter_list(self, endpoint: Search) -> None:
         for json_file in endpoint.json_files():
-            model = endpoint.parse(json.loads(json_file.read_text()))
-            endpoint.extract_filter_list(model)
+            data = endpoint.parse(json.loads(json_file.read_text()))
+            endpoint.extract_filter_list(data)
 
     def test_extract_sort_list(self, endpoint: Search) -> None:
         for json_file in endpoint.json_files():
-            model = endpoint.parse(json.loads(json_file.read_text()))
-            endpoint.extract_sort_list(model)
+            data = endpoint.parse(json.loads(json_file.read_text()))
+            endpoint.extract_sort_list(data)
 
     def test_extract_card_list(self, endpoint: Search) -> None:
         for json_file in endpoint.json_files():
-            model = endpoint.parse(json.loads(json_file.read_text()))
-            endpoint.extract_card_list(model)
+            data = endpoint.parse(json.loads(json_file.read_text()))
+            endpoint.extract_card_list(data)
