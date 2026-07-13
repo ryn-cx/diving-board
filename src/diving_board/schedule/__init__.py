@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from datetime import datetime
 from typing import TYPE_CHECKING, Any
 
 from diving_board.base_api_endpoint import BaseEndpoint
@@ -12,10 +13,8 @@ from diving_board.schedule.group_list import ScheduleGroupList
 from diving_board.schedule.models import ScheduleModel
 
 if TYPE_CHECKING:
-    from datetime import datetime
-
-    from diving_board.schedule.filter_list.model import ScheduleFilterListModel
-    from diving_board.schedule.grid_block.model import ScheduleGridBlockModel
+    from diving_board.schedule.filter_list.models import ScheduleFilterListModel
+    from diving_board.schedule.grid_block.models import ScheduleGridBlockModel
     from diving_board.schedule.group_list.models import Card, ScheduleGroupListModel
 
 
@@ -157,7 +156,10 @@ class Schedule(BaseEndpoint[ScheduleModel]):
             # episode from months in the future will be mixed into the upcoming releases
             # so wait until all videos are past the end_datetime value.
             if all(
-                video.attributes.title.attributes.text.astimezone() >= end_datetime
+                datetime.fromisoformat(
+                    video.attributes.title.attributes.text,
+                ).astimezone()
+                >= end_datetime
                 for video in group_list.attributes.groups
             ):
                 return all_schedules

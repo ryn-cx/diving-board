@@ -1,6 +1,6 @@
-# TODO: Validate
+# ruff: noqa: D100, D101, D102, TC001, TC002, TC003
 from good_ass_pydantic_integrator import GAPIBaseModel
-from pydantic import ConfigDict, Field, NaiveDatetime, field_serializer
+from pydantic import ConfigDict, Field
 
 
 class Attributes3(GAPIBaseModel):
@@ -17,11 +17,7 @@ class Icon(GAPIBaseModel):
 
 class Data(GAPIBaseModel):
     model_config = ConfigDict(extra="forbid")
-    from_: NaiveDatetime = Field(..., alias="from")
-
-    @field_serializer("from_")
-    def serialize_from_(self, value: NaiveDatetime) -> str:
-        return value.strftime("%Y-%m-%dT%H:%M")
+    from_: str = Field(..., alias="from")
 
 
 class Action(GAPIBaseModel):

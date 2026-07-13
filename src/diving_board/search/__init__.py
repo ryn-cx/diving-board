@@ -6,16 +6,12 @@ from typing import TYPE_CHECKING, Any
 
 from diving_board.base_api_endpoint import BaseEndpoint
 from diving_board.search.card_list import SearchCardList
-from diving_board.search.filter_list import SearchFilterList
 from diving_board.search.input import SearchInput
 from diving_board.search.models import SearchModel
-from diving_board.search.sort_list import SearchSortList
 
 if TYPE_CHECKING:
-    from diving_board.search.card_list.model import SearchCardListModel
-    from diving_board.search.filter_list.model import SearchFilterListModel
-    from diving_board.search.input.model import SearchInputModel
-    from diving_board.search.sort_list.model import SearchSortListModel
+    from diving_board.search.card_list.models import SearchCardListModel
+    from diving_board.search.input.models import SearchInputModel
 
 
 class Search(BaseEndpoint[SearchModel]):
@@ -58,7 +54,7 @@ class Search(BaseEndpoint[SearchModel]):
         response = self.download(query, timezone)
         return self.parse(response)
 
-    def extract_input(
+    def extract_search(
         self,
         data: SearchModel,
         *,
@@ -69,34 +65,6 @@ class Search(BaseEndpoint[SearchModel]):
             data.elements,
             "search",
             SearchInput,
-            update_model=update_model,
-        )
-
-    def extract_filter_list(
-        self,
-        data: SearchModel,
-        *,
-        update_model: bool = True,
-    ) -> SearchFilterListModel:
-        """Extract the filter list element from Search."""
-        return self._extract_element(
-            data.elements,
-            "filterList",
-            SearchFilterList,
-            update_model=update_model,
-        )
-
-    def extract_sort_list(
-        self,
-        data: SearchModel,
-        *,
-        update_model: bool = True,
-    ) -> SearchSortListModel:
-        """Extract the sort list element from Search."""
-        return self._extract_element(
-            data.elements,
-            "sortList",
-            SearchSortList,
             update_model=update_model,
         )
 

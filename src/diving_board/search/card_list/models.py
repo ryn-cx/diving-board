@@ -1,4 +1,4 @@
-# ruff: noqa: D100, D101
+# ruff: noqa: D100, D101, D102, TC001, TC002, TC003
 from good_ass_pydantic_integrator import GAPIBaseModel
 from pydantic import AwareDatetime, ConfigDict, Field
 
@@ -18,20 +18,10 @@ class HeaderItem(GAPIBaseModel):
     attributes: Attributes2
 
 
-class Token(GAPIBaseModel):
+class Attributes3(GAPIBaseModel):
     model_config = ConfigDict(extra="forbid")
-    key: str
-    value: str
-
-
-class Attributes4(GAPIBaseModel):
-    model_config = ConfigDict(extra="forbid")
-    icon: str | None = None
-    size: int | None = None
-    text: str | None = None
-    label: str | None = None
-    tokens: list[Token] | None = None
-    number_of_lines: int | None = Field(None, alias="numberOfLines")
+    text: str
+    number_of_lines: int = Field(..., alias="numberOfLines")
 
 
 class Style(GAPIBaseModel):
@@ -40,35 +30,11 @@ class Style(GAPIBaseModel):
     size: str
 
 
-class Element(GAPIBaseModel):
-    model_config = ConfigDict(extra="forbid")
-    field_type: str = Field(..., alias="$type")
-    attributes: Attributes4
-    style: Style | None = None
-
-
-class Attributes3(GAPIBaseModel):
-    model_config = ConfigDict(extra="forbid")
-    text: str | None = None
-    number_of_lines: int | None = Field(None, alias="numberOfLines")
-    type: str | None = None
-    elements: list[Element] | None = None
-    label: str | None = None
-    tokens: list[Token] | None = None
-
-
-class Style1(GAPIBaseModel):
-    model_config = ConfigDict(extra="forbid")
-    color: str
-    size: str
-    text_align: str | None = Field(None, alias="textAlign")
-
-
 class ContentItem(GAPIBaseModel):
     model_config = ConfigDict(extra="forbid")
     field_type: str = Field(..., alias="$type")
     attributes: Attributes3
-    style: Style1 | None = None
+    style: Style
 
 
 class ComputedRelease(GAPIBaseModel):
@@ -85,6 +51,7 @@ class Data(GAPIBaseModel):
     type: str
     title: str
     access_level: str = Field(..., alias="accessLevel")
+    online_playback: str | None = Field(None, alias="onlinePlayback")
     id: str
     computed_releases: list[ComputedRelease] = Field(..., alias="computedReleases")
 
@@ -99,7 +66,6 @@ class Attributes1(GAPIBaseModel):
     model_config = ConfigDict(extra="forbid")
     type: str
     has_initial_focus: bool = Field(..., alias="hasInitialFocus")
-    force_horizontal_mobile: bool | None = Field(None, alias="forceHorizontalMobile")
     header: list[HeaderItem]
     content: list[ContentItem]
     action: Action
@@ -136,16 +102,16 @@ class Actions(GAPIBaseModel):
 
 class Attributes(GAPIBaseModel):
     model_config = ConfigDict(extra="forbid")
+    is_fallback_cards_enabled: bool = Field(..., alias="isFallbackCardsEnabled")
+    gap: int
+    disable_force_focus: bool = Field(..., alias="disableForceFocus")
+    show_fallback_cards: bool | None = Field(None, alias="showFallbackCards")
+    empty_title: str | None = Field(None, alias="emptyTitle")
+    empty_description: str | None = Field(None, alias="emptyDescription")
     query: str
     cards: list[Card]
     type: str
     actions: Actions | None = None
-    is_fallback_cards_enabled: bool | None = Field(None, alias="isFallbackCardsEnabled")
-    gap: int | None = None
-    disable_force_focus: bool | None = Field(None, alias="disableForceFocus")
-    show_fallback_cards: bool | None = Field(None, alias="showFallbackCards")
-    empty_title: str | None = Field(None, alias="emptyTitle")
-    empty_description: str | None = Field(None, alias="emptyDescription")
 
 
 class SearchCardListModel(GAPIBaseModel):

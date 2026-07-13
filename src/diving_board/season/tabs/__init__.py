@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from diving_board.base_api_endpoint import BaseExtractor
-from diving_board.season.tabs.model import SeasonTabsModel
+from diving_board.season.tabs.models import SeasonTabsModel
 
 
 class SeasonTabs(BaseExtractor[SeasonTabsModel]):

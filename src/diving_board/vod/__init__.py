@@ -13,10 +13,10 @@ from diving_board.vod.tabs import VodTabs
 from diving_board.vod.text_block import VodTextBlock
 
 if TYPE_CHECKING:
-    from diving_board.vod.bucket.model import VodBucketModel
-    from diving_board.vod.hero.model import VodHeroModel
-    from diving_board.vod.tabs.model import VodTabsModel
-    from diving_board.vod.text_block.model import VodTextBlockModel
+    from diving_board.vod.bucket.models import VodBucketModel
+    from diving_board.vod.hero.models import VodHeroModel
+    from diving_board.vod.tabs.models import VodTabsModel
+    from diving_board.vod.text_block.models import VodTextBlockModel
 
 
 class Vod(BaseEndpoint[VodModel]):
@@ -24,7 +24,11 @@ class Vod(BaseEndpoint[VodModel]):
 
     _response_model = VodModel
 
-    def download(self, vod_id: int, timezone: str | None = None) -> dict[str, Any]:
+    def download(
+        self,
+        vod_id: int | str,
+        timezone: str | None = None,
+    ) -> dict[str, Any]:
         """Downloads the vod file.
 
         Raises:
@@ -54,13 +58,13 @@ class Vod(BaseEndpoint[VodModel]):
             f"{BASE_API_URL}/api/v1/view",
             {
                 "type": "vod",
-                "id": vod_id,
+                "id": int(vod_id),
                 "timezone": timezone or self._client.timezone,
             },
             log_id=f"{self.__class__.__name__} {vod_id}",
         )
 
-    def get(self, vod_id: int, timezone: str | None = None) -> VodModel:
+    def get(self, vod_id: int | str, timezone: str | None = None) -> VodModel:
         """Downloads and parses the vod file.
 
         Raises:

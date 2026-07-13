@@ -15,12 +15,12 @@ from diving_board.season.tabs import SeasonTabs
 from diving_board.season.text_block import SeasonTextBlock
 
 if TYPE_CHECKING:
-    from diving_board.season.bucket.related.model import SeasonBucketRelatedModel
-    from diving_board.season.bucket.season.model import SeasonBucketSeasonModel
-    from diving_board.season.hero.model import SeasonHeroModel
-    from diving_board.season.series.model import SeasonSeriesModel
-    from diving_board.season.tabs.model import SeasonTabsModel
-    from diving_board.season.text_block.model import SeasonTextBlockModel
+    from diving_board.season.bucket.related.models import SeasonBucketRelatedModel
+    from diving_board.season.bucket.season.models import SeasonBucketSeasonModel
+    from diving_board.season.hero.models import SeasonHeroModel
+    from diving_board.season.series.models import SeasonSeriesModel
+    from diving_board.season.tabs.models import SeasonTabsModel
+    from diving_board.season.text_block.models import SeasonTextBlockModel
 
 
 class Season(BaseEndpoint[SeasonModel]):
@@ -28,7 +28,11 @@ class Season(BaseEndpoint[SeasonModel]):
 
     _response_model = SeasonModel
 
-    def download(self, season_id: int, timezone: str | None = None) -> dict[str, Any]:
+    def download(
+        self,
+        season_id: int | str,
+        timezone: str | None = None,
+    ) -> dict[str, Any]:
         """Downloads the season file.
 
         Raises:
@@ -59,7 +63,7 @@ class Season(BaseEndpoint[SeasonModel]):
             f"{BASE_API_URL}/api/v1/view",
             {
                 "type": "season",
-                "id": season_id,
+                "id": int(season_id),
                 "timezone": timezone or self._client.timezone,
             },
             f"{self.__class__.__name__} {season_id}",
@@ -67,7 +71,7 @@ class Season(BaseEndpoint[SeasonModel]):
 
     def get(
         self,
-        season_id: int,
+        season_id: int | str,
         timezone: str | None = None,
     ) -> SeasonModel:
         """Downloads and parses the season file.

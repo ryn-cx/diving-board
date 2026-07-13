@@ -1,8 +1,6 @@
 # ruff: noqa: D100, D101, D102, TC001, TC002, TC003
-from uuid import UUID
-
 from good_ass_pydantic_integrator import GAPIBaseModel
-from pydantic import AwareDatetime, ConfigDict, Field
+from pydantic import ConfigDict, Field
 
 
 class Attributes1(GAPIBaseModel):
@@ -167,8 +165,6 @@ class Item(GAPIBaseModel):
         None,
         alias="hasPermissionGrantedOnSignIn",
     )
-    duration: str | None = None
-    thumbnail_url: str | None = Field(None, alias="thumbnailUrl")
 
 
 class GroupName(GAPIBaseModel):
@@ -237,32 +233,7 @@ class Element(GAPIBaseModel):
     style: Style1 | None = None
 
 
-class Headers(GAPIBaseModel):
-    model_config = ConfigDict(extra="forbid")
-    user_agent: str = Field(..., alias="User-Agent")
-    x_api_key: UUID = Field(..., alias="x-api-key")
-    origin: str = Field(..., alias="Origin")
-    referer: str = Field(..., alias="Referer")
-    realm: str = Field(..., alias="Realm")
-
-
-class Params(GAPIBaseModel):
-    model_config = ConfigDict(extra="forbid")
-    type: str
-    id: int
-    timezone: str
-
-
-class DivingBoard(GAPIBaseModel):
-    model_config = ConfigDict(extra="forbid")
-    url: str
-    timestamp: AwareDatetime
-    headers: Headers
-    params: Params
-
-
 class VodModel(GAPIBaseModel):
     model_config = ConfigDict(extra="forbid")
+    source: str
     elements: list[Element]
-    diving_board: DivingBoard | None = None
-    source: str | None = None

@@ -1,4 +1,4 @@
-# TODO: Validate
+# ruff: noqa: D100, D101, D102, TC001, TC002, TC003
 from good_ass_pydantic_integrator import GAPIBaseModel
 from pydantic import ConfigDict, Field
 
@@ -33,14 +33,14 @@ class Paging(GAPIBaseModel):
 
 class Attributes(GAPIBaseModel):
     model_config = ConfigDict(extra="forbid")
-    id: int
     type: str
-    items: list[Item]
     tab: str
-    season_id: int = Field(..., alias="seasonId")
     row_position: int = Field(..., alias="rowPosition")
     bucket_title: str = Field(..., alias="bucketTitle")
     series_id: int = Field(..., alias="seriesId")
+    season_id: int = Field(..., alias="seasonId")
+    id: int
+    items: list[Item]
     paging: Paging
 
 

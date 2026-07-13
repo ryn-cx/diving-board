@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from diving_board.base_api_endpoint import BaseExtractor
-from diving_board.vod.tabs.model import VodTabsModel
+from diving_board.vod.tabs.models import VodTabsModel
 
 
 class VodTabs(BaseExtractor[VodTabsModel]):

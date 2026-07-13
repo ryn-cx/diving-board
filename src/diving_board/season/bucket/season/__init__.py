@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from diving_board.base_api_endpoint import BaseExtractor
-from diving_board.season.bucket.season.model import SeasonBucketSeasonModel
+from diving_board.season.bucket.season.models import SeasonBucketSeasonModel
 
 
 class SeasonBucketSeason(BaseExtractor[SeasonBucketSeasonModel]):

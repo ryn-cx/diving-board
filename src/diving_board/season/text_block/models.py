@@ -1,12 +1,6 @@
-# TODO: Validate
+# ruff: noqa: D100, D101, D102, TC001, TC002, TC003
 from good_ass_pydantic_integrator import GAPIBaseModel
 from pydantic import ConfigDict, Field
-
-
-class Attributes(GAPIBaseModel):
-    model_config = ConfigDict(extra="forbid")
-    text: str
-    label: str
 
 
 class Mobile(GAPIBaseModel):
@@ -25,9 +19,15 @@ class Style(GAPIBaseModel):
     tablet: Tablet
 
 
-class VodTextBlockModel(GAPIBaseModel):
+class Attributes(GAPIBaseModel):
+    model_config = ConfigDict(extra="forbid")
+    text: str
+    label: str
+
+
+class SeasonTextBlockModel(GAPIBaseModel):
     model_config = ConfigDict(extra="forbid")
     field_type: str = Field(..., alias="$type")
     field_zone: str = Field(..., alias="$zone")
-    attributes: Attributes
     style: Style
+    attributes: Attributes

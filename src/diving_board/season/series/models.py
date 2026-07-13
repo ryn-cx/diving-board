@@ -1,4 +1,4 @@
-# TODO: Validate
+# ruff: noqa: D100, D101, D102, TC001, TC002, TC003
 from good_ass_pydantic_integrator import GAPIBaseModel
 from pydantic import ConfigDict, Field
 
@@ -34,9 +34,9 @@ class Seasons(GAPIBaseModel):
 class Attributes(GAPIBaseModel):
     model_config = ConfigDict(extra="forbid")
     id: int
-    type: str
     tab: str
     series: Series
+    type: str
     season_id: int = Field(..., alias="seasonId")
     seasons: Seasons
 

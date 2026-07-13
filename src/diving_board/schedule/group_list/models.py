@@ -1,32 +1,12 @@
 # ruff: noqa: D100, D101, D102, TC001, TC002, TC003
 from good_ass_pydantic_integrator import GAPIBaseModel
-from pydantic import AwareDatetime, ConfigDict, Field, NaiveDatetime, field_serializer
-
-
-class Data(GAPIBaseModel):
-    model_config = ConfigDict(extra="forbid")
-    last_seen: str = Field(..., alias="lastSeen")
-
-
-class Next(GAPIBaseModel):
-    model_config = ConfigDict(extra="forbid")
-    type: str
-    data: Data
-
-
-class Actions(GAPIBaseModel):
-    model_config = ConfigDict(extra="forbid")
-    next: Next
+from pydantic import AwareDatetime, ConfigDict, Field
 
 
 class Attributes2(GAPIBaseModel):
     model_config = ConfigDict(extra="forbid")
-    text: NaiveDatetime
+    text: str
     format: str
-
-    @field_serializer("text")
-    def serialize_text(self, value: NaiveDatetime) -> str:
-        return value.strftime("%Y-%m-%dT%H:%M")
 
 
 class Style(GAPIBaseModel):
@@ -154,7 +134,7 @@ class ComputedRelease(GAPIBaseModel):
     description: str
 
 
-class Data1(GAPIBaseModel):
+class Data(GAPIBaseModel):
     model_config = ConfigDict(extra="forbid")
     type: str
     title: str
@@ -167,7 +147,7 @@ class Data1(GAPIBaseModel):
 class Action(GAPIBaseModel):
     model_config = ConfigDict(extra="forbid")
     type: str
-    data: Data1
+    data: Data
 
 
 class Attributes3(GAPIBaseModel):
@@ -196,18 +176,30 @@ class Attributes1(GAPIBaseModel):
 class Group(GAPIBaseModel):
     model_config = ConfigDict(extra="forbid")
     field_type: str = Field(..., alias="$type")
-    id: NaiveDatetime
+    id: str
     attributes: Attributes1
 
-    @field_serializer("id")
-    def serialize_id(self, value: NaiveDatetime) -> str:
-        return value.strftime("%Y-%m-%dT%H:%M")
+
+class Data1(GAPIBaseModel):
+    model_config = ConfigDict(extra="forbid")
+    last_seen: str = Field(..., alias="lastSeen")
+
+
+class Next(GAPIBaseModel):
+    model_config = ConfigDict(extra="forbid")
+    type: str
+    data: Data1
+
+
+class Actions(GAPIBaseModel):
+    model_config = ConfigDict(extra="forbid")
+    next: Next
 
 
 class Attributes(GAPIBaseModel):
     model_config = ConfigDict(extra="forbid")
-    actions: Actions | None = None
     groups: list[Group]
+    actions: Actions | None = None
 
 
 class ScheduleGroupListModel(GAPIBaseModel):

@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from diving_board.base_api_endpoint import BaseExtractor
-from diving_board.schedule.filter_list.model import ScheduleFilterListModel
+from diving_board.schedule.filter_list.models import ScheduleFilterListModel
 
 
 class ScheduleFilterList(BaseExtractor[ScheduleFilterListModel]):

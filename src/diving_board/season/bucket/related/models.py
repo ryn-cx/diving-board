@@ -1,6 +1,12 @@
-# TODO: Validate
+# ruff: noqa: D100, D101, D102, TC001, TC002, TC003
 from good_ass_pydantic_integrator import GAPIBaseModel
 from pydantic import ConfigDict, Field
+
+
+class GroupName(GAPIBaseModel):
+    model_config = ConfigDict(extra="forbid")
+    text: str
+    label: str
 
 
 class ContentDownload(GAPIBaseModel):
@@ -10,19 +16,19 @@ class ContentDownload(GAPIBaseModel):
 
 class Item(GAPIBaseModel):
     model_config = ConfigDict(extra="forbid")
-    title: str
-    access_level: str = Field(..., alias="accessLevel")
+    id: int
     type: str
-    content_download: ContentDownload = Field(..., alias="contentDownload")
+    title: str
     description: str
     long_description: str = Field(..., alias="longDescription")
-    watch_status: str = Field(..., alias="watchStatus")
-    id: int
+    content_download: ContentDownload = Field(..., alias="contentDownload")
     cover_url: str = Field(..., alias="coverUrl")
-    season_count: str | None = Field(None, alias="seasonCount")
+    season_count: str = Field(..., alias="seasonCount")
     small_cover_url: str = Field(..., alias="smallCoverUrl")
     poster_url: str = Field(..., alias="posterUrl")
+    access_level: str = Field(..., alias="accessLevel")
     favourite: bool
+    watch_status: str = Field(..., alias="watchStatus")
     favourite_channel: str = Field(..., alias="favouriteChannel")
     has_permission: bool = Field(..., alias="hasPermission")
     is_related: bool = Field(..., alias="isRelated")
@@ -30,7 +36,6 @@ class Item(GAPIBaseModel):
         ...,
         alias="hasPermissionGrantedOnSignIn",
     )
-    vod_count: str | None = Field(None, alias="vodCount")
 
 
 class Paging(GAPIBaseModel):
@@ -39,22 +44,16 @@ class Paging(GAPIBaseModel):
     last_seen: str = Field(..., alias="lastSeen")
 
 
-class GroupName(GAPIBaseModel):
-    model_config = ConfigDict(extra="forbid")
-    text: str
-    label: str
-
-
 class Attributes(GAPIBaseModel):
     model_config = ConfigDict(extra="forbid")
     type: str
-    items: list[Item]
     tab: str
-    season_id: int = Field(..., alias="seasonId")
     bucket_title: str = Field(..., alias="bucketTitle")
-    series_id: int = Field(..., alias="seriesId")
-    paging: Paging
     group_name: GroupName = Field(..., alias="groupName")
+    series_id: int = Field(..., alias="seriesId")
+    season_id: int = Field(..., alias="seasonId")
+    items: list[Item]
+    paging: Paging
 
 
 class SeasonBucketRelatedModel(GAPIBaseModel):

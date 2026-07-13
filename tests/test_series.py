@@ -5,11 +5,16 @@ from typing import TYPE_CHECKING
 
 import pytest
 
-from diving_board.exceptions import HTTPError
+from tests.utils import assert_http_error, data_path, download_if_missing
 
 if TYPE_CHECKING:
+    from pathlib import Path
+
     from diving_board import DivingBoard
     from diving_board.series import Series
+    from diving_board.series.models import SeriesModel
+
+SERIES_ID = 2311
 
 
 @pytest.fixture(scope="session")
@@ -17,18 +22,26 @@ def endpoint(client: DivingBoard) -> Series:
     return client.series
 
 
+@pytest.fixture(scope="session")
+def json_file(endpoint: Series) -> Path:
+    return data_path(endpoint, str(SERIES_ID))
+
+
+@pytest.fixture(scope="session")
+def data(endpoint: Series, json_file: Path) -> SeriesModel:
+    return endpoint.parse(json.loads(json_file.read_text()))
+
+
 class TestSeries:
-    def test_get(self, endpoint: Series) -> None:
-        """https://www.hidive.com/series/2311"""
-        series_id = 2311
-        data = endpoint.get(series_id)
-        assert data.metadata.series.series_id == series_id
-        endpoint.save_new_json_file(endpoint.original_input(data))
+    def test_download(self, endpoint: Series) -> None:
+        download_if_missing(
+            endpoint,
+            str(SERIES_ID),
+            lambda: endpoint.download(SERIES_ID),
+        )
 
-    def test_invalid_get(self, endpoint: Series) -> None:
-        with pytest.raises(HTTPError):
-            endpoint.get(0)
+    def test_value(self, data: SeriesModel) -> None:
+        assert data.metadata.series.series_id == SERIES_ID
 
-    def test_parse(self, endpoint: Series) -> None:
-        for json_file in endpoint.json_files():
-            endpoint.parse(json.loads(json_file.read_text()))
+    def test_invalid(self, endpoint: Series) -> None:
+        assert_http_error(endpoint, "0", lambda: endpoint.download(0))

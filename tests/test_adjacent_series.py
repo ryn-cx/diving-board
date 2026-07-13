@@ -4,12 +4,69 @@ import json
 from typing import TYPE_CHECKING
 
 import pytest
+from pydantic import BaseModel
 
-from diving_board.exceptions import HTTPError
+from tests.utils import assert_http_error, data_path, download_if_missing
 
 if TYPE_CHECKING:
     from diving_board import DivingBoard
     from diving_board.adjacent_series import SeriesAdjacentTo
+
+
+class TestData(BaseModel):
+    series_id: int
+    season_id: int
+    preceding_ids: list[int]
+    following_ids: list[int]
+
+
+MULTIPLE_SEASON_SERIES_ID = 1019
+FIRST_SEASON_ID = 18908
+SECOND_SEASON_ID = 18909
+THIRD_SEASON_ID = 18910
+FOURTH_SEASON_ID = 18911
+
+SINGLE_SEASON_SERIES_ID = 2311
+SINGLE_SEASON_ID = 24579
+
+
+SERIES_AND_SEASONS: list[TestData] = [
+    # Series with multiple seasons. Tests on season 2 and 3 overlap, but both are tested
+    # for completeness.
+    # https://www.hidive.com/series/1019
+    TestData(
+        series_id=MULTIPLE_SEASON_SERIES_ID,
+        season_id=FIRST_SEASON_ID,
+        preceding_ids=[],
+        following_ids=[SECOND_SEASON_ID, THIRD_SEASON_ID, FOURTH_SEASON_ID],
+    ),
+    TestData(
+        series_id=MULTIPLE_SEASON_SERIES_ID,
+        season_id=SECOND_SEASON_ID,
+        preceding_ids=[FIRST_SEASON_ID],
+        following_ids=[THIRD_SEASON_ID, FOURTH_SEASON_ID],
+    ),
+    TestData(
+        series_id=MULTIPLE_SEASON_SERIES_ID,
+        season_id=THIRD_SEASON_ID,
+        preceding_ids=[FIRST_SEASON_ID, SECOND_SEASON_ID],
+        following_ids=[FOURTH_SEASON_ID],
+    ),
+    TestData(
+        series_id=MULTIPLE_SEASON_SERIES_ID,
+        season_id=FOURTH_SEASON_ID,
+        preceding_ids=[FIRST_SEASON_ID, SECOND_SEASON_ID, THIRD_SEASON_ID],
+        following_ids=[],
+    ),
+    # Series with a single season
+    # https://www.hidive.com/season/24579?seriesId=2311
+    TestData(
+        series_id=SINGLE_SEASON_SERIES_ID,
+        season_id=SINGLE_SEASON_ID,
+        preceding_ids=[],
+        following_ids=[],
+    ),
+]
 
 
 @pytest.fixture(scope="session")
@@ -18,32 +75,30 @@ def endpoint(client: DivingBoard) -> SeriesAdjacentTo:
 
 
 class TestAdjacentSeries:
-    def test_single_season(self, endpoint: SeriesAdjacentTo) -> None:
-        """https://www.hidive.com/season/24579?seriesId=2311"""
-        data = endpoint.get(2311, 24579)
-        assert not data.preceding_seasons
-        assert not data.following_seasons
-        endpoint.save_new_json_file(endpoint.original_input(data))
+    @pytest.mark.parametrize("test_data", SERIES_AND_SEASONS)
+    def test_download(self, endpoint: SeriesAdjacentTo, test_data: TestData) -> None:
+        name = f"{test_data.series_id}_{test_data.season_id}"
+        download_if_missing(
+            endpoint,
+            name,
+            lambda: endpoint.download(test_data.series_id, test_data.season_id),
+        )
 
-    def test_middle_season(self, endpoint: SeriesAdjacentTo) -> None:
-        """https://www.hidive.com/season/18909?seriesId=1019"""
-        previous_season_id = 18908
-        next_season_id = 18910
-        data = endpoint.get(1019, 18909)
+    @pytest.mark.parametrize("test_data", SERIES_AND_SEASONS)
+    def test_valid(self, endpoint: SeriesAdjacentTo, test_data: TestData) -> None:
+        name = f"{test_data.series_id}_{test_data.season_id}"
+        data = endpoint.parse(json.loads(data_path(endpoint, name).read_text()))
+        assert [
+            season.id for season in data.preceding_seasons
+        ] == test_data.preceding_ids
+        assert [
+            season.id for season in data.following_seasons
+        ] == test_data.following_ids
 
-        assert data.preceding_seasons
-        assert data.following_seasons
-        # Seasons are ordered ascending, so the directly adjacent seasons are the
-        # closest preceding (last) and closest following (first) entries.
-        assert data.preceding_seasons[-1].id == previous_season_id
-        assert data.following_seasons[0].id == next_season_id
-
-        endpoint.save_new_json_file(endpoint.original_input(data))
-
-    def test_mismatched_series_and_season(self, endpoint: SeriesAdjacentTo) -> None:
-        with pytest.raises(HTTPError):
-            endpoint.get(2311, 18908)
-
-    def test_parse(self, endpoint: SeriesAdjacentTo) -> None:
-        for json_file in endpoint.json_files():
-            endpoint.parse(json.loads(json_file.read_text()))
+    def test_invalid(self, endpoint: SeriesAdjacentTo) -> None:
+        name = f"{SINGLE_SEASON_SERIES_ID}_{FIRST_SEASON_ID}"
+        assert_http_error(
+            endpoint,
+            name,
+            lambda: endpoint.download(SINGLE_SEASON_SERIES_ID, FIRST_SEASON_ID),
+        )

@@ -1,4 +1,4 @@
-# TODO: Validate
+# ruff: noqa: D100, D101, D102, TC001, TC002, TC003
 from good_ass_pydantic_integrator import GAPIBaseModel
 from pydantic import ConfigDict, Field
 
@@ -11,7 +11,7 @@ class Attributes1(GAPIBaseModel):
 
 class Style(GAPIBaseModel):
     model_config = ConfigDict(extra="forbid")
-    size: str
+    size: int
     color: str
 
 
@@ -28,11 +28,17 @@ class Attributes3(GAPIBaseModel):
     number_of_lines: int = Field(..., alias="numberOfLines")
 
 
+class Style1(GAPIBaseModel):
+    model_config = ConfigDict(extra="forbid")
+    size: str
+    color: str
+
+
 class Title1(GAPIBaseModel):
     model_config = ConfigDict(extra="forbid")
     field_type: str = Field(..., alias="$type")
     attributes: Attributes3
-    style: Style
+    style: Style1
 
 
 class Option(GAPIBaseModel):
@@ -40,10 +46,9 @@ class Option(GAPIBaseModel):
     type: str
     filter_key: str = Field(..., alias="filterKey")
     is_active: bool = Field(..., alias="isActive")
-    label: str | None = None
+    text: str
     format: str
     value: str
-    text: str | None = None
 
 
 class Attributes2(GAPIBaseModel):
@@ -72,8 +77,8 @@ class Action(GAPIBaseModel):
 
 class Reset(GAPIBaseModel):
     model_config = ConfigDict(extra="forbid")
-    text: str
     label: str
+    text: str
     action: Action
 
 
@@ -85,8 +90,8 @@ class Action1(GAPIBaseModel):
 
 class Apply(GAPIBaseModel):
     model_config = ConfigDict(extra="forbid")
-    text: str
     label: str
+    text: str
     action: Action1
 
 
@@ -103,7 +108,7 @@ class Attributes(GAPIBaseModel):
     actions: Actions
 
 
-class SearchFilterListModel(GAPIBaseModel):
+class ScheduleFilterListModel(GAPIBaseModel):
     model_config = ConfigDict(extra="forbid")
     field_type: str = Field(..., alias="$type")
     field_zone: str = Field(..., alias="$zone")

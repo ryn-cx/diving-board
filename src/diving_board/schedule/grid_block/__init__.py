@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from diving_board.base_api_endpoint import BaseExtractor
-from diving_board.schedule.grid_block.model import ScheduleGridBlockModel
+from diving_board.schedule.grid_block.models import ScheduleGridBlockModel
 
 
 class ScheduleGridBlock(BaseExtractor[ScheduleGridBlockModel]):

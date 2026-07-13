@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from diving_board.base_api_endpoint import BaseExtractor
-from diving_board.vod.text_block.model import VodTextBlockModel
+from diving_board.vod.text_block.models import VodTextBlockModel
 
 
 class VodTextBlock(BaseExtractor[VodTextBlockModel]):

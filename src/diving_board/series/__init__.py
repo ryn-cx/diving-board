@@ -36,7 +36,11 @@ class Series(BaseEndpoint[SeriesModel]):
 
     _response_model = SeriesModel
 
-    def download(self, series_id: int, timezone: str | None = None) -> dict[str, Any]:
+    def download(
+        self,
+        series_id: int | str,
+        timezone: str | None = None,
+    ) -> dict[str, Any]:
         """Downloads the series file.
 
         Raises:
@@ -46,13 +50,13 @@ class Series(BaseEndpoint[SeriesModel]):
             f"{BASE_API_URL}/api/v1/view",
             {
                 "type": "series",
-                "id": series_id,
+                "id": int(series_id),
                 "timezone": timezone or self._client.timezone,
             },
             f"{self.__class__.__name__} {series_id}",
         )
 
-    def get(self, series_id: int, timezone: str | None = None) -> SeriesModel:
+    def get(self, series_id: int | str, timezone: str | None = None) -> SeriesModel:
         """Downloads and parses the series file."""
         response = self.download(series_id, timezone)
         return self.parse(response)

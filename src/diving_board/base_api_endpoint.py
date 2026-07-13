@@ -2,28 +2,20 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, override
+from typing import TYPE_CHECKING, Any
 
 from good_ass_pydantic_integrator import GAPIBaseModel, GAPIClient
 
-from diving_board.constants import FILES_PATH
+from diving_board.constants import FILES_DIRECTORY
 
 if TYPE_CHECKING:
-    from pathlib import Path
-
     from diving_board import DivingBoard
 
 
 class BaseExtractor[T: GAPIBaseModel](GAPIClient[T]):
     """Base class to extract data from API responses."""
 
-    @override
-    @classmethod
-    def json_files_folder(cls) -> Path:
-        folder_name = cls._folder_name(cls._model_name())
-        original_path = FILES_PATH / folder_name
-        subfolder = original_path.name.replace("_model", "").split("_")
-        return original_path.parent.joinpath(*subfolder)
+    JSON_FILES_ROOT = FILES_DIRECTORY
 
 
 class BaseEndpoint[T: GAPIBaseModel](BaseExtractor[T]):

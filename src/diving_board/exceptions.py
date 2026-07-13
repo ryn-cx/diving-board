@@ -6,7 +6,7 @@ from typing import Any
 
 
 class DivingBoardError(Exception):
-    """Base exception for diving-board library."""
+    """Base exception for DivingBoard."""
 
 
 class HTTPError(DivingBoardError):

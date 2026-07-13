@@ -1,6 +1,22 @@
-# TODO: Validate
+# ruff: noqa: D100, D101, D102, TC001, TC002, TC003
 from good_ass_pydantic_integrator import GAPIBaseModel
 from pydantic import ConfigDict, Field
+
+
+class Desktop(GAPIBaseModel):
+    model_config = ConfigDict(extra="forbid")
+    display: str
+
+
+class Tv(GAPIBaseModel):
+    model_config = ConfigDict(extra="forbid")
+    display: str
+
+
+class Style(GAPIBaseModel):
+    model_config = ConfigDict(extra="forbid")
+    desktop: Desktop
+    tv: Tv
 
 
 class Data(GAPIBaseModel):
@@ -35,25 +51,9 @@ class Attributes(GAPIBaseModel):
     items: list[Item]
 
 
-class Desktop(GAPIBaseModel):
-    model_config = ConfigDict(extra="forbid")
-    display: str
-
-
-class Tv(GAPIBaseModel):
-    model_config = ConfigDict(extra="forbid")
-    display: str
-
-
-class Style(GAPIBaseModel):
-    model_config = ConfigDict(extra="forbid")
-    desktop: Desktop
-    tv: Tv
-
-
 class SeasonTabsModel(GAPIBaseModel):
     model_config = ConfigDict(extra="forbid")
     field_type: str = Field(..., alias="$type")
     field_zone: str = Field(..., alias="$zone")
-    attributes: Attributes
     style: Style
+    attributes: Attributes

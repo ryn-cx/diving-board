@@ -4,17 +4,17 @@ from __future__ import annotations
 
 from typing import Any
 
-from diving_board.adjacent_series.models import AdjacentSeries as AdjacentSeriesModel
+from diving_board.adjacent_series.models import SeriesAdjacentToModel
 from diving_board.base_api_endpoint import BaseEndpoint
 from diving_board.constants import BASE_API_URL
 
 
-class SeriesAdjacentTo(BaseEndpoint[AdjacentSeriesModel]):
+class SeriesAdjacentTo(BaseEndpoint[SeriesAdjacentToModel]):
     """Manage the series adjacent to file."""
 
-    _response_model = AdjacentSeriesModel
+    _response_model = SeriesAdjacentToModel
 
-    def download(self, series_id: int, season_id: int) -> dict[str, Any]:
+    def download(self, series_id: int | str, season_id: int | str) -> dict[str, Any]:
         """Downloads the series adjacent to file.
 
         Raises:
@@ -41,12 +41,12 @@ class SeriesAdjacentTo(BaseEndpoint[AdjacentSeriesModel]):
             Sec-Fetch-Site: cross-site
         """
         return self._client.download(
-            f"{BASE_API_URL}/api/v4/series/{series_id}/adjacentTo/{season_id}",
+            f"{BASE_API_URL}/api/v4/series/{int(series_id)}/adjacentTo/{int(season_id)}",
             {"size": 25},
             f"{self.__class__.__name__} {series_id}/{season_id}",
         )
 
-    def get(self, series_id: int, season_id: int) -> AdjacentSeriesModel:
+    def get(self, series_id: int | str, season_id: int | str) -> SeriesAdjacentToModel:
         """Downloads and parses the series adjacent to file.
 
         Raises:

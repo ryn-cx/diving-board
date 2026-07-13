@@ -3,6 +3,12 @@ from good_ass_pydantic_integrator import GAPIBaseModel
 from pydantic import ConfigDict, Field
 
 
+class GroupName(GAPIBaseModel):
+    model_config = ConfigDict(extra="forbid")
+    text: str
+    label: str
+
+
 class ContentDownload(GAPIBaseModel):
     model_config = ConfigDict(extra="forbid")
     permission: str
@@ -16,10 +22,10 @@ class Item(GAPIBaseModel):
     description: str
     long_description: str = Field(..., alias="longDescription")
     content_download: ContentDownload = Field(..., alias="contentDownload")
-    cover_url: str | None = Field(None, alias="coverUrl")
-    small_cover_url: str | None = Field(None, alias="smallCoverUrl")
-    season_count: str | None = Field(None, alias="seasonCount")
-    poster_url: str | None = Field(None, alias="posterUrl")
+    cover_url: str = Field(..., alias="coverUrl")
+    small_cover_url: str = Field(..., alias="smallCoverUrl")
+    season_count: str = Field(..., alias="seasonCount")
+    poster_url: str = Field(..., alias="posterUrl")
     access_level: str = Field(..., alias="accessLevel")
     favourite: bool
     watch_status: str = Field(..., alias="watchStatus")
@@ -30,14 +36,6 @@ class Item(GAPIBaseModel):
         ...,
         alias="hasPermissionGrantedOnSignIn",
     )
-    duration: str | None = None
-    thumbnail_url: str | None = Field(None, alias="thumbnailUrl")
-
-
-class GroupName(GAPIBaseModel):
-    model_config = ConfigDict(extra="forbid")
-    text: str
-    label: str
 
 
 class Paging(GAPIBaseModel):
@@ -48,11 +46,11 @@ class Paging(GAPIBaseModel):
 
 class Attributes(GAPIBaseModel):
     model_config = ConfigDict(extra="forbid")
-    type: str
-    items: list[Item]
     tab: str
+    type: str
     bucket_title: str = Field(..., alias="bucketTitle")
     group_name: GroupName = Field(..., alias="groupName")
+    items: list[Item]
     paging: Paging
 
 
