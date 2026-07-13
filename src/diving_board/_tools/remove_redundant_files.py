@@ -1,3 +1,4 @@
+# TODO: Validate
 """Removes redundant DivingBoard files."""
 
 import logging

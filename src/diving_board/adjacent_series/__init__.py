@@ -1,3 +1,4 @@
+# TODO: Validate
 """Contains the SeriesAdjacentTo class."""
 
 from __future__ import annotations

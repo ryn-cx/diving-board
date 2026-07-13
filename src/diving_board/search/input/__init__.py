@@ -1,3 +1,4 @@
+# TODO: Validate
 """Contains the SearchInput class."""
 
 from __future__ import annotations

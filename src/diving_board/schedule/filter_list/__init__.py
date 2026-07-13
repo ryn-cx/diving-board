@@ -1,3 +1,4 @@
+# TODO: Validate
 """Contains the ScheduleFilterList class."""
 
 from __future__ import annotations
