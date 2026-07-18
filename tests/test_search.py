@@ -1,29 +1,28 @@
 # TODO: Validate
 from __future__ import annotations
 
-import json
 from typing import TYPE_CHECKING
 
 import pytest
 from pydantic import BaseModel
 
-from tests.utils import data_path, download_if_missing
+from tests.utils import download_and_save, parse_json
 
 if TYPE_CHECKING:
     from diving_board import DivingBoard
     from diving_board.search import Search
 
 
-class TestData(BaseModel):
+class SearchCase(BaseModel):
     query: str
     card_id: str
 
 
-SEARCHES: list[TestData] = [
+SEARCHES: list[SearchCase] = [
     # Series: https://www.hidive.com/series/2311
-    TestData(query="2.5 Dimensional Seduction", card_id="SERIES#2311"),
+    SearchCase(query="2.5 Dimensional Seduction", card_id="SERIES#2311"),
     # Movie: https://www.hidive.com/video/796187?showInterstitial=true
-    TestData(query="Appleseed", card_id="VOD#796187"),
+    SearchCase(query="Appleseed", card_id="VOD#796187"),
 ]
 
 INVALID_QUERY = "qwertyuiopasdfghjklzxcvbnm"
@@ -35,48 +34,49 @@ def endpoint(client: DivingBoard) -> Search:
 
 
 class TestSearch:
-    @pytest.mark.parametrize("test_data", SEARCHES)
-    def test_download(self, endpoint: Search, test_data: TestData) -> None:
-        download_if_missing(
+    @pytest.mark.parametrize("case", SEARCHES)
+    def test_download(self, endpoint: Search, case: SearchCase) -> None:
+        download_and_save(
             endpoint,
-            test_data.query,
-            lambda: endpoint.download(test_data.query),
+            case.query,
+            lambda: endpoint.download(case.query),
         )
 
-    @pytest.mark.parametrize("test_data", SEARCHES)
-    def test_valid(self, endpoint: Search, test_data: TestData) -> None:
-        data = endpoint.parse(
-            json.loads(data_path(endpoint, test_data.query).read_text()),
-        )
-        assert data.elements[0].attributes.value == test_data.query
+    @pytest.mark.parametrize("case", SEARCHES)
+    def test_parse(self, endpoint: Search, case: SearchCase) -> None:
+        data = parse_json(endpoint, case.query)
+        assert data.elements[0].attributes.value == case.query
 
-    @pytest.mark.parametrize("test_data", SEARCHES)
-    def test_extract_search(self, endpoint: Search, test_data: TestData) -> None:
-        data = endpoint.parse(
-            json.loads(data_path(endpoint, test_data.query).read_text()),
-        )
-        assert endpoint.extract_search(data).attributes.value == test_data.query
+    @pytest.mark.parametrize("case", SEARCHES)
+    def test_extract_search(self, endpoint: Search, case: SearchCase) -> None:
+        data = parse_json(endpoint, case.query)
+        assert endpoint.extract_search(data).attributes.value == case.query
 
-    @pytest.mark.parametrize("test_data", SEARCHES)
-    def test_extract_card_list(self, endpoint: Search, test_data: TestData) -> None:
-        data = endpoint.parse(
-            json.loads(data_path(endpoint, test_data.query).read_text()),
-        )
+    @pytest.mark.parametrize("case", SEARCHES)
+    def test_extract_card_list(self, endpoint: Search, case: SearchCase) -> None:
+        data = parse_json(endpoint, case.query)
         card_list = endpoint.extract_card_list(data)
-        assert card_list.attributes.query == test_data.query
-        assert (
-            card_list.attributes.cards[0].attributes.action.data.id == test_data.card_id
-        )
+        assert card_list.attributes.query == case.query
+        assert card_list.attributes.cards[0].attributes.action.data.id == case.card_id
 
-    def test_invalid(self, endpoint: Search) -> None:
-        download_if_missing(
+    def test_invalid_download(self, endpoint: Search) -> None:
+        download_and_save(
             endpoint,
             INVALID_QUERY,
             lambda: endpoint.download(INVALID_QUERY),
         )
-        data = endpoint.parse(
-            json.loads(data_path(endpoint, INVALID_QUERY).read_text()),
-        )
+
+    def test_invalid_parse(self, endpoint: Search) -> None:
+        data = parse_json(endpoint, INVALID_QUERY)
         card_list = endpoint.extract_card_list(data)
         assert card_list.attributes.query == INVALID_QUERY
         assert not card_list.attributes.cards
+
+
+@pytest.mark.parametrize("timezone", [None, "America/New_York"])
+def test_log_id(endpoint: Search, timezone: str | None) -> None:
+    query = SEARCHES[0].query
+    expected = f"Search query={query!r}"
+    if timezone is not None:
+        expected += f" timezone={timezone!r}"
+    assert endpoint.get_log_id(query, timezone) == expected

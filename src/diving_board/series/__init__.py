@@ -3,11 +3,15 @@
 
 from __future__ import annotations
 
+from logging import NullHandler, getLogger
 from typing import Any
 
 from diving_board.base_api_endpoint import BaseEndpoint
 from diving_board.constants import BASE_API_URL
 from diving_board.series.models import SeriesModel
+
+logger = getLogger(__name__)
+logger.addHandler(NullHandler())
 
 
 class Series(BaseEndpoint[SeriesModel]):
@@ -37,6 +41,13 @@ class Series(BaseEndpoint[SeriesModel]):
 
     _response_model = SeriesModel
 
+    def get_log_id(self, series_id: int | str, timezone: str | None = None) -> str:
+        """Build the log id for a download."""
+        return self.append_non_default_args(
+            f"{self.__class__.__name__} {series_id=}",
+            timezone=(timezone, None),
+        )
+
     def download(
         self,
         series_id: int | str,
@@ -54,10 +65,13 @@ class Series(BaseEndpoint[SeriesModel]):
                 "id": int(series_id),
                 "timezone": timezone or self._client.timezone,
             },
-            f"{self.__class__.__name__} {series_id}",
+            self.get_log_id(series_id, timezone),
         )
 
-    def get(self, series_id: int | str, timezone: str | None = None) -> SeriesModel:
+    def download_and_parse(
+        self,
+        series_id: int | str,
+        timezone: str | None = None,
+    ) -> SeriesModel:
         """Downloads and parses the series file."""
-        response = self.download(series_id, timezone)
-        return self.parse(response)
+        return self.parse(self.download(series_id, timezone))

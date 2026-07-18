@@ -3,6 +3,7 @@
 
 from __future__ import annotations
 
+from logging import NullHandler, getLogger
 from typing import TYPE_CHECKING, Any
 
 from diving_board.base_api_endpoint import BaseEndpoint
@@ -23,11 +24,21 @@ if TYPE_CHECKING:
     from diving_board.season.tabs.models import SeasonTabsModel
     from diving_board.season.text_block.models import SeasonTextBlockModel
 
+logger = getLogger(__name__)
+logger.addHandler(NullHandler())
+
 
 class Season(BaseEndpoint[SeasonModel]):
     """Manage the season file."""
 
     _response_model = SeasonModel
+
+    def get_log_id(self, season_id: int | str, timezone: str | None = None) -> str:
+        """Build the log id for a download."""
+        return self.append_non_default_args(
+            f"{self.__class__.__name__} {season_id=}",
+            timezone=(timezone, None),
+        )
 
     def download(
         self,
@@ -67,10 +78,10 @@ class Season(BaseEndpoint[SeasonModel]):
                 "id": int(season_id),
                 "timezone": timezone or self._client.timezone,
             },
-            f"{self.__class__.__name__} {season_id}",
+            self.get_log_id(season_id, timezone),
         )
 
-    def get(
+    def download_and_parse(
         self,
         season_id: int | str,
         timezone: str | None = None,
@@ -80,8 +91,7 @@ class Season(BaseEndpoint[SeasonModel]):
         Raises:
             HTTPError: If season_id is invalid.
         """
-        response = self.download(season_id, timezone)
-        return self.parse(response)
+        return self.parse(self.download(season_id, timezone))
 
     def extract_hero(
         self,

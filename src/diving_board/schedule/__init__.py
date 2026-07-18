@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 from datetime import datetime
+from logging import NullHandler, getLogger
 from typing import TYPE_CHECKING, Any
 
 from diving_board.base_api_endpoint import BaseEndpoint
@@ -18,11 +19,27 @@ if TYPE_CHECKING:
     from diving_board.schedule.grid_block.models import ScheduleGridBlockModel
     from diving_board.schedule.group_list.models import Card, ScheduleGroupListModel
 
+logger = getLogger(__name__)
+logger.addHandler(NullHandler())
+
 
 class Schedule(BaseEndpoint[ScheduleModel]):
     """Manage the schedule file."""
 
     _response_model = ScheduleModel
+
+    def get_log_id(
+        self,
+        from_: datetime | None = None,
+        last_seen: str | None = None,
+        timezone: str | None = None,
+    ) -> str:
+        """Build the log id for a download."""
+        return self.append_non_default_args(
+            f"{self.__class__.__name__} {from_=}",
+            last_seen=(last_seen, None),
+            timezone=(timezone, None),
+        )
 
     def download(
         self,
@@ -95,10 +112,10 @@ class Schedule(BaseEndpoint[ScheduleModel]):
         return self._client.download(
             f"{BASE_API_URL}/api/v1/view/schedule",
             params,
-            f"{self.__class__.__name__} {[from_, last_seen]}",
+            self.get_log_id(from_, last_seen, timezone),
         )
 
-    def get(
+    def download_and_parse(
         self,
         from_: datetime | None = None,
         last_seen: str | None = None,
@@ -113,14 +130,15 @@ class Schedule(BaseEndpoint[ScheduleModel]):
             last_seen: Pagination token from a previous response.
             timezone: The timezone to use for the request.
         """
-        response = self.download(
-            from_=from_,
-            last_seen=last_seen,
-            timezone=timezone,
+        return self.parse(
+            self.download(
+                from_=from_,
+                last_seen=last_seen,
+                timezone=timezone,
+            ),
         )
-        return self.parse(response)
 
-    def get_until_datetime(
+    def download_and_parse_until_datetime(
         self,
         end_datetime: datetime,
         from_: datetime | None = None,
@@ -139,7 +157,11 @@ class Schedule(BaseEndpoint[ScheduleModel]):
         last_seen = ""
 
         while True:
-            schedule = self.get(from_=from_, last_seen=last_seen, timezone=timezone)
+            schedule = self.download_and_parse(
+                from_=from_,
+                last_seen=last_seen,
+                timezone=timezone,
+            )
             # When using the website from is only sent on the first request for a
             # specific month. After that everything uses lastSeen even if the results
             # come from future months so the argument can be removed

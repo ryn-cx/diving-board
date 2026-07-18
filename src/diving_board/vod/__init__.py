@@ -3,6 +3,7 @@
 
 from __future__ import annotations
 
+from logging import NullHandler, getLogger
 from typing import TYPE_CHECKING, Any
 
 from diving_board.base_api_endpoint import BaseEndpoint
@@ -19,11 +20,21 @@ if TYPE_CHECKING:
     from diving_board.vod.tabs.models import VodTabsModel
     from diving_board.vod.text_block.models import VodTextBlockModel
 
+logger = getLogger(__name__)
+logger.addHandler(NullHandler())
+
 
 class Vod(BaseEndpoint[VodModel]):
     """Manage the vod file."""
 
     _response_model = VodModel
+
+    def get_log_id(self, vod_id: int | str, timezone: str | None = None) -> str:
+        """Build the log id for a download."""
+        return self.append_non_default_args(
+            f"{self.__class__.__name__} {vod_id=}",
+            timezone=(timezone, None),
+        )
 
     def download(
         self,
@@ -62,17 +73,20 @@ class Vod(BaseEndpoint[VodModel]):
                 "id": int(vod_id),
                 "timezone": timezone or self._client.timezone,
             },
-            log_id=f"{self.__class__.__name__} {vod_id}",
+            log_id=self.get_log_id(vod_id, timezone),
         )
 
-    def get(self, vod_id: int | str, timezone: str | None = None) -> VodModel:
+    def download_and_parse(
+        self,
+        vod_id: int | str,
+        timezone: str | None = None,
+    ) -> VodModel:
         """Downloads and parses the vod file.
 
         Raises:
             HTTPError: If vod_id is invalid.
         """
-        data = self.download(vod_id, timezone)
-        return self.parse(data)
+        return self.parse(self.download(vod_id, timezone))
 
     def extract_hero(
         self,

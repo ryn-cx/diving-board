@@ -18,6 +18,17 @@ class BaseExtractor[T: GAPIBaseModel](GAPIClient[T]):
 
     JSON_FILES_ROOT = FILES_DIRECTORY
 
+    @staticmethod
+    def append_non_default_args(
+        log_id: str,
+        **args: tuple[object, object],
+    ) -> str:
+        """Append ``name=value`` for each arg whose value differs from its default."""
+        for name, (value, default) in args.items():
+            if value != default:
+                log_id += f" {name}={value!r}"
+        return log_id
+
 
 class BaseEndpoint[T: GAPIBaseModel](BaseExtractor[T]):
     """Base class for API endpoints."""

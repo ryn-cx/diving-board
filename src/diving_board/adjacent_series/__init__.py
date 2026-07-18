@@ -3,17 +3,25 @@
 
 from __future__ import annotations
 
+from logging import NullHandler, getLogger
 from typing import Any
 
 from diving_board.adjacent_series.models import SeriesAdjacentToModel
 from diving_board.base_api_endpoint import BaseEndpoint
 from diving_board.constants import BASE_API_URL
 
+logger = getLogger(__name__)
+logger.addHandler(NullHandler())
+
 
 class SeriesAdjacentTo(BaseEndpoint[SeriesAdjacentToModel]):
     """Manage the series adjacent to file."""
 
     _response_model = SeriesAdjacentToModel
+
+    def get_log_id(self, series_id: int | str, season_id: int | str) -> str:
+        """Build the log id for a download."""
+        return f"{self.__class__.__name__} {series_id=} {season_id=}"
 
     def download(self, series_id: int | str, season_id: int | str) -> dict[str, Any]:
         """Downloads the series adjacent to file.
@@ -44,14 +52,17 @@ class SeriesAdjacentTo(BaseEndpoint[SeriesAdjacentToModel]):
         return self._client.download(
             f"{BASE_API_URL}/api/v4/series/{int(series_id)}/adjacentTo/{int(season_id)}",
             {"size": 25},
-            f"{self.__class__.__name__} {series_id}/{season_id}",
+            self.get_log_id(series_id, season_id),
         )
 
-    def get(self, series_id: int | str, season_id: int | str) -> SeriesAdjacentToModel:
+    def download_and_parse(
+        self,
+        series_id: int | str,
+        season_id: int | str,
+    ) -> SeriesAdjacentToModel:
         """Downloads and parses the series adjacent to file.
 
         Raises:
             HTTPError: If series_id or season_id is invalid.
         """
-        response = self.download(series_id=series_id, season_id=season_id)
-        return self.parse(response)
+        return self.parse(self.download(series_id, season_id))

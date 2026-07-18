@@ -3,6 +3,7 @@
 
 from __future__ import annotations
 
+from logging import NullHandler, getLogger
 from typing import TYPE_CHECKING, Any
 
 from diving_board.base_api_endpoint import BaseEndpoint
@@ -14,11 +15,21 @@ if TYPE_CHECKING:
     from diving_board.search.card_list.models import SearchCardListModel
     from diving_board.search.input.models import SearchInputModel
 
+logger = getLogger(__name__)
+logger.addHandler(NullHandler())
+
 
 class Search(BaseEndpoint[SearchModel]):
     """Manage the search file."""
 
     _response_model = SearchModel
+
+    def get_log_id(self, query: str, timezone: str | None = None) -> str:
+        """Build the log id for a download."""
+        return self.append_non_default_args(
+            f"{self.__class__.__name__} {query=}",
+            timezone=(timezone, None),
+        )
 
     def download(self, query: str, timezone: str | None = None) -> dict[str, Any]:
         """Downloads the search file.
@@ -47,13 +58,16 @@ class Search(BaseEndpoint[SearchModel]):
                 "query": query,
                 "timezone": timezone or self._client.timezone,
             },
-            f"{self.__class__.__name__} {query}",
+            self.get_log_id(query, timezone),
         )
 
-    def get(self, query: str, timezone: str | None = None) -> SearchModel:
+    def download_and_parse(
+        self,
+        query: str,
+        timezone: str | None = None,
+    ) -> SearchModel:
         """Downloads and parses the search file."""
-        response = self.download(query, timezone)
-        return self.parse(response)
+        return self.parse(self.download(query, timezone))
 
     def extract_search(
         self,
