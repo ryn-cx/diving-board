@@ -3,246 +3,226 @@
 
 from __future__ import annotations
 
-from datetime import datetime
+import json
 from logging import NullHandler, getLogger
 from typing import TYPE_CHECKING, Any
 
 from diving_board.base_api_endpoint import BaseEndpoint
 from diving_board.constants import BASE_API_URL
-from diving_board.schedule.filter_list import ScheduleFilterList
-from diving_board.schedule.grid_block import ScheduleGridBlock
-from diving_board.schedule.group_list import ScheduleGroupList
-from diving_board.schedule.models import ScheduleModel
+from diving_board.schedule.models import ScheduleModel, model_validate_json
 
 if TYPE_CHECKING:
-    from diving_board.schedule.filter_list.models import ScheduleFilterListModel
-    from diving_board.schedule.grid_block.models import ScheduleGridBlockModel
-    from diving_board.schedule.group_list.models import Card, ScheduleGroupListModel
+    from datetime import datetime
 
 logger = getLogger(__name__)
 logger.addHandler(NullHandler())
 
+GROUPS_PER_PAGE = 7
+ITEMS_PER_GROUP = 7
 
-class Schedule(BaseEndpoint[ScheduleModel]):
-    """Manage the schedule file."""
 
-    _response_model = ScheduleModel
+# TODO: Validate
+class Schedule(BaseEndpoint):
+    """Manage the release schedule file, one page at a time.
 
-    def get_log_id(
+    Source: https://www.hidive.com/releases
+
+    Example request:
+        - GET /api/v1/view/schedule?
+            - timezone=America%2FLos_Angeles&
+            - groupsPerPage=7&
+            - itemsPerGroup=7&
+            - from=2026-06-01T00%3A00%3A00
+            - HTTP/2
+        - Host: dce-frontoffice.imggaming.com
+        - User-Agent: __REDACTED__
+        - Accept: application/json, text/plain, */*
+        - Referer: https://www.hidive.com/
+        - Content-Type: application/json
+        - x-api-key: __REDACTED__
+        - app: dice
+        - Realm: dce.hidive
+        - Authorization: Bearer __REDACTED__
+        - Origin: https://www.hidive.com
+    """
+
+    # TODO: Validate
+    def __call__(
         self,
         from_: datetime | None = None,
+        *,
         last_seen: str | None = None,
         timezone: str | None = None,
-    ) -> str:
-        """Build the log id for a download."""
-        return self.append_non_default_args(
-            f"{self.__class__.__name__} {from_=}",
-            last_seen=(last_seen, None),
-            timezone=(timezone, None),
+        groups_per_page: int = GROUPS_PER_PAGE,
+        items_per_group: int = ITEMS_PER_GROUP,
+    ) -> ScheduleModel:
+        """Look one page of the schedule up and return the model it is read into."""
+        log_id = self.get_log_id(self.__call__, locals())
+        return self.load(
+            self.download(
+                from_,
+                last_seen=last_seen,
+                timezone=timezone,
+                groups_per_page=groups_per_page,
+                items_per_group=items_per_group,
+            ),
+            log_id,
         )
 
+    # TODO: Validate
     def download(
         self,
         from_: datetime | None = None,
+        *,
         last_seen: str | None = None,
         timezone: str | None = None,
-    ) -> dict[str, Any]:
-        """Downloads the schedule file.
+        groups_per_page: int = GROUPS_PER_PAGE,
+        items_per_group: int = ITEMS_PER_GROUP,
+    ) -> str:
+        """Download one page of the schedule file.
 
         Args:
-            from_: Starting datetime for the schedule, to match the API used by the
-                website it should be the first day of a month at a time of 00:00:00. If
-                no value is given it will default to the current date.
-            last_seen: Pagination token from a previous response.
-            timezone: The timezone to use for the request.
-
-        Example request: https://www.hidive.com/releases
-            OPTIONS /api/v1/view/schedule?timezone=America%2FLos_Angeles&groupsPerPage=7&itemsPerGroup=7& HTTP/2
-            Host: dce-frontoffice.imggaming.com
-            User-Agent: __REDACTED__
-            Accept: */*
-            Accept-Language: en-US,en;q=0.9
-            Accept-Encoding: gzip, deflate, br, zstd
-            Access-Control-Request-Method: GET
-            Access-Control-Request-Headers: app,authorization,content-type,realm,x-api-key,x-app-var
-            Referer: https://www.hidive.com/
-            Origin: https://www.hidive.com
-            Connection: keep-alive
-            Sec-Fetch-Dest: empty
-            Sec-Fetch-Mode: cors
-            Sec-Fetch-Site: cross-site
-            Priority: u=4
-
-        Example request: https://www.hidive.com/releases -> click next/previous month.
-            GET /api/v1/view/schedule?timezone=America%2FLos_Angeles&groupsPerPage=7&itemsPerGroup=7&&from=2026-06-01T00%3A00%3A00 HTTP/2
-            Host: dce-frontoffice.imggaming.com
-            User-Agent: __REDACTED__
-            Accept: application/json, text/plain, */*
-            Accept-Language: en-US
-            Accept-Encoding: gzip, deflate, br, zstd
-            Referer: https://www.hidive.com/
-            Content-Type: application/json
-            x-api-key: 857a1e5d-e35e-4fdf-805b-a87b6f8364bf
-            app: dice
-            Realm: dce.hidive
-            x-app-var: 6.60.0.5aaf921
-            Authorization: Bearer __REDACTED__
-            Origin: https://www.hidive.com
-            Connection: keep-alive
-            Sec-Fetch-Dest: empty
-            Sec-Fetch-Mode: cors
-            Sec-Fetch-Site: cross-site
-            Priority: u=0
-            TE: trailers
+            from_: The day the page starts on. To match the website it is the
+                first day of a month at 00:00:00. Left out the API answers from
+                the current date.
+            last_seen: The token the page before this one handed back. The
+                website pages with this instead of `from_`, even when the next
+                page runs into another month.
+            timezone: The timezone the days are written in.
+            groups_per_page: How many days one page covers.
+            items_per_group: How many releases one day carries.
         """
-        params: dict[str, str | int] = {
+        log_id = self.get_log_id(self.download, locals())
+        params: dict[str, Any] = {
             "timezone": timezone or self._client.timezone,
-            "groupsPerPage": 7,
-            "itemsPerGroup": 7,
+            "groupsPerPage": groups_per_page,
+            "itemsPerGroup": items_per_group,
         }
 
-        # from is not used to get the schedule from the current date.
         if from_:
             params["from"] = from_.strftime("%Y-%m-%dT%H:%M:%S")
 
-        # last_seen is not used on the first page.
         if last_seen:
             params["lastSeen"] = last_seen
 
         return self._client.download(
             f"{BASE_API_URL}/api/v1/view/schedule",
-            params,
-            self.get_log_id(from_, last_seen, timezone),
+            params=params,
+            log_id=log_id,
         )
 
-    def download_and_parse(
+    # TODO: Validate
+    def download_all(
         self,
         from_: datetime | None = None,
-        last_seen: str | None = None,
+        *,
         timezone: str | None = None,
-    ) -> ScheduleModel:
-        """Downloads and parses the schedule file.
+        groups_per_page: int = GROUPS_PER_PAGE,
+        items_per_group: int = ITEMS_PER_GROUP,
+    ) -> list[str]:
+        """Download every page of the schedule from `from_` onwards."""
+        pages: list[str] = []
+        last_seen: str | None = None
 
-        Args:
-            from_: Starting datetime for the schedule, to match the API used by the
-                website it should be the first day of a month at a time of 00:00:00. If
-                no value is given it will default to the current date.
-            last_seen: Pagination token from a previous response.
-            timezone: The timezone to use for the request.
-        """
-        return self.parse(
-            self.download(
-                from_=from_,
+        while True:
+            page = self.download(
+                from_ if not pages else None,
                 last_seen=last_seen,
                 timezone=timezone,
+                groups_per_page=groups_per_page,
+                items_per_group=items_per_group,
+            )
+            pages.append(page)
+            last_seen = self.next_page_token(page)
+            if not last_seen:
+                return pages
+
+    # TODO: Validate
+    def download_merged(
+        self,
+        from_: datetime | None = None,
+        *,
+        timezone: str | None = None,
+        groups_per_page: int = GROUPS_PER_PAGE,
+        items_per_group: int = ITEMS_PER_GROUP,
+    ) -> str:
+        """Download the whole schedule from `from_` onwards as a single file.
+
+        The pages are put together into one file holding every group, which is
+        the whole schedule written the way one page of it is, rather than the
+        pages themselves.
+        """
+        return self.merge_pages(
+            self.download_all(
+                from_,
+                timezone=timezone,
+                groups_per_page=groups_per_page,
+                items_per_group=items_per_group,
             ),
         )
 
-    def download_and_parse_until_datetime(
-        self,
-        end_datetime: datetime,
-        from_: datetime | None = None,
-        timezone: str | None = None,
-    ) -> list[ScheduleModel]:
-        """Get all schedule files until end_datetime is reached (inclusive).
+    # TODO: Validate
+    @staticmethod
+    def merge_pages(pages: list[str]) -> str:
+        """Return the pages of one schedule written out as a single file.
 
-        Args:
-            from_: Starting datetime for the schedule, to match the API used by the
-                website it should be the first day of a month at a time of 00:00:00. If
-                no value is given it will default to the current date.
-            end_datetime: Stop when all releases before this date are found.
-            timezone: The timezone to use for the request.
+        The first page is what the merged file is built on, since its layout and
+        its other elements are what the schedule is, and the groups of its group
+        list are replaced by the groups of every page in the order they were
+        served. Each page covers the days after the one before it, so no group
+        is listed twice. The actions are dropped: they ask for the page after a
+        walk that is over, and a file holding the whole schedule is not a page
+        of anything.
+
+        Raises:
+            ValueError: If there are no pages, since there is nothing to say the
+                schedule was answered with.
         """
-        all_schedules: list[ScheduleModel] = []
-        last_seen = ""
+        if not pages:
+            msg = "Expected at least one page, got none."
+            raise ValueError(msg)
 
-        while True:
-            schedule = self.download_and_parse(
-                from_=from_,
-                last_seen=last_seen,
-                timezone=timezone,
+        def group_list(document: dict[str, Any]) -> dict[str, Any]:
+            attributes: dict[str, Any] = next(
+                element["attributes"]
+                for element in document["elements"]
+                if element["$type"] == "groupList"
             )
-            # When using the website from is only sent on the first request for a
-            # specific month. After that everything uses lastSeen even if the results
-            # come from future months so the argument can be removed
-            from_ = None
-            all_schedules.append(schedule)
+            return attributes
 
-            group_list = self.extract_group_list(schedule)
-
-            if group_list.attributes.actions:
-                last_seen = group_list.attributes.actions.next.data.last_seen
-            else:
-                return all_schedules
-
-            # The order of the entries is sometimes really weird where an upcoming
-            # episode from months in the future will be mixed into the upcoming releases
-            # so wait until all videos are past the end_datetime value.
-            if all(
-                datetime.fromisoformat(
-                    video.attributes.title.attributes.text,
-                ).astimezone()
-                >= end_datetime
-                for video in group_list.attributes.groups
-            ):
-                return all_schedules
-
-    def extract_grid_block(
-        self,
-        data: ScheduleModel,
-        *,
-        update_model: bool = True,
-    ) -> ScheduleGridBlockModel:
-        """Extract the grid block element from Schedule."""
-        return self._extract_element(
-            data.elements,
-            "gridBlock",
-            ScheduleGridBlock,
-            update_model=update_model,
-        )
-
-    def extract_filter_list(
-        self,
-        data: ScheduleModel,
-        *,
-        update_model: bool = True,
-    ) -> ScheduleFilterListModel:
-        """Extract the filter list element from Schedule."""
-        return self._extract_element(
-            data.elements,
-            "filterList",
-            ScheduleFilterList,
-            update_model=update_model,
-        )
-
-    def extract_group_list(
-        self,
-        data: ScheduleModel,
-        *,
-        update_model: bool = True,
-    ) -> ScheduleGroupListModel:
-        """Extract the group list element from Schedule."""
-        return self._extract_element(
-            data.elements,
-            "groupList",
-            ScheduleGroupList,
-            update_model=update_model,
-        )
-
-    def compile_cards(
-        self,
-        input_data: ScheduleModel | list[ScheduleModel],
-    ) -> list[Card]:
-        """Compile all of the Schedule cards into a single list of Cards."""
-        if isinstance(input_data, list):
-            result: list[Card] = []
-            for response in input_data:
-                result.extend(self.compile_cards(response))
-            return result
-
-        group_list = self.extract_group_list(input_data)
-        return [
-            card
-            for group in group_list.attributes.groups
-            for card in group.attributes.cards
+        documents: list[dict[str, Any]] = [json.loads(page) for page in pages]
+        merged = json.loads(pages[0])
+        merged_group_list = group_list(merged)
+        merged_group_list["groups"] = [
+            group for document in documents for group in group_list(document)["groups"]
         ]
+        merged_group_list.pop("actions", None)
+        return json.dumps(merged)
+
+    # TODO: Validate
+    @staticmethod
+    def next_page_token(response: str) -> str | None:
+        """Return what the next page is asked for, or None on the last page."""
+        elements = json.loads(response)["elements"]
+        group_list = next(
+            element["attributes"]
+            for element in elements
+            if element["$type"] == "groupList"
+        )
+        # The last page has nothing to go to next, so it carries no actions at
+        # all rather than an empty one.
+        actions = group_list.get("actions")
+        if not actions:
+            return None
+        token: str = actions["next"]["data"]["lastSeen"]
+        return token
+
+    # TODO: Validate
+    def load(self, data: str, log_id: str = "") -> ScheduleModel:
+        """Read a downloaded schedule file into its model."""
+        return model_validate_json(data, log_id or type(self).__name__)
+
+    # TODO: Validate
+    def load_pages(self, pages: list[str]) -> list[ScheduleModel]:
+        """Read the pages `download_all` returns into their models."""
+        return [self.load(page) for page in pages]

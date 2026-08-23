@@ -1,464 +1,240 @@
-# ruff: noqa: D100, D101, D102, TC001, TC002, TC003
-from good_ass_pydantic_integrator import GAPIBaseModel
-from pydantic import AwareDatetime, ConfigDict, Field
-
-
-class Attributes3(GAPIBaseModel):
-    model_config = ConfigDict(extra="forbid")
-    icon: str
-    size: int
-
-
-class Icon(GAPIBaseModel):
-    model_config = ConfigDict(extra="forbid")
-    field_type: str = Field(..., alias="$type")
-    attributes: Attributes3
-
-
-class Data(GAPIBaseModel):
-    model_config = ConfigDict(extra="forbid")
-    from_: str = Field(..., alias="from")
-
-
-class Action(GAPIBaseModel):
-    model_config = ConfigDict(extra="forbid")
-    type: str
-    data: Data
-
-
-class Attributes2(GAPIBaseModel):
-    model_config = ConfigDict(extra="forbid")
-    type: str
-    icon: Icon
-    action: Action
-
-
-class Style(GAPIBaseModel):
-    model_config = ConfigDict(extra="forbid")
-    size: str
-
-
-class Forward(GAPIBaseModel):
-    model_config = ConfigDict(extra="forbid")
-    field_type: str = Field(..., alias="$type")
-    attributes: Attributes2
-    style: Style
-
-
-class Attributes5(GAPIBaseModel):
-    model_config = ConfigDict(extra="forbid")
-    icon: str
-    size: int
-
-
-class Icon1(GAPIBaseModel):
-    model_config = ConfigDict(extra="forbid")
-    field_type: str = Field(..., alias="$type")
-    attributes: Attributes5
-
-
-class Action1(GAPIBaseModel):
-    model_config = ConfigDict(extra="forbid")
-    type: str
-    data: Data
-
-
-class Attributes4(GAPIBaseModel):
-    model_config = ConfigDict(extra="forbid")
-    type: str
-    icon: Icon1
-    action: Action1
-
-
-class Back(GAPIBaseModel):
-    model_config = ConfigDict(extra="forbid")
-    field_type: str = Field(..., alias="$type")
-    attributes: Attributes4
-    style: Style
-
-
-class Attributes6(GAPIBaseModel):
-    model_config = ConfigDict(extra="forbid")
-    text: str
-    format: str
-
-
-class Style2(GAPIBaseModel):
-    model_config = ConfigDict(extra="forbid")
-    color: str
-    size: float
-
-
-class Text(GAPIBaseModel):
-    model_config = ConfigDict(extra="forbid")
-    field_type: str = Field(..., alias="$type")
-    attributes: Attributes6
-    style: Style2
-
-
-class Attributes8(GAPIBaseModel):
-    model_config = ConfigDict(extra="forbid")
-    icon: str
-    size: int
-
-
-class AfterElement(GAPIBaseModel):
-    model_config = ConfigDict(extra="forbid")
-    field_type: str = Field(..., alias="$type")
-    attributes: Attributes8
-
-
-class Action2(GAPIBaseModel):
-    model_config = ConfigDict(extra="forbid")
-    type: str
-
-
-class Attributes7(GAPIBaseModel):
-    model_config = ConfigDict(extra="forbid")
-    text: str
-    label: str
-    type: str
-    is_small: bool = Field(..., alias="isSmall")
-    after_element: AfterElement = Field(..., alias="afterElement")
-    action: Action2
-
-
-class Style3(GAPIBaseModel):
-    model_config = ConfigDict(extra="forbid")
-    size: float
-
-
-class Button(GAPIBaseModel):
-    model_config = ConfigDict(extra="forbid")
-    field_type: str = Field(..., alias="$type")
-    attributes: Attributes7
-    style: Style3
-
-
-class Attributes1(GAPIBaseModel):
-    model_config = ConfigDict(extra="forbid")
-    forward: Forward | None = None
-    back: Back | None = None
-    text: Text | None = None
-    buttons: list[Button] | None = None
-
-
-class Style4(GAPIBaseModel):
-    model_config = ConfigDict(extra="forbid")
-    gap: str
-
-
-class Element1(GAPIBaseModel):
-    model_config = ConfigDict(extra="forbid")
-    field_type: str = Field(..., alias="$type")
-    attributes: Attributes1
-    style: Style4 | None = None
-
-
-class Attributes9(GAPIBaseModel):
-    model_config = ConfigDict(extra="forbid")
-    text: str
-    label: str
-
-
-class Style5(GAPIBaseModel):
-    model_config = ConfigDict(extra="forbid")
-    size: int
-    color: str
-
-
-class Title(GAPIBaseModel):
-    model_config = ConfigDict(extra="forbid")
-    field_type: str = Field(..., alias="$type")
-    attributes: Attributes9
-    style: Style5
-
-
-class Attributes11(GAPIBaseModel):
-    model_config = ConfigDict(extra="forbid")
-    label: str
-    number_of_lines: int = Field(..., alias="numberOfLines")
-
-
-class Style6(GAPIBaseModel):
-    model_config = ConfigDict(extra="forbid")
-    size: str
-    color: str
-
-
-class Title1(GAPIBaseModel):
-    model_config = ConfigDict(extra="forbid")
-    field_type: str = Field(..., alias="$type")
-    attributes: Attributes11
-    style: Style6
-
-
-class Option(GAPIBaseModel):
-    model_config = ConfigDict(extra="forbid")
-    type: str
-    filter_key: str = Field(..., alias="filterKey")
-    is_active: bool = Field(..., alias="isActive")
-    text: str
-    format: str
-    value: str
-
-
-class Attributes10(GAPIBaseModel):
-    model_config = ConfigDict(extra="forbid")
-    title: Title1
-    filter_key: str = Field(..., alias="filterKey")
-    options: list[Option]
-
-
-class Filter(GAPIBaseModel):
-    model_config = ConfigDict(extra="forbid")
-    field_type: str = Field(..., alias="$type")
-    attributes: Attributes10
-
-
-class Data2(GAPIBaseModel):
-    model_config = ConfigDict(extra="forbid")
-    url: str
-
-
-class Action3(GAPIBaseModel):
-    model_config = ConfigDict(extra="forbid")
-    type: str
-    data: Data2
-
-
-class Reset(GAPIBaseModel):
-    model_config = ConfigDict(extra="forbid")
-    label: str
-    text: str
-    action: Action3
-
-
-class Action4(GAPIBaseModel):
-    model_config = ConfigDict(extra="forbid")
-    type: str
-    data: Data2
-
-
-class Apply(GAPIBaseModel):
-    model_config = ConfigDict(extra="forbid")
-    label: str
-    text: str
-    action: Action4
-
-
-class Data4(GAPIBaseModel):
-    model_config = ConfigDict(extra="forbid")
-    last_seen: str = Field(..., alias="lastSeen")
-
-
-class Next(GAPIBaseModel):
-    model_config = ConfigDict(extra="forbid")
-    type: str
-    data: Data4
-
-
-class Actions(GAPIBaseModel):
-    model_config = ConfigDict(extra="forbid")
-    reset: Reset | None = None
-    apply: Apply | None = None
-    next: Next | None = None
-
-
-class Attributes13(GAPIBaseModel):
-    model_config = ConfigDict(extra="forbid")
-    text: str
-    format: str
-
-
-class Style7(GAPIBaseModel):
-    model_config = ConfigDict(extra="forbid")
-    color: str
-    size: float
-
-
-class Title2(GAPIBaseModel):
-    model_config = ConfigDict(extra="forbid")
-    field_type: str = Field(..., alias="$type")
-    attributes: Attributes13
-    style: Style7
-
-
-class Attributes15(GAPIBaseModel):
-    model_config = ConfigDict(extra="forbid")
-    source: str
-    width: int
-    height: int
-
-
-class HeaderItem(GAPIBaseModel):
-    model_config = ConfigDict(extra="forbid")
-    field_type: str = Field(..., alias="$type")
-    attributes: Attributes15
-
-
-class Attributes19(GAPIBaseModel):
-    model_config = ConfigDict(extra="forbid")
-    text: str
-    format: str | None = None
-
-
-class Style8(GAPIBaseModel):
-    model_config = ConfigDict(extra="forbid")
-    size: str
-    color: str | None = None
-
-
-class Text1(GAPIBaseModel):
-    model_config = ConfigDict(extra="forbid")
-    field_type: str = Field(..., alias="$type")
-    attributes: Attributes19
-    style: Style8
-
-
-class Attributes20(GAPIBaseModel):
-    model_config = ConfigDict(extra="forbid")
-    icon: str
-    size: int
-
-
-class Icon2(GAPIBaseModel):
-    model_config = ConfigDict(extra="forbid")
-    field_type: str = Field(..., alias="$type")
-    attributes: Attributes20
-
-
-class Attributes18(GAPIBaseModel):
-    model_config = ConfigDict(extra="forbid")
-    text: Text1
-    icon: Icon2 | None = None
-    type: str
-
-
-class Style9(GAPIBaseModel):
-    model_config = ConfigDict(extra="forbid")
-    color: str
-
-
-class Tag(GAPIBaseModel):
-    model_config = ConfigDict(extra="forbid")
-    field_type: str = Field(..., alias="$type")
-    attributes: Attributes18 | None = None
-    style: Style9 | None = None
-
-
-class Attributes17(GAPIBaseModel):
-    model_config = ConfigDict(extra="forbid")
-    text: str | None = None
-    format: str | None = None
-    number_of_lines: int | None = Field(None, alias="numberOfLines")
-    tags: list[Tag] | None = None
-    separator: bool | None = None
-
-
-class Style10(GAPIBaseModel):
-    model_config = ConfigDict(extra="forbid")
-    size: str
-    color: str
-
-
-class Element2(GAPIBaseModel):
-    model_config = ConfigDict(extra="forbid")
-    field_type: str = Field(..., alias="$type")
-    attributes: Attributes17
-    style: Style10 | None = None
-
-
-class Attributes16(GAPIBaseModel):
-    model_config = ConfigDict(extra="forbid")
-    elements: list[Element2]
-    type: str
-
-
-class Style11(GAPIBaseModel):
-    model_config = ConfigDict(extra="forbid")
-    align: str
-
-
-class ContentItem(GAPIBaseModel):
-    model_config = ConfigDict(extra="forbid")
-    field_type: str = Field(..., alias="$type")
-    attributes: Attributes16
-    style: Style11
-
-
-class ComputedRelease(GAPIBaseModel):
-    model_config = ConfigDict(extra="forbid")
-    scheduled_at: AwareDatetime = Field(..., alias="scheduledAt")
-    computed_state: str = Field(..., alias="computedState")
-    state: str
-    type: str
-    description: str
-
-
-class Data5(GAPIBaseModel):
-    model_config = ConfigDict(extra="forbid")
-    type: str
-    title: str
-    access_level: str = Field(..., alias="accessLevel")
-    online_playback: str = Field(..., alias="onlinePlayback")
-    id: str
-    computed_releases: list[ComputedRelease] = Field(..., alias="computedReleases")
-
-
-class Action5(GAPIBaseModel):
-    model_config = ConfigDict(extra="forbid")
-    type: str
-    data: Data5
-
-
-class Attributes14(GAPIBaseModel):
-    model_config = ConfigDict(extra="forbid")
-    has_initial_focus: bool = Field(..., alias="hasInitialFocus")
-    type: str
-    header: list[HeaderItem]
-    content: list[ContentItem]
-    grouping_data: bool = Field(..., alias="groupingData")
-    action: Action5
-
-
-class Card(GAPIBaseModel):
-    model_config = ConfigDict(extra="forbid")
-    field_type: str = Field(..., alias="$type")
-    attributes: Attributes14
-
-
-class Attributes12(GAPIBaseModel):
-    model_config = ConfigDict(extra="forbid")
-    title: Title2
-    cards: list[Card]
-    type: str
-
-
-class Group(GAPIBaseModel):
-    model_config = ConfigDict(extra="forbid")
-    field_type: str = Field(..., alias="$type")
-    id: str
-    attributes: Attributes12
-
-
-class Attributes(GAPIBaseModel):
-    model_config = ConfigDict(extra="forbid")
-    elements: list[Element1] | None = None
-    title: Title | None = None
-    filters: list[Filter] | None = None
-    actions: Actions | None = None
-    groups: list[Group] | None = None
-
-
-class Element(GAPIBaseModel):
-    model_config = ConfigDict(extra="forbid")
-    field_type: str = Field(..., alias="$type")
-    field_zone: str = Field(..., alias="$zone")
-    attributes: Attributes
-
-
-class ScheduleModel(GAPIBaseModel):
-    model_config = ConfigDict(extra="forbid")
-    layout: str
-    elements: list[Element]
+"""ScheduleModel, strict to a type checker, all-optional at runtime.
+
+A type checker reads the strict model, so every field carries the type and
+the requiredness the schema recorded. At runtime the all-optional copy is imported
+instead, so a response that has drifted still parses and a field the data is
+missing is None despite what its type hint says.
+"""
+
+from typing import TYPE_CHECKING
+
+from good_ass_pydantic_integrator import load
+
+from .optional_models import ScheduleModel as OptionalModel
+from .strict_models import ScheduleModel as StrictModel
+
+if TYPE_CHECKING:
+    from .strict_models import (
+        Action,
+        Action1,
+        Action2,
+        Action3,
+        Action4,
+        Action5,
+        Actions,
+        AfterElement,
+        Apply,
+        Attributes,
+        Attributes1,
+        Attributes10,
+        Attributes11,
+        Attributes12,
+        Attributes13,
+        Attributes14,
+        Attributes15,
+        Attributes16,
+        Attributes17,
+        Attributes18,
+        Attributes19,
+        Attributes2,
+        Attributes20,
+        Attributes3,
+        Attributes4,
+        Attributes5,
+        Attributes6,
+        Attributes7,
+        Attributes8,
+        Attributes9,
+        Back,
+        Button,
+        Card,
+        ComputedRelease,
+        ContentItem,
+        Data,
+        Data2,
+        Data4,
+        Data5,
+        Element,
+        Element1,
+        Element2,
+        Filter,
+        Forward,
+        Group,
+        HeaderItem,
+        Icon,
+        Icon1,
+        Icon2,
+        Next,
+        Option,
+        Reset,
+        ScheduleModel,
+        Style,
+        Style10,
+        Style11,
+        Style2,
+        Style3,
+        Style4,
+        Style5,
+        Style6,
+        Style7,
+        Style8,
+        Style9,
+        Tag,
+        Text,
+        Text1,
+        Title,
+        Title1,
+        Title2,
+    )
+else:
+    from .optional_models import (
+        Action,
+        Action1,
+        Action2,
+        Action3,
+        Action4,
+        Action5,
+        Actions,
+        AfterElement,
+        Apply,
+        Attributes,
+        Attributes1,
+        Attributes10,
+        Attributes11,
+        Attributes12,
+        Attributes13,
+        Attributes14,
+        Attributes15,
+        Attributes16,
+        Attributes17,
+        Attributes18,
+        Attributes19,
+        Attributes2,
+        Attributes20,
+        Attributes3,
+        Attributes4,
+        Attributes5,
+        Attributes6,
+        Attributes7,
+        Attributes8,
+        Attributes9,
+        Back,
+        Button,
+        Card,
+        ComputedRelease,
+        ContentItem,
+        Data,
+        Data2,
+        Data4,
+        Data5,
+        Element,
+        Element1,
+        Element2,
+        Filter,
+        Forward,
+        Group,
+        HeaderItem,
+        Icon,
+        Icon1,
+        Icon2,
+        Next,
+        Option,
+        Reset,
+        ScheduleModel,
+        Style,
+        Style10,
+        Style11,
+        Style2,
+        Style3,
+        Style4,
+        Style5,
+        Style6,
+        Style7,
+        Style8,
+        Style9,
+        Tag,
+        Text,
+        Text1,
+        Title,
+        Title1,
+        Title2,
+    )
+
+__all__ = [
+    "Action",
+    "Action1",
+    "Action2",
+    "Action3",
+    "Action4",
+    "Action5",
+    "Actions",
+    "AfterElement",
+    "Apply",
+    "Attributes",
+    "Attributes1",
+    "Attributes10",
+    "Attributes11",
+    "Attributes12",
+    "Attributes13",
+    "Attributes14",
+    "Attributes15",
+    "Attributes16",
+    "Attributes17",
+    "Attributes18",
+    "Attributes19",
+    "Attributes2",
+    "Attributes20",
+    "Attributes3",
+    "Attributes4",
+    "Attributes5",
+    "Attributes6",
+    "Attributes7",
+    "Attributes8",
+    "Attributes9",
+    "Back",
+    "Button",
+    "Card",
+    "ComputedRelease",
+    "ContentItem",
+    "Data",
+    "Data2",
+    "Data4",
+    "Data5",
+    "Element",
+    "Element1",
+    "Element2",
+    "Filter",
+    "Forward",
+    "Group",
+    "HeaderItem",
+    "Icon",
+    "Icon1",
+    "Icon2",
+    "Next",
+    "Option",
+    "Reset",
+    "ScheduleModel",
+    "Style",
+    "Style10",
+    "Style11",
+    "Style2",
+    "Style3",
+    "Style4",
+    "Style5",
+    "Style6",
+    "Style7",
+    "Style8",
+    "Style9",
+    "Tag",
+    "Text",
+    "Text1",
+    "Title",
+    "Title1",
+    "Title2",
+    "model_validate_json",
+]
+
+
+def model_validate_json(data: str | bytes | object, log_id: str) -> ScheduleModel:
+    """Read a downloaded file into ScheduleModel."""
+    return load.model_validate_json(StrictModel, OptionalModel, data, log_id)

@@ -3,143 +3,91 @@
 
 from __future__ import annotations
 
+import json
+from http import HTTPStatus
 from logging import NullHandler, getLogger
-from typing import TYPE_CHECKING, Any
 
 from diving_board.base_api_endpoint import BaseEndpoint
 from diving_board.constants import BASE_API_URL
-from diving_board.vod.bucket import VodBucket
-from diving_board.vod.hero import VodHero
-from diving_board.vod.models import VodModel
-from diving_board.vod.tabs import VodTabs
-from diving_board.vod.text_block import VodTextBlock
-
-if TYPE_CHECKING:
-    from diving_board.vod.bucket.models import VodBucketModel
-    from diving_board.vod.hero.models import VodHeroModel
-    from diving_board.vod.tabs.models import VodTabsModel
-    from diving_board.vod.text_block.models import VodTextBlockModel
+from diving_board.exceptions import ResourceNotFoundError, VodNotFoundError
+from diving_board.vod.models import VodModel, model_validate_json
 
 logger = getLogger(__name__)
 logger.addHandler(NullHandler())
 
 
-class Vod(BaseEndpoint[VodModel]):
-    """Manage the vod file."""
+# TODO: Validate
+class Vod(BaseEndpoint):
+    """Manage the video file, which is an episode or a film.
 
-    _response_model = VodModel
+    Source: https://www.hidive.com/video/{vod_id}
 
-    def get_log_id(self, vod_id: int | str, timezone: str | None = None) -> str:
-        """Build the log id for a download."""
-        return self.append_non_default_args(
-            f"{self.__class__.__name__} {vod_id=}",
-            timezone=(timezone, None),
-        )
+    Example request:
+        - GET /api/v1/view?
+            - type=vod&
+            - id={vod_id}&
+            - timezone=America%2FLos_Angeles
+            - HTTP/2
+        - Host: dce-frontoffice.imggaming.com
+        - User-Agent: __REDACTED__
+        - Accept: application/json, text/plain, */*
+        - Referer: https://www.hidive.com/
+        - Content-Type: application/json
+        - x-api-key: __REDACTED__
+        - app: dice
+        - Realm: dce.hidive
+        - Authorization: Bearer __REDACTED__
+        - Origin: https://www.hidive.com
+    """
 
+    # TODO: Validate
+    def __call__(
+        self,
+        vod_id: int | str,
+        *,
+        timezone: str | None = None,
+    ) -> VodModel:
+        """Look the video up and return the model it is read into."""
+        log_id = self.get_log_id(self.__call__, locals())
+        return self.load(self.download(vod_id, timezone=timezone), log_id)
+
+    # TODO: Validate
     def download(
         self,
         vod_id: int | str,
+        *,
         timezone: str | None = None,
-    ) -> dict[str, Any]:
-        """Downloads the vod file.
+    ) -> str:
+        """Download the video file."""
+        log_id = self.get_log_id(self.download, locals())
+        try:
+            response = self._client.download(
+                f"{BASE_API_URL}/api/v1/view",
+                params={
+                    "type": "vod",
+                    "id": int(vod_id),
+                    "timezone": timezone or self._client.timezone,
+                },
+                log_id=log_id,
+            )
+        except ResourceNotFoundError as err:
+            raise VodNotFoundError(int(vod_id), err.status_code, err.response) from err
+        return self._validate_download(response, int(vod_id))
 
-        Raises:
-            HTTPError: If vod_id is invalid.
+    # TODO: Validate
+    def _validate_download(self, response: str, vod_id: int) -> str:
+        """Check that the file is for the video that was asked for."""
+        elements = json.loads(response)["elements"]
+        tab_ids = [
+            element["attributes"]["id"]
+            for element in elements
+            if element["$type"] == "tabs"
+        ]
+        if vod_id not in tab_ids:
+            raise VodNotFoundError(vod_id, HTTPStatus.OK, response)
+        return response
 
-        Example request: https://www.hidive.com/video/655773?showInterstitial=true
-            GET /api/v1/view?type=vod&id=655773&timezone=America%2FLos_Angeles HTTP/2
-            Host: dce-frontoffice.imggaming.com
-            User-Agent: __REDACTED__
-            Accept: application/json, text/plain, */*
-            Accept-Language: en-US
-            Accept-Encoding: gzip, deflate, br, zstd
-            Referer: https://www.hidive.com/
-            Content-Type: application/json
-            x-api-key: 857a1e5d-e35e-4fdf-805b-a87b6f8364bf
-            app: dice
-            Realm: dce.hidive
-            x-app-var: 6.60.0.5aaf921
-            Authorization: Bearer __REDACTED__
-            Origin: https://www.hidive.com
-            Connection: keep-alive
-            Sec-Fetch-Dest: empty
-            Sec-Fetch-Mode: cors
-            Sec-Fetch-Site: cross-site
-        """
-        return self._client.download(
-            f"{BASE_API_URL}/api/v1/view",
-            {
-                "type": "vod",
-                "id": int(vod_id),
-                "timezone": timezone or self._client.timezone,
-            },
-            log_id=self.get_log_id(vod_id, timezone),
-        )
-
-    def download_and_parse(
-        self,
-        vod_id: int | str,
-        timezone: str | None = None,
-    ) -> VodModel:
-        """Downloads and parses the vod file.
-
-        Raises:
-            HTTPError: If vod_id is invalid.
-        """
-        return self.parse(self.download(vod_id, timezone))
-
-    def extract_hero(
-        self,
-        data: VodModel,
-        *,
-        update_model: bool = True,
-    ) -> VodHeroModel:
-        """Extract the hero element from Vod."""
-        return self._extract_element(
-            data.elements,
-            "hero",
-            VodHero,
-            update_model=update_model,
-        )
-
-    def extract_tabs(
-        self,
-        data: VodModel,
-        *,
-        update_model: bool = True,
-    ) -> VodTabsModel:
-        """Extract the tabs element from Vod."""
-        return self._extract_element(
-            data.elements,
-            "tabs",
-            VodTabs,
-            update_model=update_model,
-        )
-
-    def extract_bucket(
-        self,
-        data: VodModel,
-        *,
-        update_model: bool = True,
-    ) -> VodBucketModel:
-        """Extract the bucket element from Vod."""
-        return self._extract_element(
-            data.elements,
-            "bucket",
-            VodBucket,
-            update_model=update_model,
-        )
-
-    def extract_text_block(
-        self,
-        data: VodModel,
-        *,
-        update_model: bool = True,
-    ) -> VodTextBlockModel:
-        """Extract the text block element from Vod."""
-        return self._extract_element(
-            data.elements,
-            "textBlock",
-            VodTextBlock,
-            update_model=update_model,
-        )
+    # TODO: Validate
+    def load(self, data: str, log_id: str = "") -> VodModel:
+        """Read a downloaded video file into its model."""
+        return model_validate_json(data, log_id or type(self).__name__)

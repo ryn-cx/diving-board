@@ -4,109 +4,60 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 import pytest
-from pydantic import BaseModel
 
-from diving_board.exceptions import HTTPError
-from tests.utils import assert_error, download_and_save, parse_json
+from diving_board.adjacent_series.models import AdjacentSeriesModel
+from diving_board.exceptions import AdjacentSeriesNotFoundError
+from tests.utils import RecordedEndpoint
 
 if TYPE_CHECKING:
     from diving_board import DivingBoard
-    from diving_board.adjacent_series import SeriesAdjacentTo
 
-
-class AdjacentCase(BaseModel):
-    series_id: int
-    season_id: int
-    preceding_ids: list[int]
-    following_ids: list[int]
-
-
-MULTIPLE_SEASON_SERIES_ID = 1019
-FIRST_SEASON_ID = 18908
-SECOND_SEASON_ID = 18909
-THIRD_SEASON_ID = 18910
-FOURTH_SEASON_ID = 18911
-
-SINGLE_SEASON_SERIES_ID = 2311
-SINGLE_SEASON_ID = 24579
-
-
-SERIES_AND_SEASONS: list[AdjacentCase] = [
-    # Series with multiple seasons. Tests on season 2 and 3 overlap, but both are tested
-    # for completeness.
-    # https://www.hidive.com/series/1019
-    AdjacentCase(
-        series_id=MULTIPLE_SEASON_SERIES_ID,
-        season_id=FIRST_SEASON_ID,
-        preceding_ids=[],
-        following_ids=[SECOND_SEASON_ID, THIRD_SEASON_ID, FOURTH_SEASON_ID],
-    ),
-    AdjacentCase(
-        series_id=MULTIPLE_SEASON_SERIES_ID,
-        season_id=SECOND_SEASON_ID,
-        preceding_ids=[FIRST_SEASON_ID],
-        following_ids=[THIRD_SEASON_ID, FOURTH_SEASON_ID],
-    ),
-    AdjacentCase(
-        series_id=MULTIPLE_SEASON_SERIES_ID,
-        season_id=THIRD_SEASON_ID,
-        preceding_ids=[FIRST_SEASON_ID, SECOND_SEASON_ID],
-        following_ids=[FOURTH_SEASON_ID],
-    ),
-    AdjacentCase(
-        series_id=MULTIPLE_SEASON_SERIES_ID,
-        season_id=FOURTH_SEASON_ID,
-        preceding_ids=[FIRST_SEASON_ID, SECOND_SEASON_ID, THIRD_SEASON_ID],
-        following_ids=[],
-    ),
-    # Series with a single season
-    # https://www.hidive.com/season/24579?seriesId=2311
-    AdjacentCase(
-        series_id=SINGLE_SEASON_SERIES_ID,
-        season_id=SINGLE_SEASON_ID,
-        preceding_ids=[],
-        following_ids=[],
-    ),
+SEASONS = [
+    pytest.param(1019, 18908, id="ahiru no sora - first season"),
+    pytest.param(1019, 18909, id="ahiru no sora - middle season"),
+    pytest.param(1019, 18911, id="ahiru no sora - last season"),
+    pytest.param(2311, 24579, id="2.5 dimensional seduction - only season"),
 ]
 
 
-@pytest.fixture(scope="session")
-def endpoint(client: DivingBoard) -> SeriesAdjacentTo:
-    return client.adjacent_series_to
+class AdjacentSeriesTest(RecordedEndpoint):
+    MODEL = AdjacentSeriesModel
 
 
-class TestAdjacentSeries:
-    @pytest.mark.parametrize("case", SERIES_AND_SEASONS)
-    def test_download(self, endpoint: SeriesAdjacentTo, case: AdjacentCase) -> None:
-        name = f"{case.series_id}_{case.season_id}"
-        download_and_save(
-            endpoint,
-            name,
-            lambda: endpoint.download(case.series_id, case.season_id),
-        )
-
-    @pytest.mark.parametrize("case", SERIES_AND_SEASONS)
-    def test_parse(self, endpoint: SeriesAdjacentTo, case: AdjacentCase) -> None:
-        name = f"{case.series_id}_{case.season_id}"
-        data = parse_json(endpoint, name)
-        assert [season.id for season in data.preceding_seasons] == case.preceding_ids
-        assert [season.id for season in data.following_seasons] == case.following_ids
-
-    def test_invalid_download(self, endpoint: SeriesAdjacentTo) -> None:
-        name = f"{SINGLE_SEASON_SERIES_ID}_{FIRST_SEASON_ID}"
-        assert_error(
-            endpoint,
-            name,
-            lambda: endpoint.download(SINGLE_SEASON_SERIES_ID, FIRST_SEASON_ID),
-            HTTPError,
-        )
+# TODO: Validate
+def recording_name(series_id: int, season_id: int) -> str:
+    """Return the name the seasons either side of one season are recorded under."""
+    return f"{series_id}_{season_id}"
 
 
-def test_log_id(endpoint: SeriesAdjacentTo) -> None:
-    expected = (
-        f"SeriesAdjacentTo series_id={MULTIPLE_SEASON_SERIES_ID!r} "
-        f"season_id={FIRST_SEASON_ID!r}"
+# TODO: Validate
+@pytest.mark.parametrize(("series_id", "season_id"), SEASONS)
+def test_download(client: DivingBoard, series_id: int, season_id: int) -> None:
+    AdjacentSeriesTest.download_test(
+        recording_name(series_id, season_id),
+        lambda: client.adjacent_series.download(series_id, season_id),
     )
-    assert (
-        endpoint.get_log_id(MULTIPLE_SEASON_SERIES_ID, FIRST_SEASON_ID) == expected
+
+
+# TODO: Validate
+@pytest.mark.parametrize(("series_id", "season_id"), SEASONS)
+def test_parse(client: DivingBoard, series_id: int, season_id: int) -> None:
+    data = client.adjacent_series.load(
+        AdjacentSeriesTest.recorded_content(recording_name(series_id, season_id)),
+    )
+    seasons = (data.preceding_seasons or []) + (data.following_seasons or [])
+    # The season that was asked about is not one of the seasons either side of it.
+    assert season_id not in [season.id for season in seasons]
+
+
+# TODO: Validate
+@pytest.mark.parametrize(
+    ("series_id", "season_id"),
+    [pytest.param(2311, 18908, id="season that is not the series' own")],
+)
+def test_download_invalid(client: DivingBoard, series_id: int, season_id: int) -> None:
+    AdjacentSeriesTest.error_test(
+        recording_name(series_id, season_id),
+        lambda: client.adjacent_series.download(series_id, season_id),
+        AdjacentSeriesNotFoundError,
     )

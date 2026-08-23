@@ -1,17 +1,19 @@
 # TODO: Validate
 """Contains the DivingBoard class."""
 
-import time
+from __future__ import annotations
+
+from http import HTTPStatus
 from logging import NullHandler, getLogger
+from time import monotonic
 from typing import Any
 
 from get_around import GetAround
 
-from diving_board.adjacent_series import SeriesAdjacentTo
+from diving_board.adjacent_series import AdjacentSeries
 from diving_board.constants import BASE_API_URL
-from diving_board.exceptions import HTTPError
+from diving_board.exceptions import HTTPError, ResourceNotFoundError
 from diving_board.schedule import Schedule
-from diving_board.schedule import ScheduleGroupList as ScheduleGroupList
 from diving_board.search import Search
 from diving_board.season import Season
 from diving_board.series import Series
@@ -20,28 +22,35 @@ from diving_board.vod import Vod
 logger = getLogger(__name__)
 logger.addHandler(NullHandler())
 
+MAIN_URL = "https://www.hidive.com"
+
 USER_AGENT = (
     "Mozilla/5.0 (Linux; Android 10; K) "
     "AppleWebKit/537.36 (KHTML, like Gecko) "
     "Chrome/134.0.0.0 Mobile Safari/537.3"
 )
 
+# This API key can be hardcoded because it appears to never change. It was
+# originally extracted from app.js on the website.
+API_KEY = "857a1e5d-e35e-4fdf-805b-a87b6f8364bf"
 
+
+# TODO: Validate
 class DivingBoard:
     """HiDive API wrapper."""
 
-    MAIN_DOMAIN = "hidive.com"
-    BASE_MAIN_URL = f"https://www.{MAIN_DOMAIN}"
-    # This API key can be hardcoded because it appears to never change. It was
-    # originally extracted from app.js on the website.
-    API_KEY = "857a1e5d-e35e-4fdf-805b-a87b6f8364bf"
-
+    # TODO: Validate
     def __init__(
         self,
         get_around_client: GetAround | None = None,
         timezone: str = "America/Los_Angeles",
     ) -> None:
-        """Initialize the DivingBoard client."""
+        """Initialize the DivingBoard client.
+
+        The client holds one attribute per endpoint, so `client.vod(vod_id)`
+        looks a video up and `client.vod.download(vod_id)` and
+        `client.vod.load(data)` are the halves of it.
+        """
         self.timezone = timezone
         self.get_around_client = get_around_client or GetAround()
 
@@ -51,14 +60,13 @@ class DivingBoard:
         self.vod = Vod(self)
         self.season = Season(self)
         self.schedule = Schedule(self)
-        self.adjacent_series_to = SeriesAdjacentTo(self)
+        self.adjacent_series = AdjacentSeries(self)
         self.search = Search(self)
         self.series = Series(self)
 
-        super().__init__()
-
-    def __fetch_auth_values(self) -> None:
-        """Downloads and caches the authorisation token and realm."""
+    # TODO: Validate
+    def _download_auth_values(self) -> None:
+        """Download the authorisation token and the realm and keep them."""
         url = (
             f"{BASE_API_URL}/api/v1/init/"
             "?lk=language"
@@ -72,62 +80,74 @@ class DivingBoard:
             "&menuTargetPlatform=WEB"
             "&readIconStore=ENABLED"
         )
-        headers = {
-            "User-Agent": USER_AGENT,
-            "Origin": self.BASE_MAIN_URL,
-            "Referer": f"{self.BASE_MAIN_URL}/",
-            "x-api-key": self.API_KEY,
-        }
-        operation = "init (Authentication)"
-        logger.debug("Downloading: %s", operation)
-        start = time.monotonic()
-        response = self.get_around_client.get(url, headers=headers)
-        logger.debug("Downloaded %s (%.4f s)", operation, time.monotonic() - start)
-        json_response = response.json()
-        self._realm_value = json_response["settings"]["realm"]
-        authentication = json_response["authentication"]
-        self._authentication_token_value = authentication["authorisationToken"]
-        # Although authentication has a refreshToken value there is no designated
-        # expiration date in the returned data, and testing has shown that authorisation
-        # tokens may not actually expire.
+        logger.debug("Downloading token:")
+        start = monotonic()
+        response = self.get_around_client.get(
+            url,
+            headers={
+                "User-Agent": USER_AGENT,
+                "Origin": MAIN_URL,
+                "Referer": f"{MAIN_URL}/",
+                "x-api-key": API_KEY,
+            },
+        )
+        if response.status_code != HTTPStatus.OK:
+            raise HTTPError(response.status_code, response.text)
 
+        logger.debug("Downloaded token (%.4f s)", monotonic() - start)
+
+        parsed = response.json()
+        self._realm_value = parsed["settings"]["realm"]
+        # The authentication holds a refreshToken as well, but nothing says when
+        # the authorisation token expires and testing has shown that it does not.
+        self._authentication_token_value = parsed["authentication"][
+            "authorisationToken"
+        ]
+
+    # TODO: Validate
     @property
     def _authentication_token(self) -> str:
         if not self._authentication_token_value:
-            self.__fetch_auth_values()
-
+            self._download_auth_values()
         return self._authentication_token_value
 
+    # TODO: Validate
     @property
     def _realm(self) -> str:
         if not self._realm_value:
-            self.__fetch_auth_values()
-
+            self._download_auth_values()
         return self._realm_value
 
+    # TODO: Validate
     def download(
         self,
         url: str,
         params: dict[str, Any],
         log_id: str,
-    ) -> dict[str, Any]:
-        """Downloads from the API."""
+    ) -> str:
+        """Download from the API and return the body as it was served.
+
+        Raises:
+            ResourceNotFoundError: If the API says the thing does not exist.
+            HTTPError: If the request is answered with anything else but a 200.
+        """
         headers = {
             "User-Agent": USER_AGENT,
             "authorization": f"Bearer {self._authentication_token}",
-            "x-api-key": self.API_KEY,
-            "Origin": self.BASE_MAIN_URL,
-            "Referer": f"{self.BASE_MAIN_URL}/",
+            "x-api-key": API_KEY,
+            "Origin": MAIN_URL,
+            "Referer": f"{MAIN_URL}/",
             "Realm": self._realm,
         }
 
         logger.debug("Downloading: %s", log_id)
-        start = time.monotonic()
+        start = monotonic()
         response = self.get_around_client.get(url, headers=headers, params=params)
 
-        if not response.is_success:
-            msg = f"Unexpected response status code: {response.status_code}"
-            raise HTTPError(msg)
+        if response.status_code == HTTPStatus.NOT_FOUND:
+            raise ResourceNotFoundError(response.status_code, response.text)
+        if response.status_code != HTTPStatus.OK:
+            raise HTTPError(response.status_code, response.text)
 
-        logger.debug("Downloaded %s (%.4f s)", log_id, time.monotonic() - start)
-        return response.json()
+        logger.debug("Downloaded %s (%.4f s)", log_id, monotonic() - start)
+        return response.text

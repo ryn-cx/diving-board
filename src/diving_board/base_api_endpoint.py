@@ -1,94 +1,57 @@
 # TODO: Validate
-"""Contains BaseExtractor and BaseEndpoint."""
+"""Contains BaseEndpoint."""
 
 from __future__ import annotations
 
+from inspect import Parameter, signature
 from typing import TYPE_CHECKING, Any
 
-from good_ass_pydantic_integrator import GAPIBaseModel, GAPIClient
-
-from diving_board.constants import FILES_DIRECTORY
-
 if TYPE_CHECKING:
+    from collections.abc import Callable
+
     from diving_board import DivingBoard
 
 
-class BaseExtractor[T: GAPIBaseModel](GAPIClient[T]):
-    """Base class to extract data from API responses."""
-
-    JSON_FILES_ROOT = FILES_DIRECTORY
-
-    @staticmethod
-    def append_non_default_args(
-        log_id: str,
-        **args: tuple[object, object],
-    ) -> str:
-        """Append ``name=value`` for each arg whose value differs from its default."""
-        for name, (value, default) in args.items():
-            if value != default:
-                log_id += f" {name}={value!r}"
-        return log_id
-
-
-class BaseEndpoint[T: GAPIBaseModel](BaseExtractor[T]):
+# TODO: Validate
+class BaseEndpoint:
     """Base class for API endpoints."""
 
+    # TODO: Validate
     def __init__(self, client: DivingBoard) -> None:
-        """Initialize the endpoint."""
+        """Initialize the endpoint with the DivingBoard client."""
         self._client = client
 
-    def _extract_element[U: GAPIBaseModel](
-        self,
-        elements: list[Any],
-        field_type: str,
-        extractor_class: type[BaseExtractor[U]],
-        *,
-        update_model: bool = True,
-    ) -> U:
-        matches = [element for element in elements if element.field_type == field_type]
-        return self._parse_single_match(
-            matches,
-            field_type,
-            extractor_class,
-            update_model=update_model,
-        )
+    # TODO: Validate
+    @staticmethod
+    def non_default_args(
+        func: Callable[..., Any],
+        values: dict[str, Any],
+    ) -> dict[str, Any]:
+        """Return the args that are changed from their default values."""
+        return {
+            name: values[name]
+            for name, param in signature(func).parameters.items()
+            if param.default is not Parameter.empty
+            and name in values
+            and values[name] != param.default
+        }
 
-    def _extract_typed_element[U: GAPIBaseModel](
-        self,
-        elements: list[Any],
-        field_type: str,
-        attribute_type: str,
-        extractor_class: type[BaseExtractor[U]],
-        *,
-        update_model: bool = True,
-    ) -> U:
-        matches = [
-            element
-            for element in elements
-            if element.field_type == field_type
-            and element.attributes.type == attribute_type
+    # TODO: Validate
+    def get_log_id(self, func: Callable[..., Any], values: dict[str, Any]) -> str:
+        """Get the log id.
+
+        Example: ClassName (arg1='value1' arg2='value2')
+        """
+        required = {
+            name: values[name]
+            for name, param in signature(func).parameters.items()
+            if param.default is Parameter.empty and name in values
+        }
+        set_args = {**required, **self.non_default_args(func, values)}
+        parts = [
+            *(f"{name}={value!r}" for name, value in set_args.items()),
         ]
-        return self._parse_single_match(
-            matches,
-            f"{attribute_type!r} {field_type}",
-            extractor_class,
-            update_model=update_model,
-        )
-
-    def _parse_single_match[U: GAPIBaseModel](
-        self,
-        matches: list[Any],
-        type_desc: str,
-        extractor_class: type[BaseExtractor[U]],
-        *,
-        update_model: bool = True,
-    ) -> U:
-        if not matches:
-            msg = f"No {type_desc} element found"
-            raise ValueError(msg)
-        if len(matches) > 1:
-            msg = f"Too many {type_desc} elements found"
-            raise ValueError(msg)
-
-        dumped = self.original_input(matches[0])
-        return extractor_class().parse(dumped, update_model=update_model)
+        name = self.__class__.__name__
+        if not parts:
+            return name
+        return f"{name} ({' '.join(parts)})"

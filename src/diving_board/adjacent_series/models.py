@@ -1,80 +1,48 @@
-# ruff: noqa: D100, D101, D102, TC001, TC002, TC003
-from good_ass_pydantic_integrator import GAPIBaseModel
-from pydantic import ConfigDict, Field
+"""AdjacentSeriesModel, strict to a type checker, all-optional at runtime.
+
+A type checker reads the strict model, so every field carries the type and
+the requiredness the schema recorded. At runtime the all-optional copy is imported
+instead, so a response that has drifted still parses and a field the data is
+missing is None despite what its type hint says.
+"""
+
+from typing import TYPE_CHECKING
+
+from good_ass_pydantic_integrator import load
+
+from .optional_models import AdjacentSeriesModel as OptionalModel
+from .strict_models import AdjacentSeriesModel as StrictModel
+
+if TYPE_CHECKING:
+    from .strict_models import (
+        AdjacentSeriesModel,
+        FollowingItem,
+        FollowingSeason,
+        PrecedingItem,
+        PrecedingSeason,
+        WatchOrder,
+    )
+else:
+    from .optional_models import (
+        AdjacentSeriesModel,
+        FollowingItem,
+        FollowingSeason,
+        PrecedingItem,
+        PrecedingSeason,
+        WatchOrder,
+    )
+
+__all__ = [
+    "AdjacentSeriesModel",
+    "FollowingItem",
+    "FollowingSeason",
+    "PrecedingItem",
+    "PrecedingSeason",
+    "WatchOrder",
+    "model_validate_json",
+]
 
 
-class PrecedingSeason(GAPIBaseModel):
-    model_config = ConfigDict(extra="forbid")
-    title: str
-    description: str
-    long_description: str = Field(..., alias="longDescription")
-    small_cover_url: str = Field(..., alias="smallCoverUrl")
-    cover_url: str = Field(..., alias="coverUrl")
-    title_url: str = Field(..., alias="titleUrl")
-    poster_url: str = Field(..., alias="posterUrl")
-    season_number: int = Field(..., alias="seasonNumber")
-    episode_count: int = Field(..., alias="episodeCount")
-    displayable_tags: list[None] = Field(..., alias="displayableTags")
-    upcoming_releases: list[None] = Field(..., alias="upcomingReleases")
-    id: int
-
-
-class FollowingSeason(GAPIBaseModel):
-    model_config = ConfigDict(extra="forbid")
-    title: str
-    description: str
-    long_description: str = Field(..., alias="longDescription")
-    small_cover_url: str = Field(..., alias="smallCoverUrl")
-    cover_url: str = Field(..., alias="coverUrl")
-    title_url: str = Field(..., alias="titleUrl")
-    poster_url: str = Field(..., alias="posterUrl")
-    season_number: int = Field(..., alias="seasonNumber")
-    episode_count: int = Field(..., alias="episodeCount")
-    displayable_tags: list[None] = Field(..., alias="displayableTags")
-    upcoming_releases: list[None] = Field(..., alias="upcomingReleases")
-    id: int
-
-
-class PrecedingItem(GAPIBaseModel):
-    model_config = ConfigDict(extra="forbid")
-    title: str
-    description: str
-    long_description: str = Field(..., alias="longDescription")
-    small_cover_url: str = Field(..., alias="smallCoverUrl")
-    cover_url: str = Field(..., alias="coverUrl")
-    title_url: str = Field(..., alias="titleUrl")
-    poster_url: str = Field(..., alias="posterUrl")
-    season_number: int = Field(..., alias="seasonNumber")
-    episode_count: int = Field(..., alias="episodeCount")
-    displayable_tags: list[None] = Field(..., alias="displayableTags")
-    upcoming_releases: list[None] = Field(..., alias="upcomingReleases")
-    id: int
-
-
-class FollowingItem(GAPIBaseModel):
-    model_config = ConfigDict(extra="forbid")
-    title: str
-    description: str
-    long_description: str = Field(..., alias="longDescription")
-    small_cover_url: str = Field(..., alias="smallCoverUrl")
-    cover_url: str = Field(..., alias="coverUrl")
-    title_url: str = Field(..., alias="titleUrl")
-    poster_url: str = Field(..., alias="posterUrl")
-    season_number: int = Field(..., alias="seasonNumber")
-    episode_count: int = Field(..., alias="episodeCount")
-    displayable_tags: list[None] = Field(..., alias="displayableTags")
-    upcoming_releases: list[None] = Field(..., alias="upcomingReleases")
-    id: int
-
-
-class WatchOrder(GAPIBaseModel):
-    model_config = ConfigDict(extra="forbid")
-    preceding: list[PrecedingItem]
-    following: list[FollowingItem]
-
-
-class SeriesAdjacentToModel(GAPIBaseModel):
-    model_config = ConfigDict(extra="forbid")
-    preceding_seasons: list[PrecedingSeason] = Field(..., alias="precedingSeasons")
-    following_seasons: list[FollowingSeason] = Field(..., alias="followingSeasons")
-    watch_order: WatchOrder = Field(..., alias="watchOrder")
+def model_validate_json(data: str | bytes | object, log_id: str) -> AdjacentSeriesModel:
+    """Read a downloaded file into AdjacentSeriesModel."""
+    return load.model_validate_json(StrictModel, OptionalModel, data, log_id)

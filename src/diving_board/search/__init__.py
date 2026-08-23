@@ -4,95 +4,63 @@
 from __future__ import annotations
 
 from logging import NullHandler, getLogger
-from typing import TYPE_CHECKING, Any
 
 from diving_board.base_api_endpoint import BaseEndpoint
-from diving_board.search.card_list import SearchCardList
-from diving_board.search.input import SearchInput
-from diving_board.search.models import SearchModel
-
-if TYPE_CHECKING:
-    from diving_board.search.card_list.models import SearchCardListModel
-    from diving_board.search.input.models import SearchInputModel
+from diving_board.search.models import SearchModel, model_validate_json
 
 logger = getLogger(__name__)
 logger.addHandler(NullHandler())
 
 
-class Search(BaseEndpoint[SearchModel]):
-    """Manage the search file."""
+# TODO: Validate
+class Search(BaseEndpoint):
+    """Manage the search file.
 
-    _response_model = SearchModel
+    Search is answered by a host of its own, but what comes back is the same
+    kind of view as the rest of the API answers with.
 
-    def get_log_id(self, query: str, timezone: str | None = None) -> str:
-        """Build the log id for a download."""
-        return self.append_non_default_args(
-            f"{self.__class__.__name__} {query=}",
-            timezone=(timezone, None),
-        )
+    Source: https://www.hidive.com/search
 
-    def download(self, query: str, timezone: str | None = None) -> dict[str, Any]:
-        """Downloads the search file.
+    Example request:
+        - GET /search?
+            - query={query}&
+            - timezone=America%2FLos_Angeles
+            - HTTP/2
+        - Host: search.dce-prod.dicelaboratory.com
+        - User-Agent: __REDACTED__
+        - Accept: application/json, text/plain, */*
+        - Referer: https://www.hidive.com/
+        - Origin: https://www.hidive.com
+        - x-api-key: __REDACTED__
+        - app: dice
+        - Realm: dce.hidive
+        - Authorization: Bearer __REDACTED__
+    """
 
-        Example request: https://www.hidive.com/search
-            OPTIONS /search?query=2.5&timezone=America%2FLos_Angeles HTTP/2
-            Host: search.dce-prod.dicelaboratory.com
-            User-Agent: __REDACTED__
-            Accept: */*
-            Accept-Language: en-US,en;q=0.9
-            Accept-Encoding: gzip, deflate, br, zstd
-            Access-Control-Request-Method: GET
-            Access-Control-Request-Headers: app,authorization,content-type,realm,x-api-key,x-app-var
-            Referer: https://www.hidive.com/
-            Origin: https://www.hidive.com
-            Connection: keep-alive
-            Sec-Fetch-Dest: empty
-            Sec-Fetch-Mode: cors
-            Sec-Fetch-Site: cross-site
-            Priority: u=4
-            TE: trailers
+    # TODO: Validate
+    def __call__(self, query: str, *, timezone: str | None = None) -> SearchModel:
+        """Run the search and return the model it is read into."""
+        log_id = self.get_log_id(self.__call__, locals())
+        return self.load(self.download(query, timezone=timezone), log_id)
+
+    # TODO: Validate
+    def download(self, query: str, *, timezone: str | None = None) -> str:
+        """Download the search file.
+
+        A query nothing matches is answered with the same view carrying no
+        cards, so it comes back as a file like any other.
         """
+        log_id = self.get_log_id(self.download, locals())
         return self._client.download(
             "https://search.dce-prod.dicelaboratory.com/search",
-            {
+            params={
                 "query": query,
                 "timezone": timezone or self._client.timezone,
             },
-            self.get_log_id(query, timezone),
+            log_id=log_id,
         )
 
-    def download_and_parse(
-        self,
-        query: str,
-        timezone: str | None = None,
-    ) -> SearchModel:
-        """Downloads and parses the search file."""
-        return self.parse(self.download(query, timezone))
-
-    def extract_search(
-        self,
-        data: SearchModel,
-        *,
-        update_model: bool = True,
-    ) -> SearchInputModel:
-        """Extract the search input element from Search."""
-        return self._extract_element(
-            data.elements,
-            "search",
-            SearchInput,
-            update_model=update_model,
-        )
-
-    def extract_card_list(
-        self,
-        data: SearchModel,
-        *,
-        update_model: bool = True,
-    ) -> SearchCardListModel:
-        """Extract the card list element from Search."""
-        return self._extract_element(
-            data.elements,
-            "cardList",
-            SearchCardList,
-            update_model=update_model,
-        )
+    # TODO: Validate
+    def load(self, data: str, log_id: str = "") -> SearchModel:
+        """Read a downloaded search file into its model."""
+        return model_validate_json(data, log_id or type(self).__name__)

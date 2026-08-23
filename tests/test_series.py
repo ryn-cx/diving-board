@@ -5,46 +5,44 @@ from typing import TYPE_CHECKING
 
 import pytest
 
-from diving_board.exceptions import HTTPError
-from tests.utils import assert_error, download_and_save, parse_json
+from diving_board.exceptions import SeriesNotFoundError
+from diving_board.series.models import SeriesModel
+from tests.utils import RecordedEndpoint
 
 if TYPE_CHECKING:
     from diving_board import DivingBoard
-    from diving_board.series import Series
 
-SERIES_ID = 2311
-INVALID_SERIES_ID = 0
-
-
-@pytest.fixture(scope="session")
-def endpoint(client: DivingBoard) -> Series:
-    return client.series
+SERIES_IDS = [
+    pytest.param(2311, id="2.5 dimensional seduction - one season"),
+    pytest.param(1019, id="ahiru no sora - four seasons"),
+]
 
 
-class TestSeries:
-    def test_download(self, endpoint: Series) -> None:
-        download_and_save(
-            endpoint,
-            str(SERIES_ID),
-            lambda: endpoint.download(SERIES_ID),
-        )
-
-    def test_parse(self, endpoint: Series) -> None:
-        data = parse_json(endpoint, str(SERIES_ID))
-        assert data.metadata.series.series_id == SERIES_ID
-
-    def test_invalid_download(self, endpoint: Series) -> None:
-        assert_error(
-            endpoint,
-            str(INVALID_SERIES_ID),
-            lambda: endpoint.download(INVALID_SERIES_ID),
-            HTTPError,
-        )
+class SeriesTest(RecordedEndpoint):
+    MODEL = SeriesModel
 
 
-@pytest.mark.parametrize("timezone", [None, "America/New_York"])
-def test_log_id(endpoint: Series, timezone: str | None) -> None:
-    expected = f"Series series_id={SERIES_ID!r}"
-    if timezone is not None:
-        expected += f" timezone={timezone!r}"
-    assert endpoint.get_log_id(SERIES_ID, timezone) == expected
+# TODO: Validate
+@pytest.mark.parametrize("series_id", SERIES_IDS)
+def test_download(client: DivingBoard, series_id: int) -> None:
+    SeriesTest.download_test(series_id, lambda: client.series.download(series_id))
+
+
+# TODO: Validate
+@pytest.mark.parametrize("series_id", SERIES_IDS)
+def test_parse(client: DivingBoard, series_id: int) -> None:
+    data = client.series.load(SeriesTest.recorded_content(series_id))
+    assert data.metadata.series.series_id == series_id
+
+
+# TODO: Validate
+@pytest.mark.parametrize(
+    "series_id",
+    [pytest.param(0, id="series that does not exist")],
+)
+def test_download_invalid(client: DivingBoard, series_id: int) -> None:
+    SeriesTest.error_test(
+        series_id,
+        lambda: client.series.download(series_id),
+        SeriesNotFoundError,
+    )

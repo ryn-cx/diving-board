@@ -1,68 +1,80 @@
 # TODO: Validate
-"""Contains the SeriesAdjacentTo class."""
+"""Contains the AdjacentSeries class."""
 
 from __future__ import annotations
 
 from logging import NullHandler, getLogger
-from typing import Any
 
-from diving_board.adjacent_series.models import SeriesAdjacentToModel
+from diving_board.adjacent_series.models import (
+    AdjacentSeriesModel,
+    model_validate_json,
+)
 from diving_board.base_api_endpoint import BaseEndpoint
 from diving_board.constants import BASE_API_URL
+from diving_board.exceptions import AdjacentSeriesNotFoundError, ResourceNotFoundError
 
 logger = getLogger(__name__)
 logger.addHandler(NullHandler())
 
 
-class SeriesAdjacentTo(BaseEndpoint[SeriesAdjacentToModel]):
-    """Manage the series adjacent to file."""
+# TODO: Validate
+class AdjacentSeries(BaseEndpoint):
+    """Manage the adjacent series file, the seasons either side of one season.
 
-    _response_model = SeriesAdjacentToModel
+    Source: https://www.hidive.com/season/{season_id}
 
-    def get_log_id(self, series_id: int | str, season_id: int | str) -> str:
-        """Build the log id for a download."""
-        return f"{self.__class__.__name__} {series_id=} {season_id=}"
+    Example request:
+        - GET /api/v4/series/{series_id}/adjacentTo/{season_id}?
+            - size=25
+            - HTTP/2
+        - Host: dce-frontoffice.imggaming.com
+        - User-Agent: __REDACTED__
+        - Accept: application/json, text/plain, */*
+        - Referer: https://www.hidive.com/
+        - Content-Type: application/json
+        - x-api-key: __REDACTED__
+        - app: dice
+        - Realm: dce.hidive
+        - Authorization: Bearer __REDACTED__
+        - Origin: https://www.hidive.com
+    """
 
-    def download(self, series_id: int | str, season_id: int | str) -> dict[str, Any]:
-        """Downloads the series adjacent to file.
-
-        Raises:
-            HTTPError: If series_id or season_id is invalid.
-
-        Example request: https://www.hidive.com/season/18908
-            GET /api/v4/series/1019/adjacentTo/18908?size=25 HTTP/2
-            Host: dce-frontoffice.imggaming.com
-            User-Agent: __REDACTED__
-            Accept: application/json, text/plain, */*
-            Accept-Language: en-US
-            Accept-Encoding: gzip, deflate, br, zstd
-            Referer: https://www.hidive.com/
-            Content-Type: application/json
-            x-api-key: 857a1e5d-e35e-4fdf-805b-a87b6f8364bf (This is a public value)
-            app: dice
-            Realm: dce.hidive
-            x-app-var: 6.60.0.5aaf921
-            Authorization: Bearer __REDACTED__
-            Origin: https://www.hidive.com
-            Connection: keep-alive
-            Sec-Fetch-Dest: empty
-            Sec-Fetch-Mode: cors
-            Sec-Fetch-Site: cross-site
-        """
-        return self._client.download(
-            f"{BASE_API_URL}/api/v4/series/{int(series_id)}/adjacentTo/{int(season_id)}",
-            {"size": 25},
-            self.get_log_id(series_id, season_id),
-        )
-
-    def download_and_parse(
+    # TODO: Validate
+    def __call__(
         self,
         series_id: int | str,
         season_id: int | str,
-    ) -> SeriesAdjacentToModel:
-        """Downloads and parses the series adjacent to file.
+        *,
+        size: int = 25,
+    ) -> AdjacentSeriesModel:
+        """Look the adjacent seasons up and return the model they are read into."""
+        log_id = self.get_log_id(self.__call__, locals())
+        return self.load(self.download(series_id, season_id, size=size), log_id)
 
-        Raises:
-            HTTPError: If series_id or season_id is invalid.
-        """
-        return self.parse(self.download(series_id, season_id))
+    # TODO: Validate
+    def download(
+        self,
+        series_id: int | str,
+        season_id: int | str,
+        *,
+        size: int = 25,
+    ) -> str:
+        """Download the adjacent series file."""
+        log_id = self.get_log_id(self.download, locals())
+        url = (
+            f"{BASE_API_URL}/api/v4/series/{int(series_id)}/adjacentTo/{int(season_id)}"
+        )
+        try:
+            return self._client.download(url, params={"size": size}, log_id=log_id)
+        except ResourceNotFoundError as err:
+            raise AdjacentSeriesNotFoundError(
+                int(series_id),
+                int(season_id),
+                err.status_code,
+                err.response,
+            ) from err
+
+    # TODO: Validate
+    def load(self, data: str, log_id: str = "") -> AdjacentSeriesModel:
+        """Read a downloaded adjacent series file into its model."""
+        return model_validate_json(data, log_id or type(self).__name__)

@@ -1,69 +1,61 @@
 # TODO: Validate
 from __future__ import annotations
 
-from datetime import datetime, timedelta
 from typing import TYPE_CHECKING
 
 import pytest
 
-from tests.utils import download_and_save, parse_json
+from diving_board.schedule import GROUPS_PER_PAGE
+from diving_board.schedule.models import ScheduleModel
+from tests.utils import RecordedEndpoint
 
 if TYPE_CHECKING:
     from diving_board import DivingBoard
-    from diving_board.schedule import Schedule
 
-NAME = "schedule"
+FIRST_PAGE = "first-page"
+NEXT_PAGE = "next-page"
 
-
-@pytest.fixture(scope="session")
-def endpoint(client: DivingBoard) -> Schedule:
-    return client.schedule
-
-
-class TestSchedule:
-    def test_download(self, endpoint: Schedule) -> None:
-        download_and_save(endpoint, NAME, endpoint.download)
-
-    def test_extract_grid_block(self, endpoint: Schedule) -> None:
-        grid_block = endpoint.extract_grid_block(parse_json(endpoint, NAME))
-        assert grid_block.attributes.elements
-
-    def test_extract_filter_list(self, endpoint: Schedule) -> None:
-        filter_list = endpoint.extract_filter_list(parse_json(endpoint, NAME))
-        assert filter_list.attributes.filters
-
-    def test_extract_group_list(self, endpoint: Schedule) -> None:
-        group_list = endpoint.extract_group_list(parse_json(endpoint, NAME))
-        assert group_list.attributes.groups
-
-    def test_compile_cards(self, endpoint: Schedule) -> None:
-        data = parse_json(endpoint, NAME)
-        entries_from_file = endpoint.compile_cards(data)
-        entries_from_list = endpoint.compile_cards([data])
-        group_list = endpoint.extract_group_list(data)
-        expected = [
-            card
-            for group in group_list.attributes.groups
-            for card in group.attributes.cards
-        ]
-        assert entries_from_file == expected == entries_from_list
-
-    def test_download_and_parse_until_datetime(self, endpoint: Schedule) -> None:
-        end_datetime = datetime.now().astimezone() + timedelta(days=30)
-        schedules = endpoint.download_and_parse_until_datetime(end_datetime)
-        assert len(schedules) > 1
-
-    def test_past_last_available_date(self, endpoint: Schedule) -> None:
-        end_datetime = datetime.now().astimezone() + timedelta(days=365)
-        schedules = endpoint.download_and_parse_until_datetime(
-            end_datetime=end_datetime,
-        )
-        assert len(schedules) > 1
+PAGES = [
+    pytest.param(FIRST_PAGE, id="first page"),
+    pytest.param(NEXT_PAGE, id="page after the first"),
+]
 
 
-@pytest.mark.parametrize("last_seen", [None, "token"])
-def test_log_id(endpoint: Schedule, last_seen: str | None) -> None:
-    expected = "Schedule from_=None"
-    if last_seen is not None:
-        expected += f" last_seen={last_seen!r}"
-    assert endpoint.get_log_id(last_seen=last_seen) == expected
+class ScheduleTest(RecordedEndpoint):
+    MODEL = ScheduleModel
+
+
+# TODO: Validate
+def days(schedule: ScheduleModel) -> int:
+    """Return how many days the page covers."""
+    groups = next(
+        element.attributes.groups
+        for element in schedule.elements or []
+        if element.field_type == "groupList"
+    )
+    return len(groups or [])
+
+
+# TODO: Validate
+def test_download(client: DivingBoard) -> None:
+    ScheduleTest.download_test(FIRST_PAGE, client.schedule.download)
+
+
+# TODO: Validate
+def test_download_next_page(client: DivingBoard) -> None:
+    # The site pages the schedule by the token the page before it handed back
+    # rather than by date.
+    last_seen = client.schedule.next_page_token(
+        ScheduleTest.recorded_content(FIRST_PAGE),
+    )
+    ScheduleTest.download_test(
+        NEXT_PAGE,
+        lambda: client.schedule.download(last_seen=last_seen),
+    )
+
+
+# TODO: Validate
+@pytest.mark.parametrize("page", PAGES)
+def test_parse(client: DivingBoard, page: str) -> None:
+    data = client.schedule.load(ScheduleTest.recorded_content(page))
+    assert days(data) == GROUPS_PER_PAGE
