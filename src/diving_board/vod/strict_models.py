@@ -1,22 +1,28 @@
 from typing import Any, Self
 from pydantic import ModelWrapValidatorHandler, PrivateAttr, model_validator
+from pydantic import ConfigDict
 from pydantic import BaseModel, Field
 
 class Attributes1(BaseModel):
+    model_config = ConfigDict(defer_build=True)
     text: str
 
 class Header(BaseModel):
+    model_config = ConfigDict(defer_build=True)
     field_type: str = Field(..., alias='$type')
     attributes: Attributes1
 
 class Attributes2(BaseModel):
+    model_config = ConfigDict(defer_build=True)
     source: str
 
 class Image(BaseModel):
+    model_config = ConfigDict(defer_build=True)
     field_type: str = Field(..., alias='$type')
     attributes: Attributes2
 
 class Data(BaseModel):
+    model_config = ConfigDict(defer_build=True)
     access_level: str = Field(..., alias='accessLevel')
     licence_ids: list[int] = Field(..., alias='licenceIds')
     id: int
@@ -24,10 +30,12 @@ class Data(BaseModel):
     type: str
 
 class Action1(BaseModel):
+    model_config = ConfigDict(defer_build=True)
     type: str
     data: Data
 
 class Attributes3(BaseModel):
+    model_config = ConfigDict(defer_build=True)
     type: str
     has_initial_focus: bool = Field(..., alias='hasInitialFocus')
     text: str
@@ -36,26 +44,32 @@ class Attributes3(BaseModel):
     action: Action1
 
 class Action(BaseModel):
+    model_config = ConfigDict(defer_build=True)
     field_type: str = Field(..., alias='$type')
     attributes: Attributes3
 
 class Attributes5(BaseModel):
+    model_config = ConfigDict(defer_build=True)
     text: str | None = None
 
 class Tag(BaseModel):
+    model_config = ConfigDict(defer_build=True)
     field_type: str = Field(..., alias='$type')
     attributes: Attributes5
 
 class Data1(BaseModel):
+    model_config = ConfigDict(defer_build=True)
     id: int
     title: str
     type: str
 
 class Action2(BaseModel):
+    model_config = ConfigDict(defer_build=True)
     type: str
     data: Data1
 
 class Attributes6(BaseModel):
+    model_config = ConfigDict(defer_build=True)
     type: str
     text: str
     label: str
@@ -63,42 +77,51 @@ class Attributes6(BaseModel):
     action: Action2
 
 class Button(BaseModel):
+    model_config = ConfigDict(defer_build=True)
     field_type: str = Field(..., alias='$type')
     attributes: Attributes6
 
 class Attributes4(BaseModel):
+    model_config = ConfigDict(defer_build=True)
     tags: list[Tag] | None = None
     text: str | None = None
     id: int | None = None
-    progress: None = Field(None)
+    progress: None = None
     duration: int | None = None
     watch_status: str | None = Field(None, alias='watchStatus')
     buttons: list[Button] | None = None
 
 class Style(BaseModel):
+    model_config = ConfigDict(defer_build=True)
     display: str
 
 class ContentItem(BaseModel):
+    model_config = ConfigDict(defer_build=True)
     field_type: str = Field(..., alias='$type')
     attributes: Attributes4
     style: Style | None = None
 
 class Data2(BaseModel):
+    model_config = ConfigDict(defer_build=True)
     tab: str
 
 class Action3(BaseModel):
+    model_config = ConfigDict(defer_build=True)
     type: str
     data: Data2
 
 class Attributes7(BaseModel):
+    model_config = ConfigDict(defer_build=True)
     text: str
     label: str
     action: Action3
 
 class ContentDownload(BaseModel):
+    model_config = ConfigDict(defer_build=True)
     permission: str
 
 class Item(BaseModel):
+    model_config = ConfigDict(defer_build=True)
     field_type: str | None = Field(None, alias='$type')
     attributes: Attributes7 | None = None
     id: int | None = None
@@ -120,14 +143,17 @@ class Item(BaseModel):
     has_permission_granted_on_sign_in: bool | None = Field(None, alias='hasPermissionGrantedOnSignIn')
 
 class GroupName(BaseModel):
+    model_config = ConfigDict(defer_build=True)
     text: str
     label: str
 
 class Paging(BaseModel):
+    model_config = ConfigDict(defer_build=True)
     more_data_available: bool = Field(..., alias='moreDataAvailable')
     last_seen: str = Field(..., alias='lastSeen')
 
 class Attributes(BaseModel):
+    model_config = ConfigDict(defer_build=True)
     header: Header | None = None
     image: Image | None = None
     actions: list[Action] | None = None
@@ -144,30 +170,37 @@ class Attributes(BaseModel):
     paging: Paging | None = None
 
 class Desktop(BaseModel):
+    model_config = ConfigDict(defer_build=True)
     display: str
 
 class Tv(BaseModel):
+    model_config = ConfigDict(defer_build=True)
     display: str
 
 class Mobile(BaseModel):
+    model_config = ConfigDict(defer_build=True)
     display: str
 
 class Tablet(BaseModel):
+    model_config = ConfigDict(defer_build=True)
     display: str
 
 class Style1(BaseModel):
+    model_config = ConfigDict(defer_build=True)
     desktop: Desktop | None = None
     tv: Tv | None = None
     mobile: Mobile | None = None
     tablet: Tablet | None = None
 
 class Element(BaseModel):
+    model_config = ConfigDict(defer_build=True)
     field_type: str = Field(..., alias='$type')
     field_zone: str = Field(..., alias='$zone')
     attributes: Attributes
     style: Style1 | None = None
 
 class VodModel(BaseModel):
+    model_config = ConfigDict(defer_build=True)
     source: str
     elements: list[Element]
     _raw_input: Any = PrivateAttr(default=None)

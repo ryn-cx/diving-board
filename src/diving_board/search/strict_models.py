@@ -1,16 +1,20 @@
 from typing import Self
 from pydantic import ModelWrapValidatorHandler, PrivateAttr, model_validator
+from pydantic import ConfigDict
 from pydantic import BaseModel, Field
 from typing import Any
 
 class Data(BaseModel):
+    model_config = ConfigDict(defer_build=True)
     url: str
 
 class Action(BaseModel):
+    model_config = ConfigDict(defer_build=True)
     type: str
     data: Data
 
 class Attributes2(BaseModel):
+    model_config = ConfigDict(defer_build=True)
     source: str | None = None
     width: int | None = None
     height: int | None = None
@@ -18,23 +22,28 @@ class Attributes2(BaseModel):
     access_level: str | None = Field(None, alias='accessLevel')
 
 class HeaderItem(BaseModel):
+    model_config = ConfigDict(defer_build=True)
     field_type: str = Field(..., alias='$type')
     attributes: Attributes2
 
 class Attributes3(BaseModel):
+    model_config = ConfigDict(defer_build=True)
     text: str
     number_of_lines: int = Field(..., alias='numberOfLines')
 
 class Style(BaseModel):
+    model_config = ConfigDict(defer_build=True)
     color: str
     size: str
 
 class ContentItem(BaseModel):
+    model_config = ConfigDict(defer_build=True)
     field_type: str = Field(..., alias='$type')
     attributes: Attributes3
     style: Style
 
 class Data1(BaseModel):
+    model_config = ConfigDict(defer_build=True)
     type: str
     title: str
     access_level: str = Field(..., alias='accessLevel')
@@ -43,10 +52,12 @@ class Data1(BaseModel):
     online_playback: str | None = Field(None, alias='onlinePlayback')
 
 class Action1(BaseModel):
+    model_config = ConfigDict(defer_build=True)
     type: str
     data: Data1
 
 class Attributes1(BaseModel):
+    model_config = ConfigDict(defer_build=True)
     type: str
     has_initial_focus: bool = Field(..., alias='hasInitialFocus')
     header: list[HeaderItem]
@@ -54,10 +65,12 @@ class Attributes1(BaseModel):
     action: Action1
 
 class Card(BaseModel):
+    model_config = ConfigDict(defer_build=True)
     field_type: str = Field(..., alias='$type')
     attributes: Attributes1
 
 class Attributes(BaseModel):
+    model_config = ConfigDict(defer_build=True)
     placeholder: str | None = None
     placeholder_label: str | None = Field(None, alias='placeholderLabel')
     value: str | None = None
@@ -73,15 +86,18 @@ class Attributes(BaseModel):
     empty_description: str | None = Field(None, alias='emptyDescription')
 
 class Style1(BaseModel):
+    model_config = ConfigDict(defer_build=True)
     size: int
 
 class Element(BaseModel):
+    model_config = ConfigDict(defer_build=True)
     field_type: str = Field(..., alias='$type')
     field_zone: str = Field(..., alias='$zone')
     attributes: Attributes
     style: Style1 | None = None
 
 class SearchModel(BaseModel):
+    model_config = ConfigDict(defer_build=True)
     source: str
     elements: list[Element]
     _raw_input: Any = PrivateAttr(default=None)

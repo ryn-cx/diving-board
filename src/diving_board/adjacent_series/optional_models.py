@@ -4,7 +4,7 @@ from pydantic import BaseModel, ConfigDict, Field
 from typing import Any
 
 class PrecedingSeason(BaseModel):
-    model_config = ConfigDict(extra='ignore')
+    model_config = ConfigDict(extra='ignore', defer_build=True)
     title: str | None = None
     description: str | None = None
     long_description: str | None = Field(None, alias='longDescription')
@@ -19,7 +19,7 @@ class PrecedingSeason(BaseModel):
     id: int | None = None
 
 class FollowingSeason(BaseModel):
-    model_config = ConfigDict(extra='ignore')
+    model_config = ConfigDict(extra='ignore', defer_build=True)
     title: str | None = None
     description: str | None = None
     long_description: str | None = Field(None, alias='longDescription')
@@ -34,7 +34,7 @@ class FollowingSeason(BaseModel):
     id: int | None = None
 
 class PrecedingItem(BaseModel):
-    model_config = ConfigDict(extra='ignore')
+    model_config = ConfigDict(extra='ignore', defer_build=True)
     title: str | None = None
     description: str | None = None
     long_description: str | None = Field(None, alias='longDescription')
@@ -49,7 +49,7 @@ class PrecedingItem(BaseModel):
     id: int | None = None
 
 class FollowingItem(BaseModel):
-    model_config = ConfigDict(extra='ignore')
+    model_config = ConfigDict(extra='ignore', defer_build=True)
     title: str | None = None
     description: str | None = None
     long_description: str | None = Field(None, alias='longDescription')
@@ -64,12 +64,12 @@ class FollowingItem(BaseModel):
     id: int | None = None
 
 class WatchOrder(BaseModel):
-    model_config = ConfigDict(extra='ignore')
+    model_config = ConfigDict(extra='ignore', defer_build=True)
     preceding: list[PrecedingItem] | None = None
     following: list[FollowingItem] | None = None
 
 class AdjacentSeriesModel(BaseModel):
-    model_config = ConfigDict(extra='ignore')
+    model_config = ConfigDict(extra='ignore', defer_build=True)
     preceding_seasons: list[PrecedingSeason] | None = Field(None, alias='precedingSeasons')
     following_seasons: list[FollowingSeason] | None = Field(None, alias='followingSeasons')
     watch_order: WatchOrder | None = Field(None, alias='watchOrder')

@@ -1,82 +1,102 @@
 from typing import Any, Self
 from pydantic import ModelWrapValidatorHandler, PrivateAttr, model_validator
+from pydantic import ConfigDict
 from pydantic import AwareDatetime, BaseModel, Field
 
 class Attributes3(BaseModel):
+    model_config = ConfigDict(defer_build=True)
     icon: str
     size: int
 
 class Icon(BaseModel):
+    model_config = ConfigDict(defer_build=True)
     field_type: str = Field(..., alias='$type')
     attributes: Attributes3
 
 class Data(BaseModel):
+    model_config = ConfigDict(defer_build=True)
     from_: AwareDatetime = Field(..., alias='from')
 
 class Action(BaseModel):
+    model_config = ConfigDict(defer_build=True)
     type: str
     data: Data
 
 class Attributes2(BaseModel):
+    model_config = ConfigDict(defer_build=True)
     type: str
     icon: Icon
     action: Action
 
 class Style(BaseModel):
+    model_config = ConfigDict(defer_build=True)
     size: str
 
 class Forward(BaseModel):
+    model_config = ConfigDict(defer_build=True)
     field_type: str = Field(..., alias='$type')
     attributes: Attributes2
     style: Style
 
 class Attributes5(BaseModel):
+    model_config = ConfigDict(defer_build=True)
     icon: str
     size: int
 
 class Icon1(BaseModel):
+    model_config = ConfigDict(defer_build=True)
     field_type: str = Field(..., alias='$type')
     attributes: Attributes5
 
 class Action1(BaseModel):
+    model_config = ConfigDict(defer_build=True)
     type: str
     data: Data
 
 class Attributes4(BaseModel):
+    model_config = ConfigDict(defer_build=True)
     type: str
     icon: Icon1
     action: Action1
 
 class Back(BaseModel):
+    model_config = ConfigDict(defer_build=True)
     field_type: str = Field(..., alias='$type')
     attributes: Attributes4
     style: Style
 
 class Attributes6(BaseModel):
+    model_config = ConfigDict(defer_build=True)
     text: str
     format: str
 
 class Style2(BaseModel):
+    model_config = ConfigDict(defer_build=True)
     color: str
     size: float
 
 class Text(BaseModel):
+    model_config = ConfigDict(defer_build=True)
     field_type: str = Field(..., alias='$type')
     attributes: Attributes6
     style: Style2
 
 class Attributes8(BaseModel):
+    model_config = ConfigDict(defer_build=True)
     icon: str
     size: int
 
 class AfterElement(BaseModel):
+    model_config = ConfigDict(defer_build=True)
     field_type: str = Field(..., alias='$type')
     attributes: Attributes8
 
 class Action2(BaseModel):
+    model_config = ConfigDict(defer_build=True)
     type: str
 
 class Attributes7(BaseModel):
+    model_config = ConfigDict(defer_build=True)
     text: str
     label: str
     type: str
@@ -85,54 +105,66 @@ class Attributes7(BaseModel):
     action: Action2
 
 class Style3(BaseModel):
+    model_config = ConfigDict(defer_build=True)
     size: float
 
 class Button(BaseModel):
+    model_config = ConfigDict(defer_build=True)
     field_type: str = Field(..., alias='$type')
     attributes: Attributes7
     style: Style3
 
 class Attributes1(BaseModel):
+    model_config = ConfigDict(defer_build=True)
     forward: Forward | None = None
     back: Back | None = None
     text: Text | None = None
     buttons: list[Button] | None = None
 
 class Style4(BaseModel):
+    model_config = ConfigDict(defer_build=True)
     gap: str
 
 class Element1(BaseModel):
+    model_config = ConfigDict(defer_build=True)
     field_type: str = Field(..., alias='$type')
     attributes: Attributes1
     style: Style4 | None = None
 
 class Attributes9(BaseModel):
+    model_config = ConfigDict(defer_build=True)
     text: str
     label: str
 
 class Style5(BaseModel):
+    model_config = ConfigDict(defer_build=True)
     size: int
     color: str
 
 class Title(BaseModel):
+    model_config = ConfigDict(defer_build=True)
     field_type: str = Field(..., alias='$type')
     attributes: Attributes9
     style: Style5
 
 class Attributes11(BaseModel):
+    model_config = ConfigDict(defer_build=True)
     label: str
     number_of_lines: int = Field(..., alias='numberOfLines')
 
 class Style6(BaseModel):
+    model_config = ConfigDict(defer_build=True)
     size: str
     color: str
 
 class Title1(BaseModel):
+    model_config = ConfigDict(defer_build=True)
     field_type: str = Field(..., alias='$type')
     attributes: Attributes11
     style: Style6
 
 class Option(BaseModel):
+    model_config = ConfigDict(defer_build=True)
     type: str
     filter_key: str = Field(..., alias='filterKey')
     is_active: bool = Field(..., alias='isActive')
@@ -141,104 +173,128 @@ class Option(BaseModel):
     value: str
 
 class Attributes10(BaseModel):
+    model_config = ConfigDict(defer_build=True)
     title: Title1
     filter_key: str = Field(..., alias='filterKey')
     options: list[Option]
 
 class Filter(BaseModel):
+    model_config = ConfigDict(defer_build=True)
     field_type: str = Field(..., alias='$type')
     attributes: Attributes10
 
 class Data2(BaseModel):
+    model_config = ConfigDict(defer_build=True)
     url: str
 
 class Action3(BaseModel):
+    model_config = ConfigDict(defer_build=True)
     type: str
     data: Data2
 
 class Reset(BaseModel):
+    model_config = ConfigDict(defer_build=True)
     label: str
     text: str
     action: Action3
 
 class Action4(BaseModel):
+    model_config = ConfigDict(defer_build=True)
     type: str
     data: Data2
 
 class Apply(BaseModel):
+    model_config = ConfigDict(defer_build=True)
     label: str
     text: str
     action: Action4
 
 class Data4(BaseModel):
+    model_config = ConfigDict(defer_build=True)
     last_seen: str = Field(..., alias='lastSeen')
 
 class Next(BaseModel):
+    model_config = ConfigDict(defer_build=True)
     type: str
     data: Data4
 
 class Actions(BaseModel):
+    model_config = ConfigDict(defer_build=True)
     reset: Reset | None = None
     apply: Apply | None = None
     next: Next | None = None
 
 class Attributes13(BaseModel):
+    model_config = ConfigDict(defer_build=True)
     text: AwareDatetime
     format: str
 
 class Style7(BaseModel):
+    model_config = ConfigDict(defer_build=True)
     color: str
     size: float
 
 class Title2(BaseModel):
+    model_config = ConfigDict(defer_build=True)
     field_type: str = Field(..., alias='$type')
     attributes: Attributes13
     style: Style7
 
 class Attributes15(BaseModel):
+    model_config = ConfigDict(defer_build=True)
     source: str
     width: int
     height: int
 
 class HeaderItem(BaseModel):
+    model_config = ConfigDict(defer_build=True)
     field_type: str = Field(..., alias='$type')
     attributes: Attributes15
 
 class Attributes19(BaseModel):
+    model_config = ConfigDict(defer_build=True)
     text: str
     format: str | None = None
 
 class Style8(BaseModel):
+    model_config = ConfigDict(defer_build=True)
     size: str
     color: str | None = None
 
 class Text1(BaseModel):
+    model_config = ConfigDict(defer_build=True)
     field_type: str = Field(..., alias='$type')
     attributes: Attributes19
     style: Style8
 
 class Attributes20(BaseModel):
+    model_config = ConfigDict(defer_build=True)
     icon: str
     size: int
 
 class Icon2(BaseModel):
+    model_config = ConfigDict(defer_build=True)
     field_type: str = Field(..., alias='$type')
     attributes: Attributes20
 
 class Attributes18(BaseModel):
+    model_config = ConfigDict(defer_build=True)
     text: Text1
     icon: Icon2 | None = None
     type: str
 
 class Style9(BaseModel):
+    model_config = ConfigDict(defer_build=True)
     color: str
 
 class Tag(BaseModel):
+    model_config = ConfigDict(defer_build=True)
     field_type: str = Field(..., alias='$type')
     attributes: Attributes18 | None = None
     style: Style9 | None = None
 
 class Attributes17(BaseModel):
+    model_config = ConfigDict(defer_build=True)
     text: AwareDatetime | str | None = Field(default=None, union_mode='left_to_right')
     format: str | None = None
     number_of_lines: int | None = Field(None, alias='numberOfLines')
@@ -246,27 +302,33 @@ class Attributes17(BaseModel):
     separator: bool | None = None
 
 class Style10(BaseModel):
+    model_config = ConfigDict(defer_build=True)
     size: str
     color: str
 
 class Element2(BaseModel):
+    model_config = ConfigDict(defer_build=True)
     field_type: str = Field(..., alias='$type')
     attributes: Attributes17
     style: Style10 | None = None
 
 class Attributes16(BaseModel):
+    model_config = ConfigDict(defer_build=True)
     elements: list[Element2]
     type: str
 
 class Style11(BaseModel):
+    model_config = ConfigDict(defer_build=True)
     align: str
 
 class ContentItem(BaseModel):
+    model_config = ConfigDict(defer_build=True)
     field_type: str = Field(..., alias='$type')
     attributes: Attributes16
     style: Style11
 
 class ComputedRelease(BaseModel):
+    model_config = ConfigDict(defer_build=True)
     scheduled_at: AwareDatetime = Field(..., alias='scheduledAt')
     computed_state: str = Field(..., alias='computedState')
     state: str
@@ -274,6 +336,7 @@ class ComputedRelease(BaseModel):
     description: str
 
 class Data5(BaseModel):
+    model_config = ConfigDict(defer_build=True)
     type: str
     title: str
     access_level: str = Field(..., alias='accessLevel')
@@ -282,10 +345,12 @@ class Data5(BaseModel):
     computed_releases: list[ComputedRelease] = Field(..., alias='computedReleases')
 
 class Action5(BaseModel):
+    model_config = ConfigDict(defer_build=True)
     type: str
     data: Data5
 
 class Attributes14(BaseModel):
+    model_config = ConfigDict(defer_build=True)
     has_initial_focus: bool = Field(..., alias='hasInitialFocus')
     type: str
     variant: str
@@ -295,20 +360,24 @@ class Attributes14(BaseModel):
     action: Action5
 
 class Card(BaseModel):
+    model_config = ConfigDict(defer_build=True)
     field_type: str = Field(..., alias='$type')
     attributes: Attributes14
 
 class Attributes12(BaseModel):
+    model_config = ConfigDict(defer_build=True)
     title: Title2
     cards: list[Card]
     type: str
 
 class Group(BaseModel):
+    model_config = ConfigDict(defer_build=True)
     field_type: str = Field(..., alias='$type')
     id: AwareDatetime
     attributes: Attributes12
 
 class Attributes(BaseModel):
+    model_config = ConfigDict(defer_build=True)
     elements: list[Element1] | None = None
     title: Title | None = None
     filters: list[Filter] | None = None
@@ -316,11 +385,13 @@ class Attributes(BaseModel):
     groups: list[Group] | None = None
 
 class Element(BaseModel):
+    model_config = ConfigDict(defer_build=True)
     field_type: str = Field(..., alias='$type')
     field_zone: str = Field(..., alias='$zone')
     attributes: Attributes
 
 class ScheduleModel(BaseModel):
+    model_config = ConfigDict(defer_build=True)
     layout: str
     elements: list[Element]
     _raw_input: Any = PrivateAttr(default=None)

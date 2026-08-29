@@ -1,9 +1,11 @@
 from typing import Self
 from pydantic import ModelWrapValidatorHandler, PrivateAttr, model_validator
+from pydantic import ConfigDict
 from pydantic import BaseModel, Field
 from typing import Any
 
 class PrecedingSeason(BaseModel):
+    model_config = ConfigDict(defer_build=True)
     title: str
     description: str
     long_description: str = Field(..., alias='longDescription')
@@ -18,6 +20,7 @@ class PrecedingSeason(BaseModel):
     id: int
 
 class FollowingSeason(BaseModel):
+    model_config = ConfigDict(defer_build=True)
     title: str
     description: str
     long_description: str = Field(..., alias='longDescription')
@@ -32,6 +35,7 @@ class FollowingSeason(BaseModel):
     id: int
 
 class PrecedingItem(BaseModel):
+    model_config = ConfigDict(defer_build=True)
     title: str
     description: str
     long_description: str = Field(..., alias='longDescription')
@@ -46,6 +50,7 @@ class PrecedingItem(BaseModel):
     id: int
 
 class FollowingItem(BaseModel):
+    model_config = ConfigDict(defer_build=True)
     title: str
     description: str
     long_description: str = Field(..., alias='longDescription')
@@ -60,10 +65,12 @@ class FollowingItem(BaseModel):
     id: int
 
 class WatchOrder(BaseModel):
+    model_config = ConfigDict(defer_build=True)
     preceding: list[PrecedingItem]
     following: list[FollowingItem]
 
 class AdjacentSeriesModel(BaseModel):
+    model_config = ConfigDict(defer_build=True)
     preceding_seasons: list[PrecedingSeason] = Field(..., alias='precedingSeasons')
     following_seasons: list[FollowingSeason] = Field(..., alias='followingSeasons')
     watch_order: WatchOrder = Field(..., alias='watchOrder')

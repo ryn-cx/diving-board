@@ -4,30 +4,30 @@ from pydantic import BaseModel, ConfigDict, Field
 from typing import Any
 
 class Attributes1(BaseModel):
-    model_config = ConfigDict(extra='ignore')
+    model_config = ConfigDict(extra='ignore', defer_build=True)
     text: str | None = None
 
 class Header(BaseModel):
-    model_config = ConfigDict(extra='ignore')
+    model_config = ConfigDict(extra='ignore', defer_build=True)
     field_type: str | None = Field(None, alias='$type')
     attributes: Attributes1 | None = None
 
 class Attributes2(BaseModel):
-    model_config = ConfigDict(extra='ignore')
+    model_config = ConfigDict(extra='ignore', defer_build=True)
     source: str | None = None
 
 class Image(BaseModel):
-    model_config = ConfigDict(extra='ignore')
+    model_config = ConfigDict(extra='ignore', defer_build=True)
     field_type: str | None = Field(None, alias='$type')
     attributes: Attributes2 | None = None
 
 class Token(BaseModel):
-    model_config = ConfigDict(extra='ignore')
+    model_config = ConfigDict(extra='ignore', defer_build=True)
     key: str | None = None
     value: str | None = None
 
 class Data(BaseModel):
-    model_config = ConfigDict(extra='ignore')
+    model_config = ConfigDict(extra='ignore', defer_build=True)
     id: int | None = None
     video_id: int | None = Field(None, alias='videoId')
     online_playback: str | None = Field(None, alias='onlinePlayback')
@@ -37,12 +37,12 @@ class Data(BaseModel):
     type: str | None = None
 
 class Action1(BaseModel):
-    model_config = ConfigDict(extra='ignore')
+    model_config = ConfigDict(extra='ignore', defer_build=True)
     type: str | None = None
     data: Data | None = None
 
 class Attributes3(BaseModel):
-    model_config = ConfigDict(extra='ignore')
+    model_config = ConfigDict(extra='ignore', defer_build=True)
     has_initial_focus: bool | None = Field(None, alias='hasInitialFocus')
     text: str | None = None
     label: str | None = None
@@ -52,21 +52,21 @@ class Attributes3(BaseModel):
     action: Action1 | None = None
 
 class Action(BaseModel):
-    model_config = ConfigDict(extra='ignore')
+    model_config = ConfigDict(extra='ignore', defer_build=True)
     field_type: str | None = Field(None, alias='$type')
     attributes: Attributes3 | None = None
 
 class Attributes5(BaseModel):
-    model_config = ConfigDict(extra='ignore')
+    model_config = ConfigDict(extra='ignore', defer_build=True)
     text: str | None = None
 
 class Tag(BaseModel):
-    model_config = ConfigDict(extra='ignore')
+    model_config = ConfigDict(extra='ignore', defer_build=True)
     field_type: str | None = Field(None, alias='$type')
     attributes: Attributes5 | None = None
 
 class Data1(BaseModel):
-    model_config = ConfigDict(extra='ignore')
+    model_config = ConfigDict(extra='ignore', defer_build=True)
     id: int | None = None
     type: str | None = None
     universal_link: str | None = Field(None, alias='universalLink')
@@ -74,12 +74,12 @@ class Data1(BaseModel):
     title: str | None = None
 
 class Action2(BaseModel):
-    model_config = ConfigDict(extra='ignore')
+    model_config = ConfigDict(extra='ignore', defer_build=True)
     type: str | None = None
     data: Data1 | None = None
 
 class Attributes6(BaseModel):
-    model_config = ConfigDict(extra='ignore')
+    model_config = ConfigDict(extra='ignore', defer_build=True)
     type: str | None = None
     text: str | None = None
     label: str | None = None
@@ -87,42 +87,42 @@ class Attributes6(BaseModel):
     action: Action2 | None = None
 
 class Button(BaseModel):
-    model_config = ConfigDict(extra='ignore')
+    model_config = ConfigDict(extra='ignore', defer_build=True)
     field_type: str | None = Field(None, alias='$type')
     attributes: Attributes6 | None = None
 
 class Attributes4(BaseModel):
-    model_config = ConfigDict(extra='ignore')
+    model_config = ConfigDict(extra='ignore', defer_build=True)
     tags: list[Tag] | None = None
     text: str | None = None
     buttons: list[Button] | None = None
 
 class ContentItem(BaseModel):
-    model_config = ConfigDict(extra='ignore')
+    model_config = ConfigDict(extra='ignore', defer_build=True)
     field_type: str | None = Field(None, alias='$type')
     attributes: Attributes4 | None = None
 
 class Data2(BaseModel):
-    model_config = ConfigDict(extra='ignore')
+    model_config = ConfigDict(extra='ignore', defer_build=True)
     tab: str | None = None
 
 class Action3(BaseModel):
-    model_config = ConfigDict(extra='ignore')
+    model_config = ConfigDict(extra='ignore', defer_build=True)
     type: str | None = None
     data: Data2 | None = None
 
 class Attributes7(BaseModel):
-    model_config = ConfigDict(extra='ignore')
+    model_config = ConfigDict(extra='ignore', defer_build=True)
     text: str | None = None
     label: str | None = None
     action: Action3 | None = None
 
 class ContentDownload(BaseModel):
-    model_config = ConfigDict(extra='ignore')
+    model_config = ConfigDict(extra='ignore', defer_build=True)
     permission: str | None = None
 
 class Item(BaseModel):
-    model_config = ConfigDict(extra='ignore')
+    model_config = ConfigDict(extra='ignore', defer_build=True)
     field_type: str | None = Field(None, alias='$type')
     attributes: Attributes7 | None = None
     title: str | None = None
@@ -149,12 +149,12 @@ class Item(BaseModel):
     has_permission_granted_on_sign_in: bool | None = Field(None, alias='hasPermissionGrantedOnSignIn')
 
 class Series(BaseModel):
-    model_config = ConfigDict(extra='ignore')
+    model_config = ConfigDict(extra='ignore', defer_build=True)
     series_id: int | None = Field(None, alias='seriesId')
     title: str | None = None
 
 class Item1(BaseModel):
-    model_config = ConfigDict(extra='ignore')
+    model_config = ConfigDict(extra='ignore', defer_build=True)
     title: str | None = None
     description: str | None = None
     long_description: str | None = Field(None, alias='longDescription')
@@ -164,26 +164,26 @@ class Item1(BaseModel):
     series: Series | None = None
 
 class Paging(BaseModel):
-    model_config = ConfigDict(extra='ignore')
+    model_config = ConfigDict(extra='ignore', defer_build=True)
     more_data_available: bool | None = Field(None, alias='moreDataAvailable')
 
 class Seasons(BaseModel):
-    model_config = ConfigDict(extra='ignore')
+    model_config = ConfigDict(extra='ignore', defer_build=True)
     items: list[Item1] | None = None
     paging: Paging | None = None
 
 class Paging1(BaseModel):
-    model_config = ConfigDict(extra='ignore')
+    model_config = ConfigDict(extra='ignore', defer_build=True)
     more_data_available: bool | None = Field(None, alias='moreDataAvailable')
     last_seen: int | str | None = Field(None, alias='lastSeen')
 
 class GroupName(BaseModel):
-    model_config = ConfigDict(extra='ignore')
+    model_config = ConfigDict(extra='ignore', defer_build=True)
     text: str | None = None
     label: str | None = None
 
 class Attributes(BaseModel):
-    model_config = ConfigDict(extra='ignore')
+    model_config = ConfigDict(extra='ignore', defer_build=True)
     header: Header | None = None
     image: Image | None = None
     actions: list[Action] | None = None
@@ -205,54 +205,54 @@ class Attributes(BaseModel):
     group_name: GroupName | None = Field(None, alias='groupName')
 
 class Desktop(BaseModel):
-    model_config = ConfigDict(extra='ignore')
+    model_config = ConfigDict(extra='ignore', defer_build=True)
     display: str | None = None
 
 class Tv(BaseModel):
-    model_config = ConfigDict(extra='ignore')
+    model_config = ConfigDict(extra='ignore', defer_build=True)
     display: str | None = None
 
 class Mobile(BaseModel):
-    model_config = ConfigDict(extra='ignore')
+    model_config = ConfigDict(extra='ignore', defer_build=True)
     display: str | None = None
 
 class Tablet(BaseModel):
-    model_config = ConfigDict(extra='ignore')
+    model_config = ConfigDict(extra='ignore', defer_build=True)
     display: str | None = None
 
 class Style(BaseModel):
-    model_config = ConfigDict(extra='ignore')
+    model_config = ConfigDict(extra='ignore', defer_build=True)
     desktop: Desktop | None = None
     tv: Tv | None = None
     mobile: Mobile | None = None
     tablet: Tablet | None = None
 
 class Element(BaseModel):
-    model_config = ConfigDict(extra='ignore')
+    model_config = ConfigDict(extra='ignore', defer_build=True)
     field_type: str | None = Field(None, alias='$type')
     field_zone: str | None = Field(None, alias='$zone')
     attributes: Attributes | None = None
     style: Style | None = None
 
 class CurrentSeason(BaseModel):
-    model_config = ConfigDict(extra='ignore')
+    model_config = ConfigDict(extra='ignore', defer_build=True)
     season_id: int | None = Field(None, alias='seasonId')
     title: str | None = None
 
 class CurrentVod(BaseModel):
-    model_config = ConfigDict(extra='ignore')
+    model_config = ConfigDict(extra='ignore', defer_build=True)
     season_id: int | None = Field(None, alias='seasonId')
     title: str | None = None
 
 class Metadata(BaseModel):
-    model_config = ConfigDict(extra='ignore')
+    model_config = ConfigDict(extra='ignore', defer_build=True)
     type: str | None = None
     series: Series | None = None
     current_season: CurrentSeason | None = Field(None, alias='currentSeason')
     current_vod: CurrentVod | None = Field(None, alias='currentVod')
 
 class SeasonModel(BaseModel):
-    model_config = ConfigDict(extra='ignore')
+    model_config = ConfigDict(extra='ignore', defer_build=True)
     source: str | None = None
     layout: str | None = None
     elements: list[Element] | None = None

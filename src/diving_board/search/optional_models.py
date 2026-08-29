@@ -4,16 +4,16 @@ from pydantic import BaseModel, ConfigDict, Field
 from typing import Any
 
 class Data(BaseModel):
-    model_config = ConfigDict(extra='ignore')
+    model_config = ConfigDict(extra='ignore', defer_build=True)
     url: str | None = None
 
 class Action(BaseModel):
-    model_config = ConfigDict(extra='ignore')
+    model_config = ConfigDict(extra='ignore', defer_build=True)
     type: str | None = None
     data: Data | None = None
 
 class Attributes2(BaseModel):
-    model_config = ConfigDict(extra='ignore')
+    model_config = ConfigDict(extra='ignore', defer_build=True)
     source: str | None = None
     width: int | None = None
     height: int | None = None
@@ -21,28 +21,28 @@ class Attributes2(BaseModel):
     access_level: str | None = Field(None, alias='accessLevel')
 
 class HeaderItem(BaseModel):
-    model_config = ConfigDict(extra='ignore')
+    model_config = ConfigDict(extra='ignore', defer_build=True)
     field_type: str | None = Field(None, alias='$type')
     attributes: Attributes2 | None = None
 
 class Attributes3(BaseModel):
-    model_config = ConfigDict(extra='ignore')
+    model_config = ConfigDict(extra='ignore', defer_build=True)
     text: str | None = None
     number_of_lines: int | None = Field(None, alias='numberOfLines')
 
 class Style(BaseModel):
-    model_config = ConfigDict(extra='ignore')
+    model_config = ConfigDict(extra='ignore', defer_build=True)
     color: str | None = None
     size: str | None = None
 
 class ContentItem(BaseModel):
-    model_config = ConfigDict(extra='ignore')
+    model_config = ConfigDict(extra='ignore', defer_build=True)
     field_type: str | None = Field(None, alias='$type')
     attributes: Attributes3 | None = None
     style: Style | None = None
 
 class Data1(BaseModel):
-    model_config = ConfigDict(extra='ignore')
+    model_config = ConfigDict(extra='ignore', defer_build=True)
     type: str | None = None
     title: str | None = None
     access_level: str | None = Field(None, alias='accessLevel')
@@ -51,12 +51,12 @@ class Data1(BaseModel):
     online_playback: str | None = Field(None, alias='onlinePlayback')
 
 class Action1(BaseModel):
-    model_config = ConfigDict(extra='ignore')
+    model_config = ConfigDict(extra='ignore', defer_build=True)
     type: str | None = None
     data: Data1 | None = None
 
 class Attributes1(BaseModel):
-    model_config = ConfigDict(extra='ignore')
+    model_config = ConfigDict(extra='ignore', defer_build=True)
     type: str | None = None
     has_initial_focus: bool | None = Field(None, alias='hasInitialFocus')
     header: list[HeaderItem] | None = None
@@ -64,12 +64,12 @@ class Attributes1(BaseModel):
     action: Action1 | None = None
 
 class Card(BaseModel):
-    model_config = ConfigDict(extra='ignore')
+    model_config = ConfigDict(extra='ignore', defer_build=True)
     field_type: str | None = Field(None, alias='$type')
     attributes: Attributes1 | None = None
 
 class Attributes(BaseModel):
-    model_config = ConfigDict(extra='ignore')
+    model_config = ConfigDict(extra='ignore', defer_build=True)
     placeholder: str | None = None
     placeholder_label: str | None = Field(None, alias='placeholderLabel')
     value: str | None = None
@@ -85,18 +85,18 @@ class Attributes(BaseModel):
     empty_description: str | None = Field(None, alias='emptyDescription')
 
 class Style1(BaseModel):
-    model_config = ConfigDict(extra='ignore')
+    model_config = ConfigDict(extra='ignore', defer_build=True)
     size: int | None = None
 
 class Element(BaseModel):
-    model_config = ConfigDict(extra='ignore')
+    model_config = ConfigDict(extra='ignore', defer_build=True)
     field_type: str | None = Field(None, alias='$type')
     field_zone: str | None = Field(None, alias='$zone')
     attributes: Attributes | None = None
     style: Style1 | None = None
 
 class SearchModel(BaseModel):
-    model_config = ConfigDict(extra='ignore')
+    model_config = ConfigDict(extra='ignore', defer_build=True)
     source: str | None = None
     elements: list[Element] | None = None
     _raw_input: Any = PrivateAttr(default=None)

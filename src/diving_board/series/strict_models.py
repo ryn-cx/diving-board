@@ -1,27 +1,34 @@
 from typing import Self
 from pydantic import ModelWrapValidatorHandler, PrivateAttr, model_validator
+from pydantic import ConfigDict
 from pydantic import BaseModel, Field
 from typing import Any
 
 class Attributes1(BaseModel):
+    model_config = ConfigDict(defer_build=True)
     text: str
 
 class Header(BaseModel):
+    model_config = ConfigDict(defer_build=True)
     field_type: str = Field(..., alias='$type')
     attributes: Attributes1
 
 class Attributes2(BaseModel):
+    model_config = ConfigDict(defer_build=True)
     source: str
 
 class Image(BaseModel):
+    model_config = ConfigDict(defer_build=True)
     field_type: str = Field(..., alias='$type')
     attributes: Attributes2
 
 class Token(BaseModel):
+    model_config = ConfigDict(defer_build=True)
     key: str
     value: str
 
 class Data(BaseModel):
+    model_config = ConfigDict(defer_build=True)
     id: int
     video_id: int = Field(..., alias='videoId')
     online_playback: str = Field(..., alias='onlinePlayback')
@@ -31,10 +38,12 @@ class Data(BaseModel):
     type: str
 
 class Action1(BaseModel):
+    model_config = ConfigDict(defer_build=True)
     type: str
     data: Data
 
 class Attributes3(BaseModel):
+    model_config = ConfigDict(defer_build=True)
     has_initial_focus: bool = Field(..., alias='hasInitialFocus')
     text: str
     label: str
@@ -44,17 +53,21 @@ class Attributes3(BaseModel):
     action: Action1
 
 class Action(BaseModel):
+    model_config = ConfigDict(defer_build=True)
     field_type: str = Field(..., alias='$type')
     attributes: Attributes3
 
 class Attributes5(BaseModel):
+    model_config = ConfigDict(defer_build=True)
     text: str
 
 class Tag(BaseModel):
+    model_config = ConfigDict(defer_build=True)
     field_type: str = Field(..., alias='$type')
     attributes: Attributes5
 
 class Data1(BaseModel):
+    model_config = ConfigDict(defer_build=True)
     id: int
     type: str
     universal_link: str | None = Field(None, alias='universalLink')
@@ -62,10 +75,12 @@ class Data1(BaseModel):
     title: str
 
 class Action2(BaseModel):
+    model_config = ConfigDict(defer_build=True)
     type: str
     data: Data1
 
 class Attributes6(BaseModel):
+    model_config = ConfigDict(defer_build=True)
     type: str
     text: str
     label: str
@@ -73,34 +88,42 @@ class Attributes6(BaseModel):
     action: Action2
 
 class Button(BaseModel):
+    model_config = ConfigDict(defer_build=True)
     field_type: str = Field(..., alias='$type')
     attributes: Attributes6
 
 class Attributes4(BaseModel):
+    model_config = ConfigDict(defer_build=True)
     tags: list[Tag] | None = None
     text: str | None = None
     buttons: list[Button] | None = None
 
 class ContentItem(BaseModel):
+    model_config = ConfigDict(defer_build=True)
     field_type: str = Field(..., alias='$type')
     attributes: Attributes4
 
 class Data2(BaseModel):
+    model_config = ConfigDict(defer_build=True)
     tab: str
 
 class Action3(BaseModel):
+    model_config = ConfigDict(defer_build=True)
     type: str
     data: Data2
 
 class Attributes7(BaseModel):
+    model_config = ConfigDict(defer_build=True)
     text: str
     label: str
     action: Action3
 
 class ContentDownload(BaseModel):
+    model_config = ConfigDict(defer_build=True)
     permission: str
 
 class Item(BaseModel):
+    model_config = ConfigDict(defer_build=True)
     field_type: str | None = Field(None, alias='$type')
     attributes: Attributes7 | None = None
     title: str | None = None
@@ -127,10 +150,12 @@ class Item(BaseModel):
     has_permission_granted_on_sign_in: bool | None = Field(None, alias='hasPermissionGrantedOnSignIn')
 
 class Series(BaseModel):
+    model_config = ConfigDict(defer_build=True)
     series_id: int = Field(..., alias='seriesId')
     title: str
 
 class Item1(BaseModel):
+    model_config = ConfigDict(defer_build=True)
     title: str
     description: str
     long_description: str = Field(..., alias='longDescription')
@@ -140,22 +165,27 @@ class Item1(BaseModel):
     series: Series
 
 class Paging(BaseModel):
+    model_config = ConfigDict(defer_build=True)
     more_data_available: bool = Field(..., alias='moreDataAvailable')
     last_seen: int = Field(..., alias='lastSeen')
 
 class Seasons(BaseModel):
+    model_config = ConfigDict(defer_build=True)
     items: list[Item1]
     paging: Paging
 
 class Paging1(BaseModel):
+    model_config = ConfigDict(defer_build=True)
     more_data_available: bool = Field(..., alias='moreDataAvailable')
     last_seen: int | str = Field(..., alias='lastSeen')
 
 class GroupName(BaseModel):
+    model_config = ConfigDict(defer_build=True)
     text: str
     label: str
 
 class Attributes(BaseModel):
+    model_config = ConfigDict(defer_build=True)
     header: Header | None = None
     image: Image | None = None
     actions: list[Action] | None = None
@@ -177,44 +207,54 @@ class Attributes(BaseModel):
     group_name: GroupName | None = Field(None, alias='groupName')
 
 class Desktop(BaseModel):
+    model_config = ConfigDict(defer_build=True)
     display: str
 
 class Tv(BaseModel):
+    model_config = ConfigDict(defer_build=True)
     display: str
 
 class Mobile(BaseModel):
+    model_config = ConfigDict(defer_build=True)
     display: str
 
 class Tablet(BaseModel):
+    model_config = ConfigDict(defer_build=True)
     display: str
 
 class Style(BaseModel):
+    model_config = ConfigDict(defer_build=True)
     desktop: Desktop | None = None
     tv: Tv | None = None
     mobile: Mobile | None = None
     tablet: Tablet | None = None
 
 class Element(BaseModel):
+    model_config = ConfigDict(defer_build=True)
     field_type: str = Field(..., alias='$type')
     field_zone: str = Field(..., alias='$zone')
     attributes: Attributes
     style: Style | None = None
 
 class CurrentSeason(BaseModel):
+    model_config = ConfigDict(defer_build=True)
     season_id: int = Field(..., alias='seasonId')
     title: str
 
 class CurrentVod(BaseModel):
+    model_config = ConfigDict(defer_build=True)
     season_id: int = Field(..., alias='seasonId')
     title: str
 
 class Metadata(BaseModel):
+    model_config = ConfigDict(defer_build=True)
     type: str
     series: Series
     current_season: CurrentSeason = Field(..., alias='currentSeason')
     current_vod: CurrentVod = Field(..., alias='currentVod')
 
 class SeriesModel(BaseModel):
+    model_config = ConfigDict(defer_build=True)
     source: str
     layout: str
     elements: list[Element]
