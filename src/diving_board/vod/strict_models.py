@@ -86,7 +86,7 @@ class Attributes4(BaseModel):
     tags: list[Tag] | None = None
     text: str | None = None
     id: int | None = None
-    progress: None = None
+    progress: None = Field(None)
     duration: int | None = None
     watch_status: str | None = Field(None, alias='watchStatus')
     buttons: list[Button] | None = None

@@ -6,13 +6,12 @@ from __future__ import annotations
 import logging
 
 from get_around import build_client_automatically
-from good_ass_pydantic_integrator import generate_model
 
 from diving_board import DivingBoard
 from generate.constants import DIVING_BOARD_PATH, FILES_PATH
-from generate.utils import download_if_missing
+from generate.utils import download_if_missing, load_ids, rebuild_model
 
-QUERIES = ["2.5 Dimensional Seduction", "Appleseed", "qwertyuiopasdfghjklzxcvbnm"]
+QUERIES = load_ids("SearchModel")
 
 
 # TODO: Validate
@@ -25,7 +24,7 @@ def generate_search(client: DivingBoard) -> None:
             query,
             lambda query=query: client.search.download(query),
         )
-    generate_model(FILES_PATH, DIVING_BOARD_PATH, "SearchModel")
+    rebuild_model(FILES_PATH, DIVING_BOARD_PATH, "SearchModel")
 
 
 if __name__ == "__main__":

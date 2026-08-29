@@ -6,13 +6,12 @@ from __future__ import annotations
 import logging
 
 from get_around import build_client_automatically
-from good_ass_pydantic_integrator import generate_model
 
 from diving_board import DivingBoard
 from generate.constants import DIVING_BOARD_PATH, FILES_PATH
-from generate.utils import download_if_missing
+from generate.utils import download_if_missing, load_ids, rebuild_model
 
-SEASONS = [(1019, 18908), (1019, 18909), (1019, 18911), (2311, 24579)]
+SEASONS = load_ids("AdjacentSeriesModel")
 """The series and season each recording holds the neighbouring seasons of."""
 
 
@@ -28,7 +27,12 @@ def generate_adjacent_series(client: DivingBoard) -> None:
                 client.adjacent_series.download(series_id, season_id)
             ),
         )
-    generate_model(FILES_PATH, DIVING_BOARD_PATH, "AdjacentSeriesModel")
+    rebuild_model(
+        FILES_PATH,
+        DIVING_BOARD_PATH,
+        "AdjacentSeriesModel",
+        name_of=lambda season: f"{season[0]}_{season[1]}",
+    )
 
 
 if __name__ == "__main__":

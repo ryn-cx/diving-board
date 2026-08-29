@@ -6,11 +6,10 @@ from __future__ import annotations
 import logging
 
 from get_around import build_client_automatically
-from good_ass_pydantic_integrator import generate_model
 
 from diving_board import DivingBoard
 from generate.constants import DIVING_BOARD_PATH, FILES_PATH
-from generate.utils import download_if_missing
+from generate.utils import download_if_missing, rebuild_model
 
 FIRST_PAGE = "first-page"
 NEXT_PAGE = "next-page"
@@ -38,7 +37,7 @@ def generate_schedule(client: DivingBoard) -> None:
         NEXT_PAGE,
         lambda: client.schedule.download(last_seen=next_page_token(client)),
     )
-    generate_model(FILES_PATH, DIVING_BOARD_PATH, "ScheduleModel")
+    rebuild_model(FILES_PATH, DIVING_BOARD_PATH, "ScheduleModel")
 
 
 if __name__ == "__main__":
