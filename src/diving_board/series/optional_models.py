@@ -1,6 +1,6 @@
 from typing import Self
 from pydantic import ModelWrapValidatorHandler, PrivateAttr, model_validator
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import AwareDatetime, BaseModel, ConfigDict, Field
 from typing import Any
 
 class Attributes1(BaseModel):
@@ -121,6 +121,14 @@ class ContentDownload(BaseModel):
     model_config = ConfigDict(extra='ignore', defer_build=True)
     permission: str | None = None
 
+class ComputedRelease(BaseModel):
+    model_config = ConfigDict(extra='ignore', defer_build=True)
+    scheduled_at: AwareDatetime | None = Field(None, alias='scheduledAt')
+    computed_state: str | None = Field(None, alias='computedState')
+    state: str | None = None
+    type: str | None = None
+    description: str | None = None
+
 class Item(BaseModel):
     model_config = ConfigDict(extra='ignore', defer_build=True)
     field_type: str | None = Field(None, alias='$type')
@@ -135,7 +143,7 @@ class Item(BaseModel):
     thumbnail_url: str | None = Field(None, alias='thumbnailUrl')
     max_height: int | None = Field(None, alias='maxHeight')
     online_playback: str | None = Field(None, alias='onlinePlayback')
-    computed_releases: list[Any] | None = Field(None, alias='computedReleases')
+    computed_releases: list[ComputedRelease] | None = Field(None, alias='computedReleases')
     watch_status: str | None = Field(None, alias='watchStatus')
     id: int | None = None
     cover_url: str | None = Field(None, alias='coverUrl')
