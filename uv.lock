@@ -193,7 +193,7 @@ wheels = [
 [[package]]
 name = "degenson"
 version = "1.3.0"
-source = { git = "https://github.com/ryn-cx/DeGenSON#6dcc30690592cb0beb9ea94a608db6dca36a077a" }
+source = { git = "https://github.com/ryn-cx/DeGenSON#8e52962f4f52573274366de047afe30f4bbf9ecd" }
 
 [[package]]
 name = "diving-board"
@@ -249,7 +249,7 @@ dependencies = [
 [[package]]
 name = "good-ass-pydantic-integrator"
 version = "0.0.1"
-source = { git = "https://github.com/ryn-cx/good-ass-pydantic-integrator#ef06be5b6231bd4034fc72a6e3c199e5e48823d4" }
+source = { git = "https://github.com/ryn-cx/good-ass-pydantic-integrator#a6c317f13ad26efe4be6a9d548a5169e5532c83e" }
 dependencies = [
     { name = "datamodel-code-generator" },
     { name = "degenson" },

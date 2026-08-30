@@ -1,6 +1,6 @@
 from typing import Any, Self
 from pydantic import ModelWrapValidatorHandler, PrivateAttr, model_validator
-from pydantic import AwareDatetime, BaseModel, ConfigDict, Field
+from pydantic import AwareDatetime, BaseModel, ConfigDict, Field, NaiveDatetime
 
 class Attributes3(BaseModel):
     model_config = ConfigDict(extra='ignore', defer_build=True)
@@ -14,7 +14,7 @@ class Icon(BaseModel):
 
 class Data(BaseModel):
     model_config = ConfigDict(extra='ignore', defer_build=True)
-    from_: AwareDatetime | None = Field(None, alias='from')
+    from_: NaiveDatetime | None = Field(None, alias='from')
 
 class Action(BaseModel):
     model_config = ConfigDict(extra='ignore', defer_build=True)
@@ -225,7 +225,7 @@ class Actions(BaseModel):
 
 class Attributes13(BaseModel):
     model_config = ConfigDict(extra='ignore', defer_build=True)
-    text: AwareDatetime | None = None
+    text: NaiveDatetime | None = None
     format: str | None = None
 
 class Style7(BaseModel):
@@ -294,7 +294,7 @@ class Tag(BaseModel):
 
 class Attributes17(BaseModel):
     model_config = ConfigDict(extra='ignore', defer_build=True)
-    text: AwareDatetime | str | None = Field(default=None, union_mode='left_to_right')
+    text: NaiveDatetime | str | None = Field(default=None, union_mode='left_to_right')
     format: str | None = None
     number_of_lines: int | None = Field(None, alias='numberOfLines')
     tags: list[Tag] | None = None
@@ -372,7 +372,7 @@ class Attributes12(BaseModel):
 class Group(BaseModel):
     model_config = ConfigDict(extra='ignore', defer_build=True)
     field_type: str | None = Field(None, alias='$type')
-    id: AwareDatetime | None = None
+    id: NaiveDatetime | None = None
     attributes: Attributes12 | None = None
 
 class Attributes(BaseModel):
