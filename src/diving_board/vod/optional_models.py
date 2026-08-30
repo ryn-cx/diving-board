@@ -1,6 +1,6 @@
 from typing import Self
 from pydantic import ModelWrapValidatorHandler, PrivateAttr, model_validator
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import AwareDatetime, BaseModel, ConfigDict, Field
 from typing import Any
 
 class Attributes1(BaseModel):
@@ -48,14 +48,34 @@ class Action(BaseModel):
     field_type: str | None = Field(None, alias='$type')
     attributes: Attributes3 | None = None
 
-class Attributes5(BaseModel):
+class Style(BaseModel):
+    model_config = ConfigDict(extra='ignore', defer_build=True)
+    size: str | None = None
+
+class Attributes6(BaseModel):
     model_config = ConfigDict(extra='ignore', defer_build=True)
     text: str | None = None
+
+class Text(BaseModel):
+    model_config = ConfigDict(extra='ignore', defer_build=True)
+    field_type: str | None = Field(None, alias='$type')
+    style: Style | None = None
+    attributes: Attributes6 | None = None
+
+class Attributes5(BaseModel):
+    model_config = ConfigDict(extra='ignore', defer_build=True)
+    text: str | Text | None = None
+    type: str | None = None
+
+class Style1(BaseModel):
+    model_config = ConfigDict(extra='ignore', defer_build=True)
+    color: str | None = None
 
 class Tag(BaseModel):
     model_config = ConfigDict(extra='ignore', defer_build=True)
     field_type: str | None = Field(None, alias='$type')
     attributes: Attributes5 | None = None
+    style: Style1 | None = None
 
 class Data1(BaseModel):
     model_config = ConfigDict(extra='ignore', defer_build=True)
@@ -68,7 +88,7 @@ class Action2(BaseModel):
     type: str | None = None
     data: Data1 | None = None
 
-class Attributes6(BaseModel):
+class Attributes7(BaseModel):
     model_config = ConfigDict(extra='ignore', defer_build=True)
     type: str | None = None
     text: str | None = None
@@ -79,7 +99,25 @@ class Attributes6(BaseModel):
 class Button(BaseModel):
     model_config = ConfigDict(extra='ignore', defer_build=True)
     field_type: str | None = Field(None, alias='$type')
-    attributes: Attributes6 | None = None
+    attributes: Attributes7 | None = None
+
+class Action3(BaseModel):
+    model_config = ConfigDict(extra='ignore', defer_build=True)
+    type: str | None = None
+    data: Data1 | None = None
+
+class Attributes8(BaseModel):
+    model_config = ConfigDict(extra='ignore', defer_build=True)
+    text: str | None = None
+    label: str | None = None
+    type: str | None = None
+    icon: str | None = None
+    action: Action3 | None = None
+
+class Element1(BaseModel):
+    model_config = ConfigDict(extra='ignore', defer_build=True)
+    field_type: str | None = Field(None, alias='$type')
+    attributes: Attributes8 | None = None
 
 class Attributes4(BaseModel):
     model_config = ConfigDict(extra='ignore', defer_build=True)
@@ -90,31 +128,34 @@ class Attributes4(BaseModel):
     duration: int | None = None
     watch_status: str | None = Field(None, alias='watchStatus')
     buttons: list[Button] | None = None
+    target_date: AwareDatetime | None = Field(None, alias='targetDate')
+    elements: list[Element1] | None = None
 
-class Style(BaseModel):
+class Style2(BaseModel):
     model_config = ConfigDict(extra='ignore', defer_build=True)
     display: str | None = None
+    size: float | None = None
 
 class ContentItem(BaseModel):
     model_config = ConfigDict(extra='ignore', defer_build=True)
     field_type: str | None = Field(None, alias='$type')
     attributes: Attributes4 | None = None
-    style: Style | None = None
+    style: Style2 | None = None
 
-class Data2(BaseModel):
+class Data3(BaseModel):
     model_config = ConfigDict(extra='ignore', defer_build=True)
     tab: str | None = None
 
-class Action3(BaseModel):
+class Action4(BaseModel):
     model_config = ConfigDict(extra='ignore', defer_build=True)
     type: str | None = None
-    data: Data2 | None = None
+    data: Data3 | None = None
 
-class Attributes7(BaseModel):
+class Attributes9(BaseModel):
     model_config = ConfigDict(extra='ignore', defer_build=True)
     text: str | None = None
     label: str | None = None
-    action: Action3 | None = None
+    action: Action4 | None = None
 
 class ContentDownload(BaseModel):
     model_config = ConfigDict(extra='ignore', defer_build=True)
@@ -123,7 +164,7 @@ class ContentDownload(BaseModel):
 class Item(BaseModel):
     model_config = ConfigDict(extra='ignore', defer_build=True)
     field_type: str | None = Field(None, alias='$type')
-    attributes: Attributes7 | None = None
+    attributes: Attributes9 | None = None
     id: int | None = None
     type: str | None = None
     title: str | None = None
@@ -185,7 +226,7 @@ class Tablet(BaseModel):
     model_config = ConfigDict(extra='ignore', defer_build=True)
     display: str | None = None
 
-class Style1(BaseModel):
+class Style3(BaseModel):
     model_config = ConfigDict(extra='ignore', defer_build=True)
     desktop: Desktop | None = None
     tv: Tv | None = None
@@ -197,7 +238,7 @@ class Element(BaseModel):
     field_type: str | None = Field(None, alias='$type')
     field_zone: str | None = Field(None, alias='$zone')
     attributes: Attributes | None = None
-    style: Style1 | None = None
+    style: Style3 | None = None
 
 class VodModel(BaseModel):
     model_config = ConfigDict(extra='ignore', defer_build=True)

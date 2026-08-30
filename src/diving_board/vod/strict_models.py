@@ -1,7 +1,7 @@
 from typing import Any, Self
 from pydantic import ModelWrapValidatorHandler, PrivateAttr, model_validator
 from pydantic import ConfigDict
-from pydantic import BaseModel, Field
+from pydantic import AwareDatetime, BaseModel, Field
 
 class Attributes1(BaseModel):
     model_config = ConfigDict(defer_build=True)
@@ -48,14 +48,34 @@ class Action(BaseModel):
     field_type: str = Field(..., alias='$type')
     attributes: Attributes3
 
+class Style(BaseModel):
+    model_config = ConfigDict(defer_build=True)
+    size: str
+
+class Attributes6(BaseModel):
+    model_config = ConfigDict(defer_build=True)
+    text: str
+
+class Text(BaseModel):
+    model_config = ConfigDict(defer_build=True)
+    field_type: str = Field(..., alias='$type')
+    style: Style
+    attributes: Attributes6
+
 class Attributes5(BaseModel):
     model_config = ConfigDict(defer_build=True)
-    text: str | None = None
+    text: str | Text | None = None
+    type: str | None = None
+
+class Style1(BaseModel):
+    model_config = ConfigDict(defer_build=True)
+    color: str
 
 class Tag(BaseModel):
     model_config = ConfigDict(defer_build=True)
     field_type: str = Field(..., alias='$type')
     attributes: Attributes5
+    style: Style1 | None = None
 
 class Data1(BaseModel):
     model_config = ConfigDict(defer_build=True)
@@ -68,7 +88,7 @@ class Action2(BaseModel):
     type: str
     data: Data1
 
-class Attributes6(BaseModel):
+class Attributes7(BaseModel):
     model_config = ConfigDict(defer_build=True)
     type: str
     text: str
@@ -79,7 +99,25 @@ class Attributes6(BaseModel):
 class Button(BaseModel):
     model_config = ConfigDict(defer_build=True)
     field_type: str = Field(..., alias='$type')
-    attributes: Attributes6
+    attributes: Attributes7
+
+class Action3(BaseModel):
+    model_config = ConfigDict(defer_build=True)
+    type: str
+    data: Data1
+
+class Attributes8(BaseModel):
+    model_config = ConfigDict(defer_build=True)
+    text: str
+    label: str
+    type: str
+    icon: str
+    action: Action3
+
+class Element1(BaseModel):
+    model_config = ConfigDict(defer_build=True)
+    field_type: str = Field(..., alias='$type')
+    attributes: Attributes8
 
 class Attributes4(BaseModel):
     model_config = ConfigDict(defer_build=True)
@@ -90,31 +128,34 @@ class Attributes4(BaseModel):
     duration: int | None = None
     watch_status: str | None = Field(None, alias='watchStatus')
     buttons: list[Button] | None = None
+    target_date: AwareDatetime | None = Field(None, alias='targetDate')
+    elements: list[Element1] | None = None
 
-class Style(BaseModel):
+class Style2(BaseModel):
     model_config = ConfigDict(defer_build=True)
-    display: str
+    display: str | None = None
+    size: float | None = None
 
 class ContentItem(BaseModel):
     model_config = ConfigDict(defer_build=True)
     field_type: str = Field(..., alias='$type')
     attributes: Attributes4
-    style: Style | None = None
+    style: Style2 | None = None
 
-class Data2(BaseModel):
+class Data3(BaseModel):
     model_config = ConfigDict(defer_build=True)
     tab: str
 
-class Action3(BaseModel):
+class Action4(BaseModel):
     model_config = ConfigDict(defer_build=True)
     type: str
-    data: Data2
+    data: Data3
 
-class Attributes7(BaseModel):
+class Attributes9(BaseModel):
     model_config = ConfigDict(defer_build=True)
     text: str
     label: str
-    action: Action3
+    action: Action4
 
 class ContentDownload(BaseModel):
     model_config = ConfigDict(defer_build=True)
@@ -123,7 +164,7 @@ class ContentDownload(BaseModel):
 class Item(BaseModel):
     model_config = ConfigDict(defer_build=True)
     field_type: str | None = Field(None, alias='$type')
-    attributes: Attributes7 | None = None
+    attributes: Attributes9 | None = None
     id: int | None = None
     type: str | None = None
     title: str | None = None
@@ -185,7 +226,7 @@ class Tablet(BaseModel):
     model_config = ConfigDict(defer_build=True)
     display: str
 
-class Style1(BaseModel):
+class Style3(BaseModel):
     model_config = ConfigDict(defer_build=True)
     desktop: Desktop | None = None
     tv: Tv | None = None
@@ -197,7 +238,7 @@ class Element(BaseModel):
     field_type: str = Field(..., alias='$type')
     field_zone: str = Field(..., alias='$zone')
     attributes: Attributes
-    style: Style1 | None = None
+    style: Style3 | None = None
 
 class VodModel(BaseModel):
     model_config = ConfigDict(defer_build=True)
