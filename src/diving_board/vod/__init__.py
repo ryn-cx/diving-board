@@ -47,7 +47,7 @@ class Vod(BaseEndpoint):
         *,
         timezone: str | None = None,
     ) -> VodModel:
-        """Look the video up and return the model it is read into."""
+        """Download and parse the video file."""
         log_id = self.get_log_id(self.__call__, locals())
         return self.load(self.download(vod_id, timezone=timezone), log_id)
 
@@ -89,5 +89,5 @@ class Vod(BaseEndpoint):
 
     # TODO: Validate
     def load(self, data: str, log_id: str = "") -> VodModel:
-        """Read a downloaded video file into its model."""
+        """Load a video file into its model."""
         return model_validate_json(data, log_id or self.default_log_id)

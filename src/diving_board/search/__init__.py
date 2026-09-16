@@ -14,7 +14,7 @@ logger.addHandler(NullHandler())
 
 # TODO: Validate
 class Search(BaseEndpoint):
-    """Manage the search file.
+    """Contains the search.
 
     Search is answered by a host of its own, but what comes back is the same
     kind of view as the rest of the API answers with.
@@ -39,7 +39,7 @@ class Search(BaseEndpoint):
 
     # TODO: Validate
     def __call__(self, query: str, *, timezone: str | None = None) -> SearchModel:
-        """Run the search and return the model it is read into."""
+        """Download and parse the search file."""
         log_id = self.get_log_id(self.__call__, locals())
         return self.load(self.download(query, timezone=timezone), log_id)
 
@@ -62,5 +62,5 @@ class Search(BaseEndpoint):
 
     # TODO: Validate
     def load(self, data: str, log_id: str = "") -> SearchModel:
-        """Read a downloaded search file into its model."""
+        """Load a search file into its model."""
         return model_validate_json(data, log_id or self.default_log_id)

@@ -5,21 +5,15 @@ from typing import TYPE_CHECKING
 
 import pytest
 
-from diving_board.search.models import SearchModel
-from tests.utils import RecordedEndpoint
-
 if TYPE_CHECKING:
     from diving_board import DivingBoard
+    from diving_board.search.models import SearchModel
 
 QUERIES = [
     pytest.param("2.5 Dimensional Seduction", id="series result"),
     pytest.param("Appleseed", id="film result"),
     pytest.param("qwertyuiopasdfghjklzxcvbnm", id="query nothing matches"),
 ]
-
-
-class SearchTest(RecordedEndpoint):
-    MODEL = SearchModel
 
 
 # TODO: Validate
@@ -35,11 +29,4 @@ def searched_query(search: SearchModel) -> str | None:
 # TODO: Validate
 @pytest.mark.parametrize("query", QUERIES)
 def test_download(client: DivingBoard, query: str) -> None:
-    SearchTest.download_test(query, lambda: client.search.download(query))
-
-
-# TODO: Validate
-@pytest.mark.parametrize("query", QUERIES)
-def test_parse(client: DivingBoard, query: str) -> None:
-    data = client.search.load(SearchTest.recorded_content(query))
-    assert searched_query(data) == query
+    assert searched_query(client.search(query)) == query

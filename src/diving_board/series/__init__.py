@@ -47,7 +47,7 @@ class Series(BaseEndpoint):
         *,
         timezone: str | None = None,
     ) -> SeriesModel:
-        """Look the series up and return the model it is read into."""
+        """Download and parse the series file."""
         log_id = self.get_log_id(self.__call__, locals())
         return self.load(
             self.download(series_id, timezone=timezone),
@@ -91,5 +91,5 @@ class Series(BaseEndpoint):
 
     # TODO: Validate
     def load(self, data: str, log_id: str = "") -> SeriesModel:
-        """Read a downloaded series file into its model."""
+        """Load a series file into its model."""
         return model_validate_json(data, log_id or self.default_log_id)

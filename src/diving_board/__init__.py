@@ -12,6 +12,7 @@ from get_around import GetAround
 
 from diving_board.adjacent_series import AdjacentSeries
 from diving_board.constants import BASE_API_URL
+from diving_board.content_grid import ContentGrid
 from diving_board.exceptions import HTTPError, ResourceNotFoundError
 from diving_board.schedule import Schedule
 from diving_board.search import Search
@@ -63,6 +64,7 @@ class DivingBoard:
         self.adjacent_series = AdjacentSeries(self)
         self.search = Search(self)
         self.series = Series(self)
+        self.content_grid = ContentGrid(self)
 
     # TODO: Validate
     def _download_auth_values(self) -> None:

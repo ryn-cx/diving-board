@@ -47,7 +47,7 @@ class Season(BaseEndpoint):
         *,
         timezone: str | None = None,
     ) -> SeasonModel:
-        """Look the season up and return the model it is read into."""
+        """Download and parse the season file."""
         log_id = self.get_log_id(self.__call__, locals())
         return self.load(
             self.download(season_id, timezone=timezone),
@@ -91,5 +91,5 @@ class Season(BaseEndpoint):
 
     # TODO: Validate
     def load(self, data: str, log_id: str = "") -> SeasonModel:
-        """Read a downloaded season file into its model."""
+        """Load a season file into its model."""
         return model_validate_json(data, log_id or self.default_log_id)

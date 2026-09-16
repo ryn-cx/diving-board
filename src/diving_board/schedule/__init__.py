@@ -219,7 +219,7 @@ class Schedule(BaseEndpoint):
 
     # TODO: Validate
     def load(self, data: str, log_id: str = "") -> ScheduleModel:
-        """Read a downloaded schedule file into its model."""
+        """Load a schedule file into its model."""
         return model_validate_json(data, log_id or self.default_log_id)
 
     # TODO: Validate

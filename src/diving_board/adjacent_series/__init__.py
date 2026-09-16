@@ -47,7 +47,7 @@ class AdjacentSeries(BaseEndpoint):
         *,
         size: int = 25,
     ) -> AdjacentSeriesModel:
-        """Look the adjacent seasons up and return the model they are read into."""
+        """Download and parse the adjacent seasons file."""
         log_id = self.get_log_id(self.__call__, locals())
         return self.load(self.download(series_id, season_id, size=size), log_id)
 
@@ -76,5 +76,5 @@ class AdjacentSeries(BaseEndpoint):
 
     # TODO: Validate
     def load(self, data: str, log_id: str = "") -> AdjacentSeriesModel:
-        """Read a downloaded adjacent series file into its model."""
+        """Load a adjacent series file into its model."""
         return model_validate_json(data, log_id or self.default_log_id)
