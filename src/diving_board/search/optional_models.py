@@ -5,100 +5,100 @@ from typing import Any
 
 class Data(BaseModel):
     model_config = ConfigDict(extra='ignore', defer_build=True)
-    url: str | None = None
+    url: str | Any = Field(default=None, union_mode='left_to_right')
 
 class Action(BaseModel):
     model_config = ConfigDict(extra='ignore', defer_build=True)
-    type: str | None = None
-    data: Data | None = None
+    type: str | Any = Field(default=None, union_mode='left_to_right')
+    data: Data | Any = Field(default=None, union_mode='left_to_right')
 
 class Attributes2(BaseModel):
     model_config = ConfigDict(extra='ignore', defer_build=True)
-    source: str | None = None
-    width: int | None = None
-    height: int | None = None
-    border_radius: int | None = Field(None, alias='borderRadius')
-    access_level: str | None = Field(None, alias='accessLevel')
+    source: str | Any = Field(default=None, union_mode='left_to_right')
+    width: int | Any = Field(default=None, union_mode='left_to_right')
+    height: int | Any = Field(default=None, union_mode='left_to_right')
+    border_radius: int | Any = Field(None, alias='borderRadius', union_mode='left_to_right')
+    access_level: str | Any = Field(None, alias='accessLevel', union_mode='left_to_right')
 
 class HeaderItem(BaseModel):
     model_config = ConfigDict(extra='ignore', defer_build=True)
-    field_type: str | None = Field(None, alias='$type')
-    attributes: Attributes2 | None = None
+    field_type: str | Any = Field(None, alias='$type', union_mode='left_to_right')
+    attributes: Attributes2 | Any = Field(default=None, union_mode='left_to_right')
 
 class Attributes3(BaseModel):
     model_config = ConfigDict(extra='ignore', defer_build=True)
-    text: str | None = None
-    number_of_lines: int | None = Field(None, alias='numberOfLines')
+    text: str | Any = Field(default=None, union_mode='left_to_right')
+    number_of_lines: int | Any = Field(None, alias='numberOfLines', union_mode='left_to_right')
 
 class Style(BaseModel):
     model_config = ConfigDict(extra='ignore', defer_build=True)
-    color: str | None = None
-    size: str | None = None
+    color: str | Any = Field(default=None, union_mode='left_to_right')
+    size: str | Any = Field(default=None, union_mode='left_to_right')
 
 class ContentItem(BaseModel):
     model_config = ConfigDict(extra='ignore', defer_build=True)
-    field_type: str | None = Field(None, alias='$type')
-    attributes: Attributes3 | None = None
-    style: Style | None = None
+    field_type: str | Any = Field(None, alias='$type', union_mode='left_to_right')
+    attributes: Attributes3 | Any = Field(default=None, union_mode='left_to_right')
+    style: Style | Any = Field(default=None, union_mode='left_to_right')
 
 class Data1(BaseModel):
     model_config = ConfigDict(extra='ignore', defer_build=True)
-    type: str | None = None
-    title: str | None = None
-    access_level: str | None = Field(None, alias='accessLevel')
-    id: str | None = None
-    computed_releases: list[Any] | None = Field(None, alias='computedReleases')
-    online_playback: str | None = Field(None, alias='onlinePlayback')
+    type: str | Any = Field(default=None, union_mode='left_to_right')
+    title: str | Any = Field(default=None, union_mode='left_to_right')
+    access_level: str | Any = Field(None, alias='accessLevel', union_mode='left_to_right')
+    id: str | Any = Field(default=None, union_mode='left_to_right')
+    computed_releases: list[Any] | Any = Field(None, alias='computedReleases', union_mode='left_to_right')
+    online_playback: str | Any = Field(None, alias='onlinePlayback', union_mode='left_to_right')
 
 class Action1(BaseModel):
     model_config = ConfigDict(extra='ignore', defer_build=True)
-    type: str | None = None
-    data: Data1 | None = None
+    type: str | Any = Field(default=None, union_mode='left_to_right')
+    data: Data1 | Any = Field(default=None, union_mode='left_to_right')
 
 class Attributes1(BaseModel):
     model_config = ConfigDict(extra='ignore', defer_build=True)
-    type: str | None = None
-    has_initial_focus: bool | None = Field(None, alias='hasInitialFocus')
-    header: list[HeaderItem] | None = None
-    content: list[ContentItem] | None = None
-    action: Action1 | None = None
+    type: str | Any = Field(default=None, union_mode='left_to_right')
+    has_initial_focus: bool | Any = Field(None, alias='hasInitialFocus', union_mode='left_to_right')
+    header: list[HeaderItem] | Any = Field(default=None, union_mode='left_to_right')
+    content: list[ContentItem] | Any = Field(default=None, union_mode='left_to_right')
+    action: Action1 | Any = Field(default=None, union_mode='left_to_right')
 
 class Card(BaseModel):
     model_config = ConfigDict(extra='ignore', defer_build=True)
-    field_type: str | None = Field(None, alias='$type')
-    attributes: Attributes1 | None = None
+    field_type: str | Any = Field(None, alias='$type', union_mode='left_to_right')
+    attributes: Attributes1 | Any = Field(default=None, union_mode='left_to_right')
 
 class Attributes(BaseModel):
     model_config = ConfigDict(extra='ignore', defer_build=True)
-    placeholder: str | None = None
-    placeholder_label: str | None = Field(None, alias='placeholderLabel')
-    value: str | None = None
-    action: Action | None = None
-    is_fallback_cards_enabled: bool | None = Field(None, alias='isFallbackCardsEnabled')
-    gap: int | None = None
-    disable_force_focus: bool | None = Field(None, alias='disableForceFocus')
-    query: str | None = None
-    cards: list[Card] | None = None
-    type: str | None = None
-    show_fallback_cards: bool | None = Field(None, alias='showFallbackCards')
-    empty_title: str | None = Field(None, alias='emptyTitle')
-    empty_description: str | None = Field(None, alias='emptyDescription')
+    placeholder: str | Any = Field(default=None, union_mode='left_to_right')
+    placeholder_label: str | Any = Field(None, alias='placeholderLabel', union_mode='left_to_right')
+    value: str | Any = Field(default=None, union_mode='left_to_right')
+    action: Action | Any = Field(default=None, union_mode='left_to_right')
+    is_fallback_cards_enabled: bool | Any = Field(None, alias='isFallbackCardsEnabled', union_mode='left_to_right')
+    gap: int | Any = Field(default=None, union_mode='left_to_right')
+    disable_force_focus: bool | Any = Field(None, alias='disableForceFocus', union_mode='left_to_right')
+    query: str | Any = Field(default=None, union_mode='left_to_right')
+    cards: list[Card] | Any = Field(default=None, union_mode='left_to_right')
+    type: str | Any = Field(default=None, union_mode='left_to_right')
+    show_fallback_cards: bool | Any = Field(None, alias='showFallbackCards', union_mode='left_to_right')
+    empty_title: str | Any = Field(None, alias='emptyTitle', union_mode='left_to_right')
+    empty_description: str | Any = Field(None, alias='emptyDescription', union_mode='left_to_right')
 
 class Style1(BaseModel):
     model_config = ConfigDict(extra='ignore', defer_build=True)
-    size: int | None = None
+    size: int | Any = Field(default=None, union_mode='left_to_right')
 
 class Element(BaseModel):
     model_config = ConfigDict(extra='ignore', defer_build=True)
-    field_type: str | None = Field(None, alias='$type')
-    field_zone: str | None = Field(None, alias='$zone')
-    attributes: Attributes | None = None
-    style: Style1 | None = None
+    field_type: str | Any = Field(None, alias='$type', union_mode='left_to_right')
+    field_zone: str | Any = Field(None, alias='$zone', union_mode='left_to_right')
+    attributes: Attributes | Any = Field(default=None, union_mode='left_to_right')
+    style: Style1 | Any = Field(default=None, union_mode='left_to_right')
 
 class SearchModel(BaseModel):
     model_config = ConfigDict(extra='ignore', defer_build=True)
-    source: str | None = None
-    elements: list[Element] | None = None
+    source: str | Any = Field(default=None, union_mode='left_to_right')
+    elements: list[Element] | Any = Field(default=None, union_mode='left_to_right')
     _raw_input: Any = PrivateAttr(default=None)
 
     @model_validator(mode='wrap')

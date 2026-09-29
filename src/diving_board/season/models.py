@@ -1,11 +1,4 @@
-"""SeasonModel, strict to a type checker, all-optional at runtime.
-
-A type checker reads the strict model, so every field carries the type and
-the requiredness the schema recorded. At runtime the all-optional copy is imported
-instead, so a response that has drifted still parses and a field the data is
-missing is None despite what its type hint says.
-"""
-
+# ruff: noqa: D100
 from typing import TYPE_CHECKING
 
 from good_ass_pydantic_integrator import load
@@ -19,6 +12,7 @@ if TYPE_CHECKING:
         Action1,
         Action2,
         Action3,
+        All,
         Attributes,
         Attributes1,
         Attributes2,
@@ -28,6 +22,7 @@ if TYPE_CHECKING:
         Attributes6,
         Attributes7,
         Button,
+        Colors,
         ContentDownload,
         ContentItem,
         CurrentSeason,
@@ -52,6 +47,7 @@ if TYPE_CHECKING:
         Style,
         Tablet,
         Tag,
+        Theme,
         Token,
         Tv,
     )
@@ -61,6 +57,7 @@ else:
         Action1,
         Action2,
         Action3,
+        All,
         Attributes,
         Attributes1,
         Attributes2,
@@ -70,6 +67,7 @@ else:
         Attributes6,
         Attributes7,
         Button,
+        Colors,
         ContentDownload,
         ContentItem,
         CurrentSeason,
@@ -94,6 +92,7 @@ else:
         Style,
         Tablet,
         Tag,
+        Theme,
         Token,
         Tv,
     )
@@ -103,6 +102,7 @@ __all__ = [
     "Action1",
     "Action2",
     "Action3",
+    "All",
     "Attributes",
     "Attributes1",
     "Attributes2",
@@ -112,6 +112,7 @@ __all__ = [
     "Attributes6",
     "Attributes7",
     "Button",
+    "Colors",
     "ContentDownload",
     "ContentItem",
     "CurrentSeason",
@@ -136,6 +137,7 @@ __all__ = [
     "Style",
     "Tablet",
     "Tag",
+    "Theme",
     "Token",
     "Tv",
     "model_validate_json",

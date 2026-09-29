@@ -191,7 +191,7 @@ class GroupName(BaseModel):
 class Paging(BaseModel):
     model_config = ConfigDict(defer_build=True)
     more_data_available: bool = Field(..., alias='moreDataAvailable')
-    last_seen: str = Field(..., alias='lastSeen')
+    last_seen: str | None = Field(None, alias='lastSeen')
 
 class Attributes(BaseModel):
     model_config = ConfigDict(defer_build=True)

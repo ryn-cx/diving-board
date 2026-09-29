@@ -204,6 +204,10 @@ class Attributes(BaseModel):
     text: str | None = None
     label: str | None = None
     group_name: GroupName | None = Field(None, alias='groupName')
+    display_mode: str | None = Field(None, alias='displayMode')
+    tab_spacing: int | None = Field(None, alias='tabSpacing')
+    active_underline_color: str | None = Field(None, alias='activeUnderlineColor')
+    hover_underline_color: str | None = Field(None, alias='hoverUnderlineColor')
 
 class Desktop(BaseModel):
     model_config = ConfigDict(defer_build=True)
@@ -252,12 +256,36 @@ class Metadata(BaseModel):
     current_season: CurrentSeason = Field(..., alias='currentSeason')
     current_vod: CurrentVod = Field(..., alias='currentVod')
 
+class Colors(BaseModel):
+    model_config = ConfigDict(defer_build=True)
+    pill_cta_default: str = Field(..., alias='pillCtaDefault')
+    pill_cta_default_text: str = Field(..., alias='pillCtaDefaultText')
+    pill_cta_default_border_color: str = Field(..., alias='pillCtaDefaultBorderColor')
+    pill_cta_focus: str = Field(..., alias='pillCtaFocus')
+    pill_cta_focus_text: str = Field(..., alias='pillCtaFocusText')
+    pill_cta_focus_border_color: str = Field(..., alias='pillCtaFocusBorderColor')
+    pill_cta_selected: str = Field(..., alias='pillCtaSelected')
+    pill_cta_selected_text: str = Field(..., alias='pillCtaSelectedText')
+    pill_cta_selected_border_color: str = Field(..., alias='pillCtaSelectedBorderColor')
+    pill_cta_selected_focus: str = Field(..., alias='pillCtaSelectedFocus')
+    pill_cta_selected_text_focus: str = Field(..., alias='pillCtaSelectedTextFocus')
+    pill_cta_selected_border_color_focus: str = Field(..., alias='pillCtaSelectedBorderColorFocus')
+
+class All(BaseModel):
+    model_config = ConfigDict(defer_build=True)
+    colors: Colors
+
+class Theme(BaseModel):
+    model_config = ConfigDict(defer_build=True)
+    all: All
+
 class SeasonModel(BaseModel):
     model_config = ConfigDict(defer_build=True)
     source: str
     layout: str
     elements: list[Element]
     metadata: Metadata
+    theme: Theme | None = None
     _raw_input: Any = PrivateAttr(default=None)
 
     @model_validator(mode='wrap')
