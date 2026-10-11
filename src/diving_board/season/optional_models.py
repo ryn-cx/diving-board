@@ -1,6 +1,6 @@
 from typing import Self
 from pydantic import ModelWrapValidatorHandler, PrivateAttr, model_validator
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import AwareDatetime, BaseModel, ConfigDict, Field
 from typing import Any
 
 class Attributes1(BaseModel):
@@ -121,6 +121,14 @@ class ContentDownload(BaseModel):
     model_config = ConfigDict(extra='ignore', defer_build=True)
     permission: str | Any = Field(default=None, union_mode='left_to_right')
 
+class ComputedRelease(BaseModel):
+    model_config = ConfigDict(extra='ignore', defer_build=True)
+    scheduled_at: AwareDatetime | Any = Field(None, alias='scheduledAt', union_mode='left_to_right')
+    computed_state: str | Any = Field(None, alias='computedState', union_mode='left_to_right')
+    state: str | Any = Field(default=None, union_mode='left_to_right')
+    type: str | Any = Field(default=None, union_mode='left_to_right')
+    description: str | Any = Field(default=None, union_mode='left_to_right')
+
 class Item(BaseModel):
     model_config = ConfigDict(extra='ignore', defer_build=True)
     field_type: str | Any = Field(None, alias='$type', union_mode='left_to_right')
@@ -135,7 +143,7 @@ class Item(BaseModel):
     thumbnail_url: str | Any = Field(None, alias='thumbnailUrl', union_mode='left_to_right')
     max_height: int | Any = Field(None, alias='maxHeight', union_mode='left_to_right')
     online_playback: str | Any = Field(None, alias='onlinePlayback', union_mode='left_to_right')
-    computed_releases: list[Any] | Any = Field(None, alias='computedReleases', union_mode='left_to_right')
+    computed_releases: list[ComputedRelease] | Any = Field(None, alias='computedReleases', union_mode='left_to_right')
     watch_status: str | Any = Field(None, alias='watchStatus', union_mode='left_to_right')
     id: int | Any = Field(default=None, union_mode='left_to_right')
     cover_url: str | Any = Field(None, alias='coverUrl', union_mode='left_to_right')

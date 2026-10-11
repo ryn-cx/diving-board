@@ -23,103 +23,146 @@ class Image(BaseModel):
 
 class Data(BaseModel):
     model_config = ConfigDict(defer_build=True)
-    access_level: str = Field(..., alias='accessLevel')
-    licence_ids: list[int] = Field(..., alias='licenceIds')
     id: int
+    access_level: str = Field(..., alias='accessLevel')
     title: str
     type: str
+    licence_ids: list[int] | None = Field(None, alias='licenceIds')
 
 class Action1(BaseModel):
     model_config = ConfigDict(defer_build=True)
     type: str
     data: Data
 
-class Attributes3(BaseModel):
-    model_config = ConfigDict(defer_build=True)
-    type: str
-    has_initial_focus: bool = Field(..., alias='hasInitialFocus')
-    text: str
-    label: str
-    icon: str
-    action: Action1
-
-class Action(BaseModel):
-    model_config = ConfigDict(defer_build=True)
-    field_type: str = Field(..., alias='$type')
-    attributes: Attributes3
-
 class Style(BaseModel):
     model_config = ConfigDict(defer_build=True)
-    size: str
-
-class Attributes6(BaseModel):
-    model_config = ConfigDict(defer_build=True)
-    text: str
-
-class Text(BaseModel):
-    model_config = ConfigDict(defer_build=True)
-    field_type: str = Field(..., alias='$type')
-    style: Style
-    attributes: Attributes6
-
-class Attributes5(BaseModel):
-    model_config = ConfigDict(defer_build=True)
-    text: str | Text | None = None
-    type: str | None = None
-
-class Style1(BaseModel):
-    model_config = ConfigDict(defer_build=True)
-    color: str
-
-class Tag(BaseModel):
-    model_config = ConfigDict(defer_build=True)
-    field_type: str = Field(..., alias='$type')
-    attributes: Attributes5
-    style: Style1 | None = None
+    gap: int
 
 class Data1(BaseModel):
     model_config = ConfigDict(defer_build=True)
-    id: int
-    title: str
     type: str
+    id: int
+    access_level: str | None = Field(None, alias='accessLevel')
+    progress: int | None
+    watch_status: str | None = Field(None, alias='watchStatus')
+    title: str
 
 class Action2(BaseModel):
     model_config = ConfigDict(defer_build=True)
     type: str
     data: Data1
 
-class Attributes7(BaseModel):
+class Attributes5(BaseModel):
     model_config = ConfigDict(defer_build=True)
-    type: str
     text: str
+    has_initial_focus: bool | None = Field(None, alias='hasInitialFocus')
     label: str
+    type: str
     icon: str
     action: Action2
 
 class Button(BaseModel):
     model_config = ConfigDict(defer_build=True)
     field_type: str = Field(..., alias='$type')
+    attributes: Attributes5
+
+class Attributes4(BaseModel):
+    model_config = ConfigDict(defer_build=True)
+    style: Style
+    buttons: list[Button]
+
+class ClientSideStateItem(BaseModel):
+    model_config = ConfigDict(defer_build=True)
+    field_type: str = Field(..., alias='$type')
+    attributes: Attributes4
+
+class Attributes3(BaseModel):
+    model_config = ConfigDict(defer_build=True)
+    text: str
+    has_initial_focus: bool = Field(..., alias='hasInitialFocus')
+    label: str
+    type: str
+    icon: str
+    action: Action1
+    client_side_state: list[ClientSideStateItem] | None = Field(None, alias='clientSideState')
+
+class Action(BaseModel):
+    model_config = ConfigDict(defer_build=True)
+    field_type: str = Field(..., alias='$type')
+    attributes: Attributes3
+
+class Style1(BaseModel):
+    model_config = ConfigDict(defer_build=True)
+    size: str
+
+class Attributes8(BaseModel):
+    model_config = ConfigDict(defer_build=True)
+    text: str
+
+class Text(BaseModel):
+    model_config = ConfigDict(defer_build=True)
+    field_type: str = Field(..., alias='$type')
+    style: Style1
+    attributes: Attributes8
+
+class Attributes7(BaseModel):
+    model_config = ConfigDict(defer_build=True)
+    text: str | Text | None = None
+    type: str | None = None
+
+class Style2(BaseModel):
+    model_config = ConfigDict(defer_build=True)
+    color: str
+
+class Tag(BaseModel):
+    model_config = ConfigDict(defer_build=True)
+    field_type: str = Field(..., alias='$type')
     attributes: Attributes7
+    style: Style2 | None = None
+
+class Data2(BaseModel):
+    model_config = ConfigDict(defer_build=True)
+    id: int
+    title: str
+    type: str
 
 class Action3(BaseModel):
     model_config = ConfigDict(defer_build=True)
     type: str
-    data: Data1
+    data: Data2
 
-class Attributes8(BaseModel):
+class Attributes9(BaseModel):
+    model_config = ConfigDict(defer_build=True)
+    type: str
+    text: str
+    label: str
+    icon: str
+    action: Action3
+
+class Button1(BaseModel):
+    model_config = ConfigDict(defer_build=True)
+    field_type: str = Field(..., alias='$type')
+    attributes: Attributes9
+
+class Action4(BaseModel):
+    model_config = ConfigDict(defer_build=True)
+    type: str
+    data: Data2
+
+class Attributes10(BaseModel):
     model_config = ConfigDict(defer_build=True)
     text: str
     label: str
     type: str
     icon: str
-    action: Action3
+    action: Action4
 
 class Element1(BaseModel):
     model_config = ConfigDict(defer_build=True)
     field_type: str = Field(..., alias='$type')
-    attributes: Attributes8
+    attributes: Attributes10
 
-class Attributes4(BaseModel):
+class Attributes6(BaseModel):
     model_config = ConfigDict(defer_build=True)
     tags: list[Tag] | None = None
     text: str | None = None
@@ -127,11 +170,11 @@ class Attributes4(BaseModel):
     progress: None = Field(None)
     duration: int | None = None
     watch_status: str | None = Field(None, alias='watchStatus')
-    buttons: list[Button] | None = None
+    buttons: list[Button1] | None = None
     target_date: AwareDatetime | None = Field(None, alias='targetDate')
     elements: list[Element1] | None = None
 
-class Style2(BaseModel):
+class Style3(BaseModel):
     model_config = ConfigDict(defer_build=True)
     display: str | None = None
     size: float | None = None
@@ -139,23 +182,23 @@ class Style2(BaseModel):
 class ContentItem(BaseModel):
     model_config = ConfigDict(defer_build=True)
     field_type: str = Field(..., alias='$type')
-    attributes: Attributes4
-    style: Style2 | None = None
+    attributes: Attributes6
+    style: Style3 | None = None
 
-class Data3(BaseModel):
+class Data4(BaseModel):
     model_config = ConfigDict(defer_build=True)
     tab: str
 
-class Action4(BaseModel):
+class Action5(BaseModel):
     model_config = ConfigDict(defer_build=True)
     type: str
-    data: Data3
+    data: Data4
 
-class Attributes9(BaseModel):
+class Attributes11(BaseModel):
     model_config = ConfigDict(defer_build=True)
     text: str
     label: str
-    action: Action4
+    action: Action5
 
 class ContentDownload(BaseModel):
     model_config = ConfigDict(defer_build=True)
@@ -164,7 +207,7 @@ class ContentDownload(BaseModel):
 class Item(BaseModel):
     model_config = ConfigDict(defer_build=True)
     field_type: str | None = Field(None, alias='$type')
-    attributes: Attributes9 | None = None
+    attributes: Attributes11 | None = None
     id: int | None = None
     type: str | None = None
     title: str | None = None
@@ -226,7 +269,7 @@ class Tablet(BaseModel):
     model_config = ConfigDict(defer_build=True)
     display: str
 
-class Style3(BaseModel):
+class Style4(BaseModel):
     model_config = ConfigDict(defer_build=True)
     desktop: Desktop | None = None
     tv: Tv | None = None
@@ -238,7 +281,7 @@ class Element(BaseModel):
     field_type: str = Field(..., alias='$type')
     field_zone: str = Field(..., alias='$zone')
     attributes: Attributes
-    style: Style3 | None = None
+    style: Style4 | None = None
 
 class VodModel(BaseModel):
     model_config = ConfigDict(defer_build=True)

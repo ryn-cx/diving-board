@@ -1,7 +1,7 @@
 from typing import Self
 from pydantic import ModelWrapValidatorHandler, PrivateAttr, model_validator
 from pydantic import ConfigDict
-from pydantic import BaseModel, Field
+from pydantic import AwareDatetime, BaseModel, Field
 from typing import Any
 
 class Attributes1(BaseModel):
@@ -122,6 +122,14 @@ class ContentDownload(BaseModel):
     model_config = ConfigDict(defer_build=True)
     permission: str
 
+class ComputedRelease(BaseModel):
+    model_config = ConfigDict(defer_build=True)
+    scheduled_at: AwareDatetime = Field(..., alias='scheduledAt')
+    computed_state: str = Field(..., alias='computedState')
+    state: str
+    type: str
+    description: str
+
 class Item(BaseModel):
     model_config = ConfigDict(defer_build=True)
     field_type: str | None = Field(None, alias='$type')
@@ -136,7 +144,7 @@ class Item(BaseModel):
     thumbnail_url: str | None = Field(None, alias='thumbnailUrl')
     max_height: int | None = Field(None, alias='maxHeight')
     online_playback: str | None = Field(None, alias='onlinePlayback')
-    computed_releases: list[None] | None = Field(None, alias='computedReleases')
+    computed_releases: list[ComputedRelease] | None = Field(None, alias='computedReleases')
     watch_status: str | None = Field(None, alias='watchStatus')
     id: int | None = None
     cover_url: str | None = Field(None, alias='coverUrl')

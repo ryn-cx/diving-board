@@ -1,8 +1,7 @@
-from typing import Self
+from typing import Any, Self
 from pydantic import ModelWrapValidatorHandler, PrivateAttr, model_validator
 from pydantic import ConfigDict
-from pydantic import BaseModel, Field
-from typing import Any
+from pydantic import AwareDatetime, BaseModel, Field
 
 class Data(BaseModel):
     model_config = ConfigDict(defer_build=True)
@@ -42,13 +41,21 @@ class ContentItem(BaseModel):
     attributes: Attributes3
     style: Style
 
+class ComputedRelease(BaseModel):
+    model_config = ConfigDict(defer_build=True)
+    scheduled_at: AwareDatetime = Field(..., alias='scheduledAt')
+    computed_state: str = Field(..., alias='computedState')
+    state: str
+    type: str
+    description: str
+
 class Data1(BaseModel):
     model_config = ConfigDict(defer_build=True)
     type: str
     title: str
     access_level: str = Field(..., alias='accessLevel')
     id: str
-    computed_releases: list[None] = Field(..., alias='computedReleases')
+    computed_releases: list[ComputedRelease] = Field(..., alias='computedReleases')
     online_playback: str | None = Field(None, alias='onlinePlayback')
 
 class Action1(BaseModel):
@@ -69,6 +76,25 @@ class Card(BaseModel):
     field_type: str = Field(..., alias='$type')
     attributes: Attributes1
 
+class Data2(BaseModel):
+    model_config = ConfigDict(defer_build=True)
+    url: str
+
+class Action2(BaseModel):
+    model_config = ConfigDict(defer_build=True)
+    type: str
+    data: Data2
+
+class Next(BaseModel):
+    model_config = ConfigDict(defer_build=True)
+    text: str
+    label: str
+    action: Action2
+
+class Actions(BaseModel):
+    model_config = ConfigDict(defer_build=True)
+    next: Next
+
 class Attributes(BaseModel):
     model_config = ConfigDict(defer_build=True)
     placeholder: str | None = None
@@ -81,6 +107,7 @@ class Attributes(BaseModel):
     query: str | None = None
     cards: list[Card] | None = None
     type: str | None = None
+    actions: Actions | None = None
     show_fallback_cards: bool | None = Field(None, alias='showFallbackCards')
     empty_title: str | None = Field(None, alias='emptyTitle')
     empty_description: str | None = Field(None, alias='emptyDescription')

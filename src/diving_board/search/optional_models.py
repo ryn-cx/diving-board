@@ -1,7 +1,6 @@
-from typing import Self
+from typing import Any, Self
 from pydantic import ModelWrapValidatorHandler, PrivateAttr, model_validator
-from pydantic import BaseModel, ConfigDict, Field
-from typing import Any
+from pydantic import AwareDatetime, BaseModel, ConfigDict, Field
 
 class Data(BaseModel):
     model_config = ConfigDict(extra='ignore', defer_build=True)
@@ -41,13 +40,21 @@ class ContentItem(BaseModel):
     attributes: Attributes3 | Any = Field(default=None, union_mode='left_to_right')
     style: Style | Any = Field(default=None, union_mode='left_to_right')
 
+class ComputedRelease(BaseModel):
+    model_config = ConfigDict(extra='ignore', defer_build=True)
+    scheduled_at: AwareDatetime | Any = Field(None, alias='scheduledAt', union_mode='left_to_right')
+    computed_state: str | Any = Field(None, alias='computedState', union_mode='left_to_right')
+    state: str | Any = Field(default=None, union_mode='left_to_right')
+    type: str | Any = Field(default=None, union_mode='left_to_right')
+    description: str | Any = Field(default=None, union_mode='left_to_right')
+
 class Data1(BaseModel):
     model_config = ConfigDict(extra='ignore', defer_build=True)
     type: str | Any = Field(default=None, union_mode='left_to_right')
     title: str | Any = Field(default=None, union_mode='left_to_right')
     access_level: str | Any = Field(None, alias='accessLevel', union_mode='left_to_right')
     id: str | Any = Field(default=None, union_mode='left_to_right')
-    computed_releases: list[Any] | Any = Field(None, alias='computedReleases', union_mode='left_to_right')
+    computed_releases: list[ComputedRelease] | Any = Field(None, alias='computedReleases', union_mode='left_to_right')
     online_playback: str | Any = Field(None, alias='onlinePlayback', union_mode='left_to_right')
 
 class Action1(BaseModel):
@@ -68,6 +75,25 @@ class Card(BaseModel):
     field_type: str | Any = Field(None, alias='$type', union_mode='left_to_right')
     attributes: Attributes1 | Any = Field(default=None, union_mode='left_to_right')
 
+class Data2(BaseModel):
+    model_config = ConfigDict(extra='ignore', defer_build=True)
+    url: str | Any = Field(default=None, union_mode='left_to_right')
+
+class Action2(BaseModel):
+    model_config = ConfigDict(extra='ignore', defer_build=True)
+    type: str | Any = Field(default=None, union_mode='left_to_right')
+    data: Data2 | Any = Field(default=None, union_mode='left_to_right')
+
+class Next(BaseModel):
+    model_config = ConfigDict(extra='ignore', defer_build=True)
+    text: str | Any = Field(default=None, union_mode='left_to_right')
+    label: str | Any = Field(default=None, union_mode='left_to_right')
+    action: Action2 | Any = Field(default=None, union_mode='left_to_right')
+
+class Actions(BaseModel):
+    model_config = ConfigDict(extra='ignore', defer_build=True)
+    next: Next | Any = Field(default=None, union_mode='left_to_right')
+
 class Attributes(BaseModel):
     model_config = ConfigDict(extra='ignore', defer_build=True)
     placeholder: str | Any = Field(default=None, union_mode='left_to_right')
@@ -80,6 +106,7 @@ class Attributes(BaseModel):
     query: str | Any = Field(default=None, union_mode='left_to_right')
     cards: list[Card] | Any = Field(default=None, union_mode='left_to_right')
     type: str | Any = Field(default=None, union_mode='left_to_right')
+    actions: Actions | Any = Field(default=None, union_mode='left_to_right')
     show_fallback_cards: bool | Any = Field(None, alias='showFallbackCards', union_mode='left_to_right')
     empty_title: str | Any = Field(None, alias='emptyTitle', union_mode='left_to_right')
     empty_description: str | Any = Field(None, alias='emptyDescription', union_mode='left_to_right')
