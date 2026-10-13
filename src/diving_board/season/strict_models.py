@@ -200,6 +200,10 @@ class Attributes(BaseModel):
     id: int | None = None
     type: str | None = None
     active_tab: str | None = Field(None, alias='activeTab')
+    display_mode: str | None = Field(None, alias='displayMode')
+    tab_spacing: int | None = Field(None, alias='tabSpacing')
+    active_underline_color: str | None = Field(None, alias='activeUnderlineColor')
+    hover_underline_color: str | None = Field(None, alias='hoverUnderlineColor')
     items: list[Item] | None = None
     tab: str | None = None
     series: Series | None = None
@@ -209,13 +213,9 @@ class Attributes(BaseModel):
     bucket_title: str | None = Field(None, alias='bucketTitle')
     series_id: int | None = Field(None, alias='seriesId')
     paging: Paging1 | None = None
+    group_name: GroupName | None = Field(None, alias='groupName')
     text: str | None = None
     label: str | None = None
-    group_name: GroupName | None = Field(None, alias='groupName')
-    display_mode: str | None = Field(None, alias='displayMode')
-    tab_spacing: int | None = Field(None, alias='tabSpacing')
-    active_underline_color: str | None = Field(None, alias='activeUnderlineColor')
-    hover_underline_color: str | None = Field(None, alias='hoverUnderlineColor')
 
 class Desktop(BaseModel):
     model_config = ConfigDict(defer_build=True)

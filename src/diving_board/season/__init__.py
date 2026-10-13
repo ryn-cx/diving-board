@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import json
+import re
 from http import HTTPStatus
 from logging import NullHandler, getLogger
 
@@ -93,3 +94,16 @@ class Season(BaseEndpoint):
     def load(self, data: str, log_id: str = "") -> SeasonModel:
         """Load a season file into its model."""
         return model_validate_json(data, log_id or self.default_log_id)
+
+    # TODO: Validate
+    @staticmethod
+    def episode_number_and_name(
+        title: str | None,
+    ) -> tuple[int | float | None, str | None]:
+        if not title:
+            return None, title
+        match = re.match(r"^E(\d+(?:\.\d+)?)(?:\s*-\s*(.*))?$", title)
+        if not match:
+            return None, title
+        number = float(match.group(1))
+        return int(number) if number.is_integer() else number, match.group(2) or None
